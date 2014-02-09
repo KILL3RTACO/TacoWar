@@ -63,6 +63,10 @@ public class GameCommands {
 		
 	}
 	
+	public static void setScore(CommandContext context) {
+		
+	}
+	
 	@ParentCommand("tacowar")
 	@Command(name = "start", desc = "Start the Automatic Game Runner")
 	@CommandPermission("TacoWar.admin.start")

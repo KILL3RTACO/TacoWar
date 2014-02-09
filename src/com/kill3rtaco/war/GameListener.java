@@ -99,6 +99,9 @@ public class GameListener implements Listener {
 		event.setDeathMessage(null); //remove death message
 		event.getDrops().clear(); //clear any items dropped
 		event.setDroppedExp(0); //clear any xp dropped
+		if(game.getScore(game.getTeamInLead()) >= game.getMaxKills()) {
+			game.end();
+		}
 	}
 	
 	//when a player respawns, set the respawn location to the team's base
