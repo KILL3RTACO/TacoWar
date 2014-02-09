@@ -1,9 +1,9 @@
-package com.kill3rtaco.tacowar.game;
+package com.kill3rtaco.war.game;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.kill3rtaco.tacowar.TacoWar;
+import com.kill3rtaco.war.TacoWar;
 
 public class KillFeed {
 	
@@ -25,7 +25,15 @@ public class KillFeed {
 	
 	public void printKill(Kill kill) {
 		Game game = TacoWar.plugin.currentGame();
-		String message = kill.getKiller().getColorfulName() + " &7[&c" + kill.getWeapon() + "&7] " + kill.getVictim();
+		Player killer = kill.getKiller();
+		Player victim = kill.getVictim();
+		String weapon = kill.getWeapon();
+		String message;
+		if(killer.equals(victim)) {
+			message = "&7[&c" + weapon + "&7] " + victim.getColorfulName();
+		} else {
+			message = killer.getColorfulName() + " &7[&c" + kill.getWeapon() + "&7] " + victim.getColorfulName();
+		}
 		game.sendMessageToPlayers(message);
 	}
 	

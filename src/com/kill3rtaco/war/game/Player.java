@@ -1,12 +1,13 @@
-package com.kill3rtaco.tacowar.game;
+package com.kill3rtaco.war.game;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 
-import com.kill3rtaco.tacowar.TacoWar;
+import com.kill3rtaco.war.TacoWar;
 
 public class Player {
 	
@@ -38,6 +39,10 @@ public class Player {
 	
 	public double getHealth() {
 		return _player.getHealth();
+	}
+	
+	public boolean isDead() {
+		return _player.isDead();
 	}
 	
 	public ItemStack getItemInHand() {
@@ -92,31 +97,40 @@ public class Player {
 	}
 	
 	public void giveItems() {
-		ItemStack[] items = new ItemStack[36];
-		items[18] = new ItemStack(Material.ARROW, 64);
-		items[19] = new ItemStack(Material.ARROW, 64); //first two columns in third row
+		PlayerInventory inv = _player.getInventory();
+		inv.setHeldItemSlot(0);
+		inv.setItemInHand(new ItemStack(Material.IRON_SWORD));
+		inv.setHeldItemSlot(1);
+		inv.setItemInHand(new ItemStack(Material.BOW));
+		inv.setHeldItemSlot(2);
+		inv.setItemInHand(new ItemStack(Material.APPLE, 5));
 		
-		//hotbar
-		items[27] = new ItemStack(Material.STONE_SWORD); //1
-		items[28] = new ItemStack(Material.BOW); //2
-		items[29] = new ItemStack(Material.APPLE, 5); //3
-	}
-	
-	public void giveItems(ItemStack[] items) {
-		Inventory inv = _player.getInventory();
-		for(int i = 0; i < items.length; i++) {
-			if(i > inv.getSize() - 1) {
-				break;
-			}
-			ItemStack item = items[i];
-			if(item == null || item.getType() == Material.AIR) {
-				continue;
-			}
-			inv.setItem(i, item);
-		}
+		inv.setHeldItemSlot(7);
+		inv.setItemInHand(new ItemStack(Material.ARROW, 64));
+		inv.setHeldItemSlot(8);
+		inv.setItemInHand(new ItemStack(Material.ARROW, 64));
+		
+		inv.setHeldItemSlot(0);
 	}
 	
 	public String getColorfulName() {
 		return _team.getChatColor() + _name;
+	}
+	
+	public boolean equals(Player player) {
+		return _name.equalsIgnoreCase(player.getName());
+	}
+	
+	public void setAdventureMode() {
+		_player.setGameMode(GameMode.ADVENTURE);
+	}
+	
+	public void setCanFly(boolean canFly) {
+		_player.setAllowFlight(canFly);
+	}
+	
+	public void clearInventory() {
+		_player.getInventory().clear();
+		_player.getInventory().setArmorContents(new ItemStack[4]);
 	}
 }

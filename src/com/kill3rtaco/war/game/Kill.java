@@ -1,4 +1,4 @@
-package com.kill3rtaco.tacowar.game;
+package com.kill3rtaco.war.game;
 
 public class Kill {
 	
