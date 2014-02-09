@@ -99,6 +99,27 @@ public class Game {
 		}
 	}
 	
+	public void addPlayer(org.bukkit.entity.Player p) {
+		addPlayer(p, _map.randomTeam());
+	}
+	
+	public void addPlayer(org.bukkit.entity.Player p, TeamColor team) {
+		if(isPlaying(p)) {
+			return;
+		}
+		Player player = new Player(p);
+		player.setTeam(team);
+		launchPlayer(player);
+	}
+	
+	private void launchPlayer(Player p) {
+		p.getBukkitPlayer().setScoreboard(_board);
+		p.teleport(_map.getTeamSpawn(p.getTeam()));
+		p.addArmor();
+		p.giveItems();
+		p.setCanFly(false);
+	}
+	
 	public void teleportPlayersToLobby() {
 		_state = GameState.IN_LOBBY;
 		if(_players == null || _players.isEmpty()) {
@@ -159,11 +180,7 @@ public class Game {
 		_killFeed = new KillFeed();
 		decideTeams();
 		for(Player p : _players) {
-			p.getBukkitPlayer().setScoreboard(_board);
-			p.teleport(_map.getTeamSpawn(p.getTeam()));
-			p.addArmor();
-			p.giveItems();
-			p.setCanFly(false);
+			launchPlayer(p);
 		}
 		_state = GameState.IN_PROGRESS;
 		_startTime = System.currentTimeMillis();
@@ -186,14 +203,16 @@ public class Game {
 			sendMessageToPlayers("&aThe game is over! " + winningTeam.getColorfulName() + " Team &ais the winner!");
 			sendMessageToPlayers("&aThe next game will start soon");
 		}
-		new BukkitRunnable() {
-			
-			@Override
-			public void run() {
-				TacoWar.plugin.startNewGame();
-			}
-			
-		}.runTaskLater(TacoWar.plugin, 20L * TacoWar.config.getNextGameWait());
+		if(TacoWar.plugin.isAutomating()) {
+			new BukkitRunnable() {
+				
+				@Override
+				public void run() {
+					TacoWar.plugin.startNewGame();
+				}
+				
+			}.runTaskLater(TacoWar.plugin, 20L * TacoWar.config.getNextGameWait());
+		}
 	}
 	
 	public void determineMaxKills() {
@@ -323,6 +342,15 @@ public class Game {
 	
 	public KillFeed getKillFeed() {
 		return _killFeed;
+	}
+	
+	public boolean teamExists(TeamColor color) {
+		for(TeamColor c : _map.teams()) {
+			if(c == color) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public enum GameState {

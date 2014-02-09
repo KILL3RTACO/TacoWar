@@ -1,5 +1,7 @@
 package com.kill3rtaco.war.game;
 
+import java.util.Random;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 
@@ -52,5 +54,9 @@ public enum TeamColor {
 			}
 		}
 		return null;
+	}
+	
+	public static TeamColor random() {
+		return values()[new Random().nextInt(values().length)];
 	}
 }

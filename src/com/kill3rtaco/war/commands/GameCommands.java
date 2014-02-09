@@ -11,6 +11,10 @@ import com.kill3rtaco.war.game.Map;
 
 public class GameCommands {
 	
+	public static void addPlayer() {
+		
+	}
+	
 	@ParentCommand("tacowar")
 	@Command(name = "begin", aliases = {"b"}, args = "[map]", desc = "Skip the lobby")
 	@CommandPermission("TacoWar.admin.begin")

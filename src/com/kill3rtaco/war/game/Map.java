@@ -2,7 +2,9 @@ package com.kill3rtaco.war.game;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -195,6 +197,15 @@ public class Map {
 	
 	private static int getNearestDegree(double degree, double factor) {
 		return (int) (Math.round(degree / factor) * factor);
+	}
+	
+	public TeamColor randomTeam() {
+		ArrayList<TeamColor> teams = teams();
+		return teams.get(new Random().nextInt(teams.size()));
+	}
+	
+	public ArrayList<TeamColor> teams() {
+		return new ArrayList<TeamColor>(_spawns.keySet());
 	}
 	
 }

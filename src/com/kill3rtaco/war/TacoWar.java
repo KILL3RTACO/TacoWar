@@ -56,6 +56,7 @@ public class TacoWar extends TacoPlugin {
 		_automate = true;
 	}
 	
+	//whether new games are automatically created or not
 	public boolean isAutomating() {
 		return _automate;
 	}
