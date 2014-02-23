@@ -27,6 +27,7 @@ public class Map {
 	private List<String>					_perms;
 	private long							_timeTicks;
 	private YamlConfiguration				_config;
+	private List<Teleporter>				_teleporters;
 	
 	public Map(String id) {
 		_id = id;
@@ -275,6 +276,40 @@ public class Map {
 	
 	public String getLobbySpawnMessage() {
 		return _messageLobbySpawn;
+	}
+	
+	public List<Teleporter> getTeleporters() {
+		return _teleporters;
+	}
+	
+	public List<Teleporter> getTeleporters(String channel) {
+		ArrayList<Teleporter> teleporters = new ArrayList<Teleporter>();
+		for(Teleporter t : _teleporters) {
+			if(t.getChannel().equals(channel)) {
+				teleporters.add(t);
+			}
+		}
+		return teleporters;
+	}
+	
+	public List<Teleporter> getReceiverTeleporters(String channel) {
+		ArrayList<Teleporter> teleporters = new ArrayList<Teleporter>();
+		for(Teleporter t : getTeleporters(channel)) {
+			if(t.isReceiver()) {
+				teleporters.add(t);
+			}
+		}
+		return teleporters;
+	}
+	
+	public List<Teleporter> getTransmitterTeleporters(String channel) {
+		ArrayList<Teleporter> teleporters = new ArrayList<Teleporter>();
+		for(Teleporter t : getTeleporters(channel)) {
+			if(t.isTransmitter()) {
+				teleporters.add(t);
+			}
+		}
+		return teleporters;
 	}
 	
 }
