@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Location;
+import org.bukkit.Sound;
 
+import com.kill3rtaco.tacoapi.TacoAPI;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.player.Player;
 
@@ -77,7 +79,11 @@ public class Teleporter {
 		Location playerLoc = player.getBukkitPlayer().getLocation();
 		//keep pitch/yaw intact. If the player goes in backwards they come out backwards
 		Location loc = new Location(TacoWar.config.getWarWorld(), x, y, z, playerLoc.getYaw(), playerLoc.getPitch());
+		
+		//show smoke and play sound as an extra effect
+		TacoAPI.getEffectAPI().showSmoke(playerLoc);
 		player.teleport(loc);
+		TacoAPI.getEffectAPI().showSmoke(playerLoc);
+		player.getBukkitPlayer().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 0, 0);
 	}
-	
 }
