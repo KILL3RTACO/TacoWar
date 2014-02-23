@@ -64,12 +64,31 @@ public class Map {
 		if(_spawns.size() < 2) {
 			_valid = false;
 		}
-		_perms = new ArrayList<String>();
-		_perms.addAll(_config.getStringList(M_PERMS));
+		_teleporters = new ArrayList<Teleporter>();
+		for(String s : _config.getConfigurationSection(M_TELEPORTERS).getKeys(false)) {
+			Teleporter t = getTeleporter(s);
+			if(t != null) {
+				_teleporters.add(t);
+			}
+		}
+		_perms = new ArrayList<String>(_config.getStringList(M_PERMS));
 		_timeName = _config.getString(M_WORLD_TIME, "day");
 		_messageGameStart = getString(M_M_GAME_START, false);
 		_messageLobbySpawn = getString(M_M_LOBBY_SPAWN, false);
 		setTime(_config.getString(M_WORLD_TIME, "day"));
+	}
+	
+	private Teleporter getTeleporter(String name) {
+		String root = M_TELEPORTERS + "." + name + ".";
+		String channel = _config.getString(root + "channel", "default");
+		boolean transmitter = _config.getBoolean(root + "transmitter", true);
+		boolean receiver = _config.getBoolean(root + "receiver", true);
+		Location src = getLocation(root + "src", true, true);
+		if(src == null) {
+			return null;
+		} else {
+			return new Teleporter(this, name, src, channel, transmitter, receiver);
+		}
 	}
 	
 	private String getString(String path, boolean req) {

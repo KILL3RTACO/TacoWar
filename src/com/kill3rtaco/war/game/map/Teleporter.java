@@ -17,7 +17,7 @@ public class Teleporter {
 	private String		_channel;
 	private boolean		_transmitter, _receiver;
 	
-	public Teleporter(Map map, Location src, String channel, boolean transmitter, boolean receiver) {
+	public Teleporter(Map map, String name, Location src, String channel, boolean transmitter, boolean receiver) {
 		_src = src;
 		_channel = channel;
 		_transmitter = transmitter;
@@ -25,8 +25,8 @@ public class Teleporter {
 		_map = map;
 	}
 	
-	public Teleporter(Map map, Location src, String channel) {
-		this(map, src, channel, true, true);
+	public Teleporter(Map map, String name, Location src, String channel) {
+		this(map, name, src, channel, true, true);
 	}
 	
 	public Map getMap() {
@@ -84,6 +84,6 @@ public class Teleporter {
 		TacoAPI.getEffectAPI().showSmoke(playerLoc);
 		player.teleport(loc);
 		TacoAPI.getEffectAPI().showSmoke(playerLoc);
-		player.getBukkitPlayer().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 0, 0);
+		player.getBukkitPlayer().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 1, new Random().nextInt(5) + 1);
 	}
 }

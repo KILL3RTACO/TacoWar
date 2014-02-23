@@ -23,6 +23,7 @@ public class TacoWarConstants {
 	public static final String	M_ORIGIN				= "origin";
 	public static final String	M_PERMS					= "permissions";
 	public static final String	M_TEAMS					= "teams";
+	public static final String	M_TELEPORTERS			= "teleporters";
 	public static final String	M_WORLD_TIME			= "world_time";
 	
 }
