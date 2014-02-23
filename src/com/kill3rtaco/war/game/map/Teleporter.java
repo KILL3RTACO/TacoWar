@@ -12,13 +12,16 @@ import com.kill3rtaco.war.game.player.Player;
 
 public class Teleporter {
 	
+	//cannot change map or name
+	
 	private Map			_map;
 	private Location	_src;
-	private String		_channel;
+	private String		_name, _channel;
 	private boolean		_transmitter, _receiver;
 	
 	public Teleporter(Map map, String name, Location src, String channel, boolean transmitter, boolean receiver) {
 		_src = src;
+		_name = name;
 		_channel = channel;
 		_transmitter = transmitter;
 		_receiver = receiver;
@@ -31,6 +34,10 @@ public class Teleporter {
 	
 	public Map getMap() {
 		return _map;
+	}
+	
+	public String getName() {
+		return _name;
 	}
 	
 	public Location getSource() {
