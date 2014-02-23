@@ -1,4 +1,4 @@
-package com.kill3rtaco.war.game;
+package com.kill3rtaco.war.game.player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.game.kill.PlayerDamage;
 
 public class Player {
 	

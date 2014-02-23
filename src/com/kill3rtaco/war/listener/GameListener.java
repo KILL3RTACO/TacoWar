@@ -14,10 +14,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.kill3rtaco.war.TacoWar;
-import com.kill3rtaco.war.game.AttackInfo;
 import com.kill3rtaco.war.game.Game;
-import com.kill3rtaco.war.game.Player;
-import com.kill3rtaco.war.game.PlayerKill;
+import com.kill3rtaco.war.game.kill.AttackInfo;
+import com.kill3rtaco.war.game.kill.PlayerKill;
+import com.kill3rtaco.war.game.player.Player;
 
 public class GameListener implements Listener {
 	

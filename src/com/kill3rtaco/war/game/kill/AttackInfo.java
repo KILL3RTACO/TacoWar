@@ -1,4 +1,4 @@
-package com.kill3rtaco.war.game;
+package com.kill3rtaco.war.game.kill;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;

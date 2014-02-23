@@ -17,6 +17,10 @@ import org.bukkit.scoreboard.Team;
 
 import com.kill3rtaco.tacoapi.util.Time;
 import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.game.kill.KillFeed;
+import com.kill3rtaco.war.game.map.Map;
+import com.kill3rtaco.war.game.player.Player;
+import com.kill3rtaco.war.game.player.TeamColor;
 
 public class Game {
 	

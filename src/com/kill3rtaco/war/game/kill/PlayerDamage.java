@@ -1,4 +1,6 @@
-package com.kill3rtaco.war.game;
+package com.kill3rtaco.war.game.kill;
+
+import com.kill3rtaco.war.game.player.Player;
 
 public class PlayerDamage {
 	

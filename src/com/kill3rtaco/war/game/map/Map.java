@@ -1,4 +1,4 @@
-package com.kill3rtaco.war.game;
+package com.kill3rtaco.war.game.map;
 
 import static com.kill3rtaco.war.TacoWarConstants.*;
 
@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.game.player.TeamColor;
 
 public class Map {
 	

@@ -9,6 +9,7 @@ import java.util.Random;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.game.map.Map;
 
 public class Playlist {
 	

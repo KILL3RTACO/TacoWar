@@ -5,7 +5,7 @@ import com.kill3rtaco.tacoapi.api.ncommands.CommandContext;
 import com.kill3rtaco.tacoapi.api.ncommands.CommandPermission;
 import com.kill3rtaco.tacoapi.api.ncommands.ParentCommand;
 import com.kill3rtaco.war.TacoWar;
-import com.kill3rtaco.war.game.Map;
+import com.kill3rtaco.war.game.map.Map;
 import com.kill3rtaco.war.util.MapUtil;
 
 public class MapCreationCommands {

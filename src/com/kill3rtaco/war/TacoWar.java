@@ -12,8 +12,8 @@ import com.kill3rtaco.tacoapi.api.ncommands.CommandManager;
 import com.kill3rtaco.war.commands.GameCommands;
 import com.kill3rtaco.war.commands.MapCreationCommands;
 import com.kill3rtaco.war.game.Game;
-import com.kill3rtaco.war.game.Map;
 import com.kill3rtaco.war.game.Playlist;
+import com.kill3rtaco.war.game.map.Map;
 import com.kill3rtaco.war.listener.GameListener;
 
 public class TacoWar extends TacoPlugin {

@@ -1,4 +1,4 @@
-package com.kill3rtaco.war.game;
+package com.kill3rtaco.war.game.player;
 
 import java.util.Random;
 

@@ -7,7 +7,7 @@ import com.kill3rtaco.tacoapi.api.ncommands.ParentCommand;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.Game;
 import com.kill3rtaco.war.game.Game.GameState;
-import com.kill3rtaco.war.game.Map;
+import com.kill3rtaco.war.game.map.Map;
 
 public class GameCommands {
 	

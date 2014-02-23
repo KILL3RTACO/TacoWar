@@ -2,7 +2,7 @@ package com.kill3rtaco.war.util;
 
 import com.kill3rtaco.tacoapi.api.ncommands.CommandContext;
 import com.kill3rtaco.war.TacoWar;
-import com.kill3rtaco.war.game.Map;
+import com.kill3rtaco.war.game.map.Map;
 
 public class MapUtil {
 	
