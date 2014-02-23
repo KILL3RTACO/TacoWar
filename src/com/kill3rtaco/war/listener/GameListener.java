@@ -1,8 +1,7 @@
-package com.kill3rtaco.war;
+package com.kill3rtaco.war.listener;
 
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -13,14 +12,20 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.ItemStack;
 
-import com.kill3rtaco.tacoapi.TacoAPI;
+import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.game.AttackInfo;
 import com.kill3rtaco.war.game.Game;
-import com.kill3rtaco.war.game.Kill;
 import com.kill3rtaco.war.game.Player;
+import com.kill3rtaco.war.game.PlayerKill;
 
 public class GameListener implements Listener {
+	
+	@EventHandler
+	//update attackers on players, will be used for possible multi-kill and kill assist system
+	public void onPlayerDamagePlayer(EntityDamageByEntityEvent event) {
+		
+	}
 	
 	@EventHandler
 	//main method for game logic - player deaths
@@ -38,44 +43,36 @@ public class GameListener implements Listener {
 			return;
 		}
 		EntityDamageEvent e = event.getEntity().getLastDamageCause();
-		//get killer, print to kill feed
-		if(e instanceof EntityDamageByEntityEvent) {
-			EntityDamageByEntityEvent e2 = (EntityDamageByEntityEvent) e;
-			EntityType attackerType = e2.getDamager().getType();
-			if(attackerType != EntityType.PLAYER) {
-				//if killed by a mob, add and print to kill feed
-				if(e2.getDamager() instanceof LivingEntity) {
-					String weapon = TacoAPI.getChatUtils().toProperCase(attackerType.name());
-					Kill kill = game.getKillFeed().addToFeed(player, weapon, player);
-					game.getKillFeed().printKill(kill);
-				}
-				return;
+		AttackInfo info = new AttackInfo(e);
+		if(info.getAttacker() == null || info.getAttacker().getType() != EntityType.PLAYER) {
+			String weapon = info.getToolActionDisplay();
+			boolean suicide = info.isSuicide();
+			PlayerKill kill = game.getKillFeed().addToFeed(player, weapon, player);
+			game.getKillFeed().printKill(kill);
+			int penalty = TacoWar.config.suicidePenalty();
+			if(suicide && penalty != 0) {
+				game.addToScore(player.getTeam(), Math.abs(penalty) * -1);
 			}
-			Player attacker = game.getPlayer((org.bukkit.entity.Player) e2.getDamager());
+		} else {
+			Player attacker = game.getPlayer((org.bukkit.entity.Player) info.getAttacker());
 			if(attacker == null) {
 				return;
 			}
 			
 			boolean friendly = false;
 			
-			//should not be needed - cancel friendly fire
+			//should not be needed - cancel friendly fire if needed
 			if(attacker.getTeam() == player.getTeam()) {
 				if(TacoWar.config.friendlyFireEnabled()) {
 					friendly = true;
 				} else {
-					e2.setCancelled(true);
+					e.setCancelled(true);
 					return;
 				}
 			}
 			
-			ItemStack item = attacker.getBukkitPlayer().getItemInHand();
-			String weapon;
-			if(item == null) {
-				weapon = "Fist";
-			} else {
-				weapon = TacoAPI.getChatUtils().toProperCase(item.getType().name());
-			}
-			Kill kill = game.getKillFeed().addToFeed(attacker, weapon, player);
+			String weapon = info.getToolActionDisplay();
+			PlayerKill kill = game.getKillFeed().addToFeed(attacker, weapon, player);
 			game.getKillFeed().printKill(kill);
 			if(friendly) {
 				int penalty = TacoWar.config.friendlyFirePenalty();
@@ -83,17 +80,7 @@ public class GameListener implements Listener {
 					game.addToScore(attacker.getTeam(), Math.abs(penalty) * -1);
 				}
 			} else {
-				System.out.println("onDeath 78");
 				game.addToScore(attacker.getTeam(), 1);
-			}
-		} else {
-			//died by natural causes
-			String weapon = TacoAPI.getChatUtils().toProperCase(e.getCause().name());
-			Kill kill = game.getKillFeed().addToFeed(player, weapon, player);
-			game.getKillFeed().printKill(kill);
-			int penalty = TacoWar.config.suicidePenalty();
-			if(penalty != 0) {
-				game.addToScore(player.getTeam(), Math.abs(penalty) * -1);
 			}
 		}
 		event.setDeathMessage(null); //remove death message

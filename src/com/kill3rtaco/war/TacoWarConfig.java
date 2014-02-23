@@ -1,12 +1,17 @@
 package com.kill3rtaco.war;
 
+import static com.kill3rtaco.war.TacoWarConstants.*;
+
 import java.io.File;
 
 import org.bukkit.World;
 
 import com.kill3rtaco.tacoapi.api.TacoConfig;
+import com.kill3rtaco.war.game.Playlist;
 
 public class TacoWarConfig extends TacoConfig {
+	
+	private Playlist	_currentPlaylist;
 	
 	public TacoWarConfig(File file) {
 		super(file);
@@ -14,16 +19,21 @@ public class TacoWarConfig extends TacoConfig {
 	
 	@Override
 	protected void setDefaults() {
-		addDefaultValue("war_world", "world");
-		addDefaultValue("time_limit", 10); //minutes
-		addDefaultValue("idle_time_limit", 5); //minutes
-		addDefaultValue("lobby_wait_time", 30); //seconds
-		addDefaultValue("next_game_wait", 15); //seconds
-		addDefaultValue("post_game_wait_time", 30); //seconds
-		addDefaultValue("friendly_fire.enabled", false);
-		addDefaultValue("friendly_fire.penalty", 1);
-		addDefaultValue("suicide_penalty", 0);
+		addDefaultValue(C_WAR_WORLD, "world");
+		addDefaultValue(C_TIME_LIMIT, 10); //minutes
+		addDefaultValue(C_IDLE_TIME_LIMIT, 5); //minutes
+		addDefaultValue(C_LOBBY_WAIT_TIME, 30); //seconds
+		addDefaultValue(C_NEXT_GAME_WAIT_TIME, 15); //seconds
+		addDefaultValue(C_POST_GAME_WAIT_TIME, 30); //seconds
+		addDefaultValue(C_FF_ON, false);
+		addDefaultValue(C_FF_PEN, 1);
+		addDefaultValue(C_SUICIDE_PEN, 0);
+		addDefaultValue(C_CURRENT_PLAYLIST, "");
 		save();
+	}
+	
+	public void setCurrentPlaylist(Playlist pl) {
+		
 	}
 	
 	public World getWarWorld() {
@@ -56,6 +66,10 @@ public class TacoWarConfig extends TacoConfig {
 	
 	public int getNextGameWait() {
 		return getInt("next_game_wait");
+	}
+	
+	public Playlist getCurrentPlaylist() {
+		return null;
 	}
 	
 }

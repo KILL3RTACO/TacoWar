@@ -7,32 +7,33 @@ import com.kill3rtaco.war.TacoWar;
 
 public class KillFeed {
 	
-	private List<Kill>	_feed;
+	private List<PlayerKill>	_feed;
 	
 	public KillFeed() {
-		_feed = new ArrayList<Kill>();
+		_feed = new ArrayList<PlayerKill>();
 	}
 	
-	public Kill addToFeed(Player killer, String weapon, Player victim) {
-		Kill kill = new Kill(killer, weapon, victim);
+	public PlayerKill addToFeed(Player killer, String weapon, Player victim) {
+		PlayerKill kill = new PlayerKill(killer, weapon, victim);
 		addToFeed(kill);
 		return kill;
 	}
 	
-	public void addToFeed(Kill kill) {
+	public void addToFeed(PlayerKill kill) {
 		_feed.add(kill);
 	}
 	
-	public void printKill(Kill kill) {
+	public void printKill(PlayerKill kill) {
 		Game game = TacoWar.plugin.currentGame();
 		Player killer = kill.getKiller();
 		Player victim = kill.getVictim();
 		String weapon = kill.getWeapon();
+		String weaponDisplay = "&8[&4" + weapon + "&8]";
 		String message;
 		if(killer.equals(victim)) {
-			message = "&7[&c" + weapon + "&7] " + victim.getColorfulName();
+			message = weaponDisplay + " " + victim.getColorfulName();
 		} else {
-			message = killer.getColorfulName() + " &7[&c" + kill.getWeapon() + "&7] " + victim.getColorfulName();
+			message = killer.getColorfulName() + " " + weaponDisplay + " " + victim.getColorfulName();
 		}
 		game.sendMessageToPlayers(message);
 	}

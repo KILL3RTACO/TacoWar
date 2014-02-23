@@ -1,9 +1,12 @@
 package com.kill3rtaco.war.game;
 
+import static com.kill3rtaco.war.TacoWarConstants.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Location;
@@ -13,11 +16,15 @@ import com.kill3rtaco.war.TacoWar;
 
 public class Map {
 	
-	private String							_id, _name, _author;
+	private String							_id, _name, _author, _timeName;
+	private String							_messageGameStart,
+											_messageLobbySpawn;
 	private boolean							_valid	= true;
 	private HashMap<TeamColor, Location>	_spawns;
 	private Location						_origin, _lobby;
 	private File							_file	= null;
+	private List<String>					_perms;
+	private long							_timeTicks;
 	private YamlConfiguration				_config;
 	
 	public Map(String id) {
@@ -27,22 +34,24 @@ public class Map {
 		_spawns = new HashMap<TeamColor, Location>();
 		_origin = null;
 		_lobby = null;
+		_perms = new ArrayList<String>();
 		_config = new YamlConfiguration();
 	}
 	
 	public Map(File file) {
 		_file = file;
 		_config = YamlConfiguration.loadConfiguration(file);
-		_id = getString("id", true);
-		_name = getString("name", true);
-		_author = getString("author", false);
-		_origin = getLocation("origin", false, true);
-		_lobby = getLocation("lobby", true, true);
+		_id = getString(M_ID, true);
+		_name = getString(M_NAME, true);
+		_author = getString(M_AUTHOR, false);
+		_origin = getLocation(M_ORIGIN, false, true);
+		_lobby = getLocation(M_LOBBY, true, true);
 		_spawns = new HashMap<TeamColor, Location>();
-		for(String s : _config.getConfigurationSection("teams").getKeys(false)) {
+		for(String s : _config.getConfigurationSection(M_TEAMS).getKeys(false)) {
 			TeamColor c = TeamColor.getTeamColor(s);
-			if(c != null && _config.isString("teams." + s)) {
-				String str = _config.getString("teams." + s);
+			String node = M_TEAMS + "." + s;
+			if(c != null && _config.isString(node)) {
+				String str = _config.getString(node);
 				Location loc = getPointRelative(str);
 				if(loc == null) {
 					continue;
@@ -53,6 +62,12 @@ public class Map {
 		if(_spawns.size() < 2) {
 			_valid = false;
 		}
+		_perms = new ArrayList<String>();
+		_perms.addAll(_config.getStringList(M_PERMS));
+		_timeName = _config.getString(M_WORLD_TIME, "day");
+		_messageGameStart = getString(M_M_GAME_START, false);
+		_messageLobbySpawn = getString(M_M_LOBBY_SPAWN, false);
+		setTime(_config.getString(M_WORLD_TIME, "day"));
 	}
 	
 	private String getString(String path, boolean req) {
@@ -89,6 +104,28 @@ public class Map {
 		} catch (NumberFormatException e) {
 			return 0;
 		}
+	}
+	
+	public void setTime(String timeName) {
+		if(timeName == null)
+			timeName = "day";
+		if(timeName.equalsIgnoreCase("dawn") || _timeName.equalsIgnoreCase("sunrise")) {
+			_timeTicks = 0;
+		} else if(_timeName.equalsIgnoreCase("day")) {
+			_timeTicks = 1000;
+		} else if(_timeName.equalsIgnoreCase("midday") || _timeName.equalsIgnoreCase("noon")) {
+			_timeTicks = 6000;
+		} else if(_timeName.equalsIgnoreCase("dusk") || _timeName.equalsIgnoreCase("sunset")) {
+			_timeTicks = 1200;
+		} else if(_timeName.equalsIgnoreCase("night")) {
+			_timeTicks = 14000;
+		} else if(_timeName.equalsIgnoreCase("midnight")) {
+			_timeTicks = 18000;
+		} else {
+			setTime("day");
+			return;
+		}
+		_timeName = timeName;
 	}
 	
 	public boolean isValid() {
@@ -206,6 +243,37 @@ public class Map {
 	
 	public ArrayList<TeamColor> teams() {
 		return new ArrayList<TeamColor>(_spawns.keySet());
+	}
+	
+	public boolean addPerm(String perm) {
+		if(_perms.contains(perm))
+			return false;
+		_perms.add(perm);
+		return true;
+	}
+	
+	public List<String> getPerms() {
+		return _perms;
+	}
+	
+	public boolean hasPerm(String perm) {
+		return _perms.contains(perm);
+	}
+	
+	public String getTimeName() {
+		return _timeName;
+	}
+	
+	public long getTimeTicks() {
+		return _timeTicks;
+	}
+	
+	public String getGameStartMessage() {
+		return _messageGameStart;
+	}
+	
+	public String getLobbySpawnMessage() {
+		return _messageLobbySpawn;
 	}
 	
 }

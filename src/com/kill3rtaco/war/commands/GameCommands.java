@@ -43,6 +43,23 @@ public class GameCommands {
 	}
 	
 	@ParentCommand("tacowar")
+	@Command(name = "gameinfo", aliases = {"gi"}, desc = "View information about the current game")
+	public static void gameInfo(CommandContext context) {
+		Game game = TacoWar.plugin.currentGame();
+		if(game == null) {
+			context.sendMessageToSender("&aThere isn't a game - either in lobby, running or finished");
+			return;
+		}
+		context.sendMessageToSender("&a=====[&2TacoWar Game Information&a]=====");
+		context.sendMessageToSender("&2GameState&7: &a" + game.getGameState());
+		context.sendMessageToSender("&2Time Running&7: " + game.getGameRunTimeString() + (game.isRunning() ? " &aTime Left&7: " + game.getTimeLeftString() : ""));
+		context.sendMessageToSender("&2Winning Team&7: " + game.getTeamInLead().getColorfulName() + " &2[&a" + game.getWinningScore() + "&2]");
+		context.sendMessageToSender("&2Max Score&7: &a" + game.getMaxKills());
+		context.sendMessageToSender("&2Map&7: &e" + game.getMap().getName() + " &aby &e" + game.getMap().getAuthor());
+//		context.sendMessageToSender("");
+	}
+	
+	@ParentCommand("tacowar")
 	@Command(name = "select", aliases = {"sel"}, args = "<map>", desc = "Select a different map")
 	@CommandPermission("TacoWar.admin.select")
 	public static boolean select(CommandContext context) {
@@ -61,6 +78,33 @@ public class GameCommands {
 			return false;
 		}
 		return true;
+	}
+	
+	@ParentCommand("tacowar")
+	@Command(name = "set-max-score", aliases = {"sms"}, args = "<max-score>", desc = "Set the max score of the current game")
+	@CommandPermission("TacoWar.admin.set-max-score")
+	public static void setMaxScore(CommandContext context) {
+		Game game = TacoWar.plugin.currentGame();
+		if(game == null || !game.isRunning()) {
+			context.sendMessageToSender("&cThere is no game in progress");
+			return;
+		}
+		if(context.lt(1)) {
+			context.sendMessageToSender("&cMust supply a max score");
+			return;
+		}
+		try {
+			int max = context.getInteger(0);
+			if(max <= 0) {
+				context.sendMessageToSender("&cGiven number must be larger than 0");
+				return;
+			}
+			game.setMaxKills(max);
+			context.sendMessageToSender("&aMax amount of kills set to &e" + max);
+		} catch (NumberFormatException e) {
+			context.sendMessageToSender("&e" + context.getString(0) + " &c is not an integer");
+			return;
+		}
 	}
 	
 	public static void setTeam(CommandContext context) {

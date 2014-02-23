@@ -1,11 +1,11 @@
 package com.kill3rtaco.war.game;
 
-public class Kill {
+public class PlayerKill {
 	
 	private Player	_killer, _victim;
 	private String	_weapon;
 	
-	public Kill(Player killer, String weapon, Player victim) {
+	public PlayerKill(Player killer, String weapon, Player victim) {
 		_killer = killer;
 		_weapon = weapon;
 		_victim = victim;

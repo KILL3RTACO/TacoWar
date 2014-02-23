@@ -28,9 +28,11 @@ public class Game {
 	private GameState		_state;
 	private Scoreboard		_board;
 	private KillFeed		_killFeed;
+	private Playlist		_playlist;
 	
 	public Game() {
 		_board = Bukkit.getScoreboardManager().getNewScoreboard();
+		_playlist = TacoWar.config.getCurrentPlaylist();
 		selectRandomMap();
 		setTimeLimits();
 		new BukkitRunnable() {
@@ -59,18 +61,15 @@ public class Game {
 	}
 	
 	public Map selectMap(String id) {
-		List<Map> maps = TacoWar.plugin.getMaps();
-		for(Map m : maps) {
-			if(m.getId().equals(id)) {
-				Map lastMap = _map;
-				_map = m;
-				if(lastMap != _map) {
-					teleportPlayersToLobby();
-				}
-				return m;
+		Map m = TacoWar.plugin.getMap(id);
+		if(m != null) {
+			Map lastMap = _map;
+			_map = m;
+			if(lastMap != _map) {
+				teleportPlayersToLobby();
 			}
 		}
-		return null; //no map with given id found
+		return m;
 	}
 	
 	public Player getPlayer(org.bukkit.entity.Player player) {
@@ -126,9 +125,14 @@ public class Game {
 			addPlayers();
 		}
 		for(Player p : _players) {
+			p.clearInventory();
 			p.teleport(_map.getLobbyLocation());
 		}
 		sendMessageToPlayers(_map.toMessage());
+		String message = _map.getLobbySpawnMessage();
+		if(message != null && !message.isEmpty()) {
+			sendMessageToPlayers(message);
+		}
 	}
 	
 	private void decideTeams() {
@@ -177,6 +181,8 @@ public class Game {
 			return;
 		}
 		registerChecker();
+		TacoWar.config.getWarWorld().setFullTime(_map.getTimeTicks());
+		TacoWar.config.getWarWorld().setGameRuleValue("doDaylightCycle", "false");
 		_killFeed = new KillFeed();
 		decideTeams();
 		for(Player p : _players) {
@@ -185,6 +191,10 @@ public class Game {
 		_state = GameState.IN_PROGRESS;
 		_startTime = System.currentTimeMillis();
 		_lastAction = _startTime;
+		String message = _map.getGameStartMessage();
+		if(message != null && !message.isEmpty()) {
+			sendMessageToPlayers(message);
+		}
 	}
 	
 	public void end() {
@@ -201,7 +211,9 @@ public class Game {
 			}
 			TeamColor winningTeam = getTeamInLead();
 			sendMessageToPlayers("&aThe game is over! " + winningTeam.getColorfulName() + " Team &ais the winner!");
-			sendMessageToPlayers("&aThe next game will start soon");
+			if(TacoWar.plugin.isAutomating()) {
+				sendMessageToPlayers("&aThe next game will start soon");
+			}
 		}
 		if(TacoWar.plugin.isAutomating()) {
 			new BukkitRunnable() {
@@ -216,7 +228,7 @@ public class Game {
 	}
 	
 	public void determineMaxKills() {
-		_maxKills = _players.size() / 2;
+		_maxKills = _players.size() * (2 / 3);
 	}
 	
 	public void sendScores(org.bukkit.entity.Player player) {
@@ -267,11 +279,26 @@ public class Game {
 	}
 	
 	public String getGameRunTimeString() {
-		Time runtime = new Time(getGameRunTime());
-		String time = "";
-		if(runtime.getHours() > 0)
-			time += runtime.getHours() + ":";
-		return time + runtime.getHours() + ":" + runtime.getSeconds();
+		return time(getGameRunTime());
+	}
+	
+	public long getTimeLeft() {
+		return _timeLimit - _startTime;
+	}
+	
+	public String getTimeLeftString() {
+		if(_timeLimit == 0) {
+			return "Infinite";
+		}
+		return time(getTimeLeft());
+	}
+	
+	private String time(long time) {
+		Time t = new Time(time);
+		String timeStr = "";
+		if(t.getHours() > 0)
+			timeStr += t.getHours() + ":";
+		return timeStr + ":" + t.getSeconds();
 	}
 	
 	public void setMaxKills(int max) {
@@ -355,6 +382,17 @@ public class Game {
 	
 	public enum GameState {
 		IN_LOBBY, IN_PROGRESS, POST_GAME;
+	}
+	
+	public int getWinningScore() {
+		int max = -1;
+		for(TeamColor t : _map.getTeamSpawns().keySet()) {
+			int score = getScore(t);
+			if(score > max) {
+				max = score;
+			}
+		}
+		return max;
 	}
 	
 }

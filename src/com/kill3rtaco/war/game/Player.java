@@ -1,11 +1,15 @@
 package com.kill3rtaco.war.game;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.kill3rtaco.war.TacoWar;
 
@@ -14,9 +18,20 @@ public class Player {
 	private org.bukkit.entity.Player	_player;
 	private String						_name;
 	private TeamColor					_team;
+	private List<PlayerDamage>			_allAttackers;	//not cleared periodically
+	private List<PlayerDamage>			_attackers;
 	
 	public Player(org.bukkit.entity.Player player) {
 		setPlayer(player);
+		clearAttackers();
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				//every second, check time 
+			}
+			
+		}.runTaskTimer(TacoWar.plugin, 0L, 20L);
 	}
 	
 	public void setTeam(TeamColor team) {
@@ -24,6 +39,7 @@ public class Player {
 		sendMessage("You are now on the " + team.getColorfulName() + " team");
 	}
 	
+	//necessary because Player object are deleted onPlayerQuit [Bukkit]
 	public void setPlayer(org.bukkit.entity.Player player) {
 		_player = player;
 		_name = _player.getName();
@@ -132,5 +148,47 @@ public class Player {
 	public void clearInventory() {
 		_player.getInventory().clear();
 		_player.getInventory().setArmorContents(new ItemStack[4]);
+	}
+	
+	public void clearAttackers() {
+		_attackers = new ArrayList<PlayerDamage>();
+	}
+	
+	public void addAttacker(Player player, double damage) {
+		updateAttacker(player, damage, _attackers); //update damage done in the last __ seconds
+		updateAttacker(player, damage, _allAttackers); //update damage done in entire game thus far
+	}
+	
+	private void updateAttacker(Player player, double damage, List<PlayerDamage> list) {
+		long time = System.currentTimeMillis();
+		boolean found = false;
+		for(PlayerDamage d : list) {
+			if(d.getAttacker() == player) {
+				d.setTime(time);
+				d.setDamage(damage);
+				found = true;
+				break;
+			}
+		}
+		if(!found) { //if the PlayerDamage object does not exist (anymore), add it
+			list.add(new PlayerDamage(player, damage, time));
+		}
+	}
+	
+	public double totalDamageDoneBy(Player player) {
+		return damageDone(player, _allAttackers);
+	}
+	
+	public double damageDoneBy(Player player) {
+		return damageDone(player, _attackers);
+	}
+	
+	private double damageDone(Player player, List<PlayerDamage> list) {
+		for(PlayerDamage d : list) {
+			if(d.getAttacker() == player) {
+				return d.getDamage();
+			}
+		}
+		return 0;
 	}
 }
