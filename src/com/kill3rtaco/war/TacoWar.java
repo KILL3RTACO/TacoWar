@@ -182,4 +182,8 @@ public class TacoWar extends TacoPlugin {
 		return getExperimentalMap(id) != null;
 	}
 	
+	public static int getNearestDegree(double degree, double factor) {
+		return (int) (Math.round(degree / factor) * factor);
+	}
+	
 }

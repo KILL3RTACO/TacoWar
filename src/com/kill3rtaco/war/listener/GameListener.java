@@ -11,15 +11,55 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.Game;
 import com.kill3rtaco.war.game.kill.AttackInfo;
 import com.kill3rtaco.war.game.kill.PlayerKill;
+import com.kill3rtaco.war.game.map.Teleporter;
 import com.kill3rtaco.war.game.player.Player;
 
 public class GameListener implements Listener {
+	
+//	private HashMap<Player, Location>	playerLocs	= new HashMap<Player, Location>();
+	
+	@EventHandler(ignoreCancelled = true)
+	//detect whether player should be teleported due to teleporter
+	public void onMove(PlayerMoveEvent event) {
+		Game game = TacoWar.plugin.currentGame();
+		if(game == null || !game.isRunning()) { //only continue if game in progress
+			return;
+		}
+		org.bukkit.entity.Player player = event.getPlayer();
+		if(player.getWorld() != TacoWar.config.getWarWorld()) { //only continue if it happened on the war world
+			return;
+		}
+		
+		Player p = game.getPlayer(player);
+		if(p == null) { //only continue if the player involved is in the game
+			return;
+		}
+		
+		Location from = event.getFrom();
+		Location to = event.getTo();
+		if(!movedEnough(from, to)) { //only continue if they moved from one block to another
+			return;
+		}
+		Teleporter teleporter = game.getMap().getTeleporter(to);
+		if(teleporter == null || !teleporter.isTransmitter()) {
+			return;
+		}
+		teleporter.teleportPlayer(p);
+//		event.setCancelled(true);
+	}
+	
+	private boolean movedEnough(Location from, Location to) {
+		return from.getBlockX() != to.getBlockX() ||
+				from.getBlockY() != to.getBlockY() ||
+				from.getBlockZ() != to.getBlockZ();
+	}
 	
 	@EventHandler
 	//update attackers on players, will be used for possible multi-kill and kill assist system
@@ -30,11 +70,11 @@ public class GameListener implements Listener {
 	@EventHandler
 	//main method for game logic - player deaths
 	public void onDeath(PlayerDeathEvent event) {
-		if(event.getEntity().getWorld() != TacoWar.config.getWarWorld()) {
-			return;
-		}
 		Game game = TacoWar.plugin.currentGame();
 		if(game == null || !game.isRunning()) {
+			return;
+		}
+		if(event.getEntity().getWorld() != TacoWar.config.getWarWorld()) {
 			return;
 		}
 		org.bukkit.entity.Player p = event.getEntity();
@@ -108,6 +148,7 @@ public class GameListener implements Listener {
 			event.setRespawnLocation(location);
 			player.addArmor();
 			player.giveItems();
+			player.resetStats();
 		}
 	}
 	

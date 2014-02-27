@@ -44,6 +44,9 @@ public class Map {
 		_file = file;
 		_config = YamlConfiguration.loadConfiguration(file);
 		_id = getString(M_ID, true);
+		if(_id != null && (_id.isEmpty() || _id.contains(" "))) {
+			_valid = false;
+		}
 		_name = getString(M_NAME, true);
 		_author = getString(M_AUTHOR, false);
 		_origin = getLocation(M_ORIGIN, false, true);
@@ -67,10 +70,11 @@ public class Map {
 		_teleporters = new ArrayList<Teleporter>();
 		for(String s : _config.getConfigurationSection(M_TELEPORTERS).getKeys(false)) {
 			Teleporter t = getTeleporter(s);
-			if(t != null) {
+			if(t != null && getTeleporter(t.getSource()) == null) {
 				_teleporters.add(t);
 			}
 		}
+		System.out.println(_teleporters.size());
 		_perms = new ArrayList<String>(_config.getStringList(M_PERMS));
 		_timeName = _config.getString(M_WORLD_TIME, "day");
 		_messageGameStart = getString(M_M_GAME_START, false);
@@ -87,6 +91,7 @@ public class Map {
 		if(src == null) {
 			return null;
 		} else {
+			src.setY(src.getBlockY()); //remove the .5 from the y
 			return new Teleporter(this, name, src, channel, transmitter, receiver);
 		}
 	}
@@ -236,8 +241,8 @@ public class Map {
 		return loc.getBlockX() + " "
 				+ loc.getBlockY() + " "
 				+ loc.getBlockZ() + " "
-				+ getNearestDegree(loc.getYaw(), 45) + " "
-				+ getNearestDegree(loc.getPitch(), 45);
+				+ TacoWar.getNearestDegree(loc.getYaw(), 45) + " "
+				+ TacoWar.getNearestDegree(loc.getPitch(), 45);
 	}
 	
 	public void save() {
@@ -251,10 +256,6 @@ public class Map {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private static int getNearestDegree(double degree, double factor) {
-		return (int) (Math.round(degree / factor) * factor);
 	}
 	
 	public TeamColor randomTeam() {
@@ -321,6 +322,18 @@ public class Map {
 		return teleporters;
 	}
 	
+	//get recevier teleporters but exclude the teleporter with the given name
+	public List<Teleporter> getReceiverTeleporters(String channel, String name) {
+		List<Teleporter> teleporters = getReceiverTeleporters(channel);
+		for(Teleporter t : teleporters) {
+			if(t.getName().equals(name)) {
+				teleporters.remove(t);
+				break;
+			}
+		}
+		return teleporters;
+	}
+	
 	public List<Teleporter> getTransmitterTeleporters(String channel) {
 		ArrayList<Teleporter> teleporters = new ArrayList<Teleporter>();
 		for(Teleporter t : getTeleporters(channel)) {
@@ -329,6 +342,18 @@ public class Map {
 			}
 		}
 		return teleporters;
+	}
+	
+	public Teleporter getTeleporter(Location src) {
+		for(Teleporter t : _teleporters) {
+			Location tsrc = t.getSource();
+			if(tsrc.getBlockX() == src.getBlockX() &&
+					tsrc.getBlockY() == src.getBlockY() &&
+					tsrc.getBlockZ() == src.getBlockZ()) {
+				return t;
+			}
+		}
+		return null;
 	}
 	
 }

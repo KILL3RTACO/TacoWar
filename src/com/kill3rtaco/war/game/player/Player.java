@@ -192,4 +192,9 @@ public class Player {
 		}
 		return 0;
 	}
+	
+	public void resetStats() {
+		_player.setHealth(_player.getMaxHealth());
+		_player.setFoodLevel(20);
+	}
 }

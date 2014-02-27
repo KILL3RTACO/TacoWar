@@ -7,7 +7,6 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 
 import com.kill3rtaco.tacoapi.TacoAPI;
-import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.player.Player;
 
 public class Teleporter {
@@ -76,20 +75,35 @@ public class Teleporter {
 		_receiver = receiver;
 	}
 	
-	public void teleportPlayer(Player player) {
-		List<Teleporter> teleporters = _map.getReceiverTeleporters(_channel);
+	public Location getTeleportLocation(Player player) {
+		List<Teleporter> teleporters = _map.getReceiverTeleporters(_channel, _name);
+		if(teleporters.isEmpty()) {
+			player.sendMessage("&cThis teleporter has no receivers");
+			return null;
+		}
 		Teleporter t = teleporters.get(new Random().nextInt(teleporters.size()));
-		Location src = t.getSource();
-		double x = src.getBlockX() + 0.5;
-		double y = src.getBlockY();
-		double z = src.getBlockZ() + 0.5;
+		Location src = t.getSource().clone();
 		Location playerLoc = player.getBukkitPlayer().getLocation();
-		//keep pitch/yaw intact. If the player goes in backwards they come out backwards
-		Location loc = new Location(TacoWar.config.getWarWorld(), x, y, z, playerLoc.getYaw(), playerLoc.getPitch());
+		
+		double currYaw = playerLoc.getYaw();
+		double newYaw = src.getYaw() + (currYaw - _src.getYaw());
+		
+		src.setPitch(playerLoc.getPitch());
+		src.setYaw((float) newYaw);
+		
+		return src;
+	}
+	
+	public void teleportPlayer(Player player) {
+		teleportPlayer(player, getTeleportLocation(player));
+	}
+	
+	public void teleportPlayer(Player player, Location location) {
+		Location playerLoc = player.getBukkitPlayer().getLocation();
 		
 		//show smoke and play sound as an extra effect
 		TacoAPI.getEffectAPI().showSmoke(playerLoc);
-		player.teleport(loc);
+		player.teleport(location);
 		TacoAPI.getEffectAPI().showSmoke(playerLoc);
 		player.getBukkitPlayer().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 1, new Random().nextInt(5) + 1);
 	}

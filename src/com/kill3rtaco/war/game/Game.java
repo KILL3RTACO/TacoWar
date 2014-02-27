@@ -120,6 +120,7 @@ public class Game {
 		p.teleport(_map.getTeamSpawn(p.getTeam()));
 		p.addArmor();
 		p.giveItems();
+		p.resetStats();
 		p.setCanFly(false);
 	}
 	
