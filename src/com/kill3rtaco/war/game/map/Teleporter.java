@@ -82,16 +82,22 @@ public class Teleporter {
 			return null;
 		}
 		Teleporter t = teleporters.get(new Random().nextInt(teleporters.size()));
-		Location src = t.getSource().clone();
+		Location out = t.getSource().clone();
 		Location playerLoc = player.getBukkitPlayer().getLocation();
 		
-		double currYaw = playerLoc.getYaw();
-		double newYaw = src.getYaw() + (currYaw - _src.getYaw());
+		double o = out.getYaw();
+		player.sendMessage(o + "");
+		double p = playerLoc.getYaw();
+		player.sendMessage(p + "");
+		double s = _src.getYaw();
+		player.sendMessage(s + "");
 		
-		src.setPitch(playerLoc.getPitch());
-		src.setYaw((float) newYaw);
+		float newYaw = (float) (o + (p - s) - 180);
 		
-		return src;
+		out.setPitch(playerLoc.getPitch());
+		out.setYaw(newYaw);
+		
+		return out;
 	}
 	
 	public void teleportPlayer(Player player) {
@@ -103,8 +109,17 @@ public class Teleporter {
 		
 		//show smoke and play sound as an extra effect
 		TacoAPI.getEffectAPI().showSmoke(playerLoc);
+		player.sendMessage(location + "");
 		player.teleport(location);
 		TacoAPI.getEffectAPI().showSmoke(playerLoc);
 		player.getBukkitPlayer().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 1, new Random().nextInt(5) + 1);
+	}
+	
+	private double convertDegree(double deg) {
+		deg %= 360;
+		if(deg >= 0) {
+			return deg;
+		}
+		return deg + 360;
 	}
 }

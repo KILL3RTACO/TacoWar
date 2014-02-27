@@ -74,7 +74,6 @@ public class Map {
 				_teleporters.add(t);
 			}
 		}
-		System.out.println(_teleporters.size());
 		_perms = new ArrayList<String>(_config.getStringList(M_PERMS));
 		_timeName = _config.getString(M_WORLD_TIME, "day");
 		_messageGameStart = getString(M_M_GAME_START, false);
