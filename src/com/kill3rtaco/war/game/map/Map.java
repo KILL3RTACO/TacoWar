@@ -13,9 +13,10 @@ import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.ValidatedConfig;
 import com.kill3rtaco.war.game.player.TeamColor;
 
-public class Map {
+public class Map extends ValidatedConfig {
 	
 	private String							_id, _name, _author, _timeName;
 	private String							_messageGameStart,
@@ -26,10 +27,10 @@ public class Map {
 	private File							_file	= null;
 	private List<String>					_perms;
 	private long							_timeTicks;
-	private YamlConfiguration				_config;
 	private List<Teleporter>				_teleporters;
 	
 	public Map(String id) {
+		super(new YamlConfiguration());
 		_id = id;
 		_name = "";
 		_author = "";
@@ -37,12 +38,11 @@ public class Map {
 		_origin = null;
 		_lobby = null;
 		_perms = new ArrayList<String>();
-		_config = new YamlConfiguration();
 	}
 	
 	public Map(File file) {
+		super(YamlConfiguration.loadConfiguration(file));
 		_file = file;
-		_config = YamlConfiguration.loadConfiguration(file);
 		_id = getString(M_ID, true);
 		if(_id != null && (_id.isEmpty() || _id.contains(" "))) {
 			_valid = false;
@@ -95,14 +95,6 @@ public class Map {
 		}
 	}
 	
-	private String getString(String path, boolean req) {
-		if(_config.isString(path))
-			return _config.getString(path);
-		if(req)
-			_valid = false;
-		return null;
-	}
-	
 	private Location getLocation(String path, boolean relative, boolean req) {
 		if(_config.isString(path)) {
 			Location loc = getPoint(_config.getString(path));
@@ -121,14 +113,6 @@ public class Map {
 			_valid = false;
 		}
 		return null;
-	}
-	
-	private int getInt(String s) {
-		try {
-			return Integer.parseInt(s);
-		} catch (NumberFormatException e) {
-			return 0;
-		}
 	}
 	
 	public void setTime(String timeName) {
@@ -167,22 +151,6 @@ public class Map {
 	
 	public String getAuthor() {
 		return _author != null ? _author : "Unknown";
-	}
-	
-	private Location getPoint(String s) {
-		String[] split = s.split("\\s+");
-		if(split.length < 3)
-			return null;
-		int x = getInt(split[0]);
-		int y = getInt(split[1]);
-		int z = getInt(split[2]);
-		int pitch = 0;
-		int yaw = 0;
-		if(split.length > 3)
-			yaw = getInt(split[3]);
-		if(split.length > 4)
-			yaw = getInt(split[4]);
-		return new Location(TacoWar.config.getWarWorld(), x, y, z, yaw, pitch);
 	}
 	
 	public Location getPointRelative(Location loc) {
