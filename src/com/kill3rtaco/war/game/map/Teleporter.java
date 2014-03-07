@@ -111,14 +111,6 @@ public class Teleporter {
 		player.getBukkitPlayer().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 1, new Random().nextInt(5) + 1);
 	}
 	
-	private double convertDegree(double deg) {
-		deg %= 360;
-		if(deg >= 0) {
-			return deg;
-		}
-		return deg + 360;
-	}
-	
 	public String toString() {
 		return "Teleporter{channel=" + _channel + ", transmitter=" + _transmitter + ", receiver=" + _receiver + ", src=" + _src + "}";
 	}
