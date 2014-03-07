@@ -86,11 +86,8 @@ public class Teleporter {
 		Location playerLoc = player.getBukkitPlayer().getLocation();
 		
 		double o = out.getYaw();
-		player.sendMessage(o + "");
 		double p = playerLoc.getYaw();
-		player.sendMessage(p + "");
 		double s = _src.getYaw();
-		player.sendMessage(s + "");
 		
 		float newYaw = (float) (o + (p - s) - 180);
 		
@@ -109,7 +106,6 @@ public class Teleporter {
 		
 		//show smoke and play sound as an extra effect
 		TacoAPI.getEffectAPI().showSmoke(playerLoc);
-		player.sendMessage(location + "");
 		player.teleport(location);
 		TacoAPI.getEffectAPI().showSmoke(playerLoc);
 		player.getBukkitPlayer().playSound(playerLoc, Sound.ENDERMAN_TELEPORT, 1, new Random().nextInt(5) + 1);
@@ -121,5 +117,9 @@ public class Teleporter {
 			return deg;
 		}
 		return deg + 360;
+	}
+	
+	public String toString() {
+		return "Teleporter{channel=" + _channel + ", transmitter=" + _transmitter + ", receiver=" + _receiver + ", src=" + _src + "}";
 	}
 }

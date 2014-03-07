@@ -32,7 +32,7 @@ public class ValidatedConfig {
 		if(split.length > 3)
 			yaw = getInt(split[3]);
 		if(split.length > 4)
-			yaw = getInt(split[4]);
+			pitch = getInt(split[4]);
 		return new Location(TacoWar.config.getWarWorld(), x, y, z, yaw, pitch);
 	}
 	

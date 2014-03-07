@@ -160,7 +160,7 @@ public class Map extends ValidatedConfig {
 		double x = _origin.getX() + loc.getX() + .5; //add .5 to get center of block
 		double y = _origin.getY() + loc.getY() + .5; //a little bit higher just in case
 		double z = _origin.getZ() + loc.getZ() + .5;
-		return new Location(TacoWar.config.getWarWorld(), x, y, z);
+		return new Location(TacoWar.config.getWarWorld(), x, y, z, loc.getYaw(), loc.getPitch());
 	}
 	
 	public Location getPointRelative(String str) {
