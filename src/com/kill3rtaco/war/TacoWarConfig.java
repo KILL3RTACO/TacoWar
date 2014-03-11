@@ -1,6 +1,6 @@
 package com.kill3rtaco.war;
 
-import static com.kill3rtaco.war.TacoWarConstants.*;
+import static com.kill3rtaco.war.TWConstants.*;
 
 import java.io.File;
 

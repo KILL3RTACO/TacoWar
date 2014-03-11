@@ -1,5 +1,8 @@
 package com.kill3rtaco.war;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -46,5 +49,18 @@ public class ValidatedConfig {
 	
 	public boolean isValid() {
 		return _valid;
+	}
+	
+	public void save(File file) {
+		try {
+			file.getParentFile().mkdirs();
+			if(file != null) {
+				_config.save(file);
+				return;
+			}
+			_config.save(TacoWar.plugin.getDataFolder() + "/maps/map_" + _id + "/map.yml");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

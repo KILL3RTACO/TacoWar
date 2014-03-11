@@ -1,6 +1,6 @@
 package com.kill3rtaco.war;
 
-public class TacoWarConstants {
+public class TWConstants {
 	
 	public static final String	C_CURRENT_PLAYLIST		= "current_playlist";
 	public static final String	C_DOWNLOAD_MAPS			= "download_default_maps";

@@ -1,9 +1,8 @@
 package com.kill3rtaco.war.game.map;
 
-import static com.kill3rtaco.war.TacoWarConstants.*;
+import static com.kill3rtaco.war.TWConstants.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -194,7 +193,7 @@ public class Map extends ValidatedConfig {
 	public void setOrigin(Location loc) {
 		_origin = loc;
 		_config.set("origin", getLocationString(loc));
-		save();
+		save(_file);
 	}
 	
 	public void setLobbyLocationRelative(Location loc) {
@@ -210,19 +209,6 @@ public class Map extends ValidatedConfig {
 				+ loc.getBlockZ() + " "
 				+ TacoWar.getNearestDegree(loc.getYaw(), 45) + " "
 				+ TacoWar.getNearestDegree(loc.getPitch(), 45);
-	}
-	
-	public void save() {
-		try {
-			_file.getParentFile().mkdirs();
-			if(_file != null) {
-				_config.save(_file);
-				return;
-			}
-			_config.save(TacoWar.plugin.getDataFolder() + "/maps/map_" + _id + "/map.yml");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public TeamColor randomTeam() {

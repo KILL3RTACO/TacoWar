@@ -18,6 +18,10 @@ public enum GameType {
 		_aliases = aliases;
 	}
 	
+	public String getName() {
+		return _name;
+	}
+	
 	public boolean hasAlias(String alias) {
 		if(name().equalsIgnoreCase(alias)) {
 			return true;
