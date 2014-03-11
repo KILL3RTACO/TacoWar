@@ -12,19 +12,21 @@ import com.kill3rtaco.tacoapi.api.ncommands.CommandManager;
 import com.kill3rtaco.war.commands.GameCommands;
 import com.kill3rtaco.war.commands.MapCreationCommands;
 import com.kill3rtaco.war.game.Game;
+import com.kill3rtaco.war.game.GameTypeOptions;
 import com.kill3rtaco.war.game.Playlist;
 import com.kill3rtaco.war.game.map.Map;
 import com.kill3rtaco.war.listener.GameListener;
 
 public class TacoWar extends TacoPlugin {
 	
-	public static TacoWar		plugin;
-	public static TacoWarConfig	config;
-	private List<Map>			_maps, _experimental;
-	private List<Playlist>		_playlists;
-	private Game				_currentGame;
-	private boolean				_automate	= true;
-	private CommandManager		_commands;
+	public static TacoWar			plugin;
+	public static TacoWarConfig		config;
+	private List<Map>				_maps, _experimental;
+	private List<Playlist>			_playlists;
+	private List<GameTypeOptions>	_gameTypes;
+	private Game					_currentGame;
+	private boolean					_automate	= true;
+	private CommandManager			_commands;
 	
 	@Override
 	public void onStart() {
@@ -105,9 +107,7 @@ public class TacoWar extends TacoPlugin {
 		File playlists = new File(getDataFolder() + "/playlists");
 		if(playlists.exists() && playlists.isDirectory()) {
 			for(File f : playlists.listFiles()) {
-				String name = f.getName();
-				String id = name.substring(0, name.lastIndexOf("."));
-				Playlist pl = new Playlist(id, f);
+				Playlist pl = new Playlist(f);
 				_playlists.add(pl);
 			}
 		}
@@ -184,6 +184,11 @@ public class TacoWar extends TacoPlugin {
 	
 	public static int getNearestDegree(double degree, double factor) {
 		return (int) (Math.round(degree / factor) * factor);
+	}
+	
+	public void reloadGameTypes() {
+		//add defaults
+		
 	}
 	
 }

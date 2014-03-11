@@ -13,6 +13,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.ValidatedConfig;
+import com.kill3rtaco.war.game.GameType;
 import com.kill3rtaco.war.game.player.TeamColor;
 
 public class Map extends ValidatedConfig {
@@ -307,6 +308,10 @@ public class Map extends ValidatedConfig {
 			}
 		}
 		return null;
+	}
+	
+	public boolean gameTypeSupported(GameType gametype) {
+		
 	}
 	
 }
