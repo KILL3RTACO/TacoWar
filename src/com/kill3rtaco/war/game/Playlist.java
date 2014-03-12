@@ -1,10 +1,11 @@
 package com.kill3rtaco.war.game;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -16,6 +17,8 @@ public class Playlist extends ValidatedConfig {
 	
 	private String								_id;
 	private HashMap<Map, List<GameTypeOptions>>	_maps;
+	private Map									_currentMap;
+	private GameTypeOptions						_currentGameType;
 	private File								_file;
 	
 	public Playlist(String id) {
@@ -31,6 +34,7 @@ public class Playlist extends ValidatedConfig {
 	
 	public Playlist(String id, HashMap<Map, List<GameTypeOptions>> maps) {
 		super(new YamlConfiguration());
+		_file = new File(TacoWar.plugin.getDataFolder(), "playlists/playlist_" + id + ".yml");
 		_id = id;
 		_maps = maps;
 	}
@@ -65,51 +69,48 @@ public class Playlist extends ValidatedConfig {
 	//selectMap()
 	//selectGameType() - based on map, fails if map not selected
 	
-	public void save() {
-		ArrayList<String> mapNames = new ArrayList<String>();
-		for(Map m : _maps) {
-			if(m == null)
-				continue;
-			String id = m.getId();
-			if(mapNames.contains(id))
-				continue;
-			mapNames.add(id);
+	public Map selectMap() {
+		List<Map> maps = new ArrayList<Map>(getMaps());
+		if(maps.isEmpty()) {
+			_currentMap = null;
+			return null;
 		}
-		_config.set("maps", mapNames);
-		try {
-			_config.save(_file);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		_currentMap = maps.get(new Random().nextInt(maps.size()));
+		return _currentMap;
 	}
 	
-	public void addMap(Map map) {
-		if(map != null && !hasMap(map)) {
-			_maps.add(map);
-			save();
-		}
+	public Map getCurrentMap() {
+		return _currentMap;
 	}
 	
-	public boolean hasMap(Map map) {
-		if(map == null)
-			return false;
-		for(Map m : _maps) {
-			if(m.getId().equals(map.getId())) {
-				return true;
+	public GameTypeOptions selectGameType() {
+		if(_currentMap == null) {
+			return null;
+		}
+		List<GameTypeOptions> gameTypes = _maps.get(_currentMap);
+		if(gameTypes == null || gameTypes.isEmpty()) {
+			_currentGameType = null;
+			return null;
+		}
+		_currentGameType = gameTypes.get(new Random().nextInt(gameTypes.size()));
+		return _currentGameType;
+	}
+	
+	public Set<Map> getMaps() {
+		return _maps.keySet();
+	}
+	
+	public List<GameTypeOptions> getGameTypesFor(String mapId) {
+		for(Map m : getMaps()) {
+			if(m.getId().equals(mapId)) {
+				return _maps.get(m);
 			}
 		}
-		return false;
+		return null;
 	}
 	
-	public void removeMap(Map map) {
-		if(map != null && hasMap(map)) {
-			_maps.remove(map);
-			save();
-		}
-	}
-	
-	public List<Map> getMaps() {
-		return _maps;
+	public void save() {
+		save(_file);
 	}
 	
 }

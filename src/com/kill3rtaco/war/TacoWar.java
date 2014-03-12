@@ -104,7 +104,7 @@ public class TacoWar extends TacoPlugin {
 	public void reloadPlaylists() {
 		_playlists = new ArrayList<Playlist>();
 		_playlists.add(new Playlist("default"));
-		File playlists = new File(getDataFolder() + "/playlists");
+		File playlists = new File(getDataFolder(), "playlists");
 		if(playlists.exists() && playlists.isDirectory()) {
 			for(File f : playlists.listFiles()) {
 				Playlist pl = new Playlist(f);
@@ -188,7 +188,16 @@ public class TacoWar extends TacoPlugin {
 	
 	public void reloadGameTypes() {
 		//add defaults
-		
+		File gtDir = new File(getDataFolder(), "gametypes");
+		if(gtDir.isFile()) {
+			return;
+		}
+		for(File f : gtDir.listFiles()) {
+			if(f.isDirectory()) {
+				continue;
+			}
+			
+		}
 	}
 	
 }

@@ -28,6 +28,7 @@ public class Map extends ValidatedConfig {
 	private List<String>					_perms;
 	private long							_timeTicks;
 	private List<Teleporter>				_teleporters;
+	private List<GameType>					_supported;
 	
 	public Map(String id) {
 		super(new YamlConfiguration());
@@ -38,6 +39,7 @@ public class Map extends ValidatedConfig {
 		_origin = null;
 		_lobby = null;
 		_perms = new ArrayList<String>();
+		_supported = new ArrayList<GameType>();
 	}
 	
 	public Map(File file) {
@@ -194,7 +196,7 @@ public class Map extends ValidatedConfig {
 	public void setOrigin(Location loc) {
 		_origin = loc;
 		_config.set("origin", getLocationString(loc));
-		save(_file);
+		save();
 	}
 	
 	public void setLobbyLocationRelative(Location loc) {
@@ -202,6 +204,13 @@ public class Map extends ValidatedConfig {
 			return;
 		}
 		_lobby = loc.subtract(_origin);
+	}
+	
+	public void save() {
+		if(_file == null) {
+			_file = new File(TacoWar.plugin.getDataFolder(), "maps/map_" + _id + "/map.yml");
+		}
+		save(_file);
 	}
 	
 	private String getLocationString(Location loc) {
@@ -310,8 +319,8 @@ public class Map extends ValidatedConfig {
 		return null;
 	}
 	
-	public boolean gameTypeSupported(GameType gametype) {
-		
+	public boolean gameTypeSupported(GameType gameType) {
+		return _supported.contains(gameType);
 	}
 	
 }

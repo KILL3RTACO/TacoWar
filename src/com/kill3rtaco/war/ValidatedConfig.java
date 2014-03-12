@@ -53,12 +53,11 @@ public class ValidatedConfig {
 	
 	public void save(File file) {
 		try {
-			file.getParentFile().mkdirs();
 			if(file != null) {
+				file.getParentFile().mkdirs();
 				_config.save(file);
 				return;
 			}
-			_config.save(TacoWar.plugin.getDataFolder() + "/maps/map_" + _id + "/map.yml");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

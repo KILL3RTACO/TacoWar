@@ -4,12 +4,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.kill3rtaco.war.game.GameTypeOptions;
 
-public class TDMOptions extends GameTypeOptions {
+public class JuggernautOptions extends GameTypeOptions {
 	
-	public TDMOptions(YamlConfiguration config) {
+	public JuggernautOptions(YamlConfiguration config) {
 		super(config);
-		_teamsEnabled = true; //teams_enabled ignored in .yml
-		
 	}
 	
 }

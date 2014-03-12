@@ -19,12 +19,14 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 	
 	protected String		_id, _name;
 	protected GameType		_baseType;
-	protected int			_maxScore, _timeLimit;
+	protected int			_maxScore, _timeLimit;	//minutes
 	protected ItemStack		_wPrimary, _wSecondary;
-	protected int			_ammoCount		= 0;
+	protected int			_ammoCount;
 	protected List<String>	_authors;
-	protected boolean		_teamsEnabled	= true;
-	
+	protected boolean		_teamsEnabled;
+	protected int			_playerSpeed;			//percentage
+	protected int			_maxHealth;			//half-hearts
+													
 	public GameTypeOptions(YamlConfiguration config) {
 		super(config);
 		_id = getString("id", true);
@@ -49,6 +51,17 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 			}
 		}
 		_teamsEnabled = _config.getBoolean("teams_enabled", true);
+		_playerSpeed = _config.getInt("player_speed", 100);
+		if(_playerSpeed < TWDefaults.MIN_PLAYER_SPEED) {
+			_playerSpeed = TWDefaults.MIN_PLAYER_SPEED;
+		}
+		if(_playerSpeed > TWDefaults.MAX_PLAYER_SPEED) {
+			_playerSpeed = TWDefaults.MAX_PLAYER_SPEED;
+		}
+		_maxHealth = _config.getInt("max_health", 20);
+		if(_maxHealth <= 0) {
+			_maxHealth = 20;
+		}
 	}
 	
 	protected void setWeapon(boolean primary, String path, ItemStack def) {

@@ -25,6 +25,7 @@ import com.kill3rtaco.war.game.player.TeamColor;
 public class Game {
 	
 	private Map				_map;
+	private GameTypeOptions	_gameType;
 	private List<Player>	_players;
 	private long			_startTime, _endTime;
 	private int				_maxKills, _checkerId;

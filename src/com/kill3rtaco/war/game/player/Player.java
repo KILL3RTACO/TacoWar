@@ -75,7 +75,7 @@ public class Player {
 		} else {
 			int fullHearts = halfHearts / 2;
 			boolean half = halfHearts % 2 > 0;
-			boolean plural = fullHearts > 1 || half;
+			boolean plural = fullHearts != 1 || half;
 			return fullHearts + (half ? " and a half " : " ") + "heart" + (plural ? "s" : "");
 		}
 	}
