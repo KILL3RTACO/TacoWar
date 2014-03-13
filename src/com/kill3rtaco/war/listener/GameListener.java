@@ -63,6 +63,7 @@ public class GameListener implements Listener {
 	
 	@EventHandler
 	//update attackers on players, will be used for possible multi-kill and kill assist system
+	//TODO prevent damage to seekers in HideAndSeek
 	public void onPlayerDamagePlayer(EntityDamageByEntityEvent event) {
 		
 	}

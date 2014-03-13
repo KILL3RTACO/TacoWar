@@ -19,8 +19,9 @@ public class Player {
 	private org.bukkit.entity.Player	_player;
 	private String						_name;
 	private TeamColor					_team;
-	private List<PlayerDamage>			_allAttackers;	//not cleared periodically
+	private List<PlayerDamage>			_allAttackers;			//not cleared periodically
 	private List<PlayerDamage>			_attackers;
+	private boolean						_invincible	= false;
 	
 	public Player(org.bukkit.entity.Player player) {
 		setPlayer(player);
@@ -191,6 +192,14 @@ public class Player {
 			}
 		}
 		return 0;
+	}
+	
+	public void setInvicible(boolean invincible) {
+		_invincible = invincible;
+	}
+	
+	public boolean isInvincible() {
+		return _invincible;
 	}
 	
 	public void resetStats() {

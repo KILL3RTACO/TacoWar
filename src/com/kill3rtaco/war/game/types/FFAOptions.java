@@ -8,6 +8,7 @@ public class FFAOptions extends GameTypeOptions {
 	
 	public FFAOptions(YamlConfiguration config) {
 		super(config);
+		_teamsEnabled = false;
 	}
 	
 }

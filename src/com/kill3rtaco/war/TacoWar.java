@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.kill3rtaco.tacoapi.api.TacoPlugin;
@@ -12,9 +13,16 @@ import com.kill3rtaco.tacoapi.api.ncommands.CommandManager;
 import com.kill3rtaco.war.commands.GameCommands;
 import com.kill3rtaco.war.commands.MapCreationCommands;
 import com.kill3rtaco.war.game.Game;
+import com.kill3rtaco.war.game.GameType;
 import com.kill3rtaco.war.game.GameTypeOptions;
 import com.kill3rtaco.war.game.Playlist;
 import com.kill3rtaco.war.game.map.Map;
+import com.kill3rtaco.war.game.types.FFAOptions;
+import com.kill3rtaco.war.game.types.HideAndSeekOptions;
+import com.kill3rtaco.war.game.types.InfectionOptions;
+import com.kill3rtaco.war.game.types.JuggernautOptions;
+import com.kill3rtaco.war.game.types.KOTHOptions;
+import com.kill3rtaco.war.game.types.TDMOptions;
 import com.kill3rtaco.war.listener.GameListener;
 
 public class TacoWar extends TacoPlugin {
@@ -196,7 +204,30 @@ public class TacoWar extends TacoPlugin {
 			if(f.isDirectory()) {
 				continue;
 			}
-			
+			YamlConfiguration config = YamlConfiguration.loadConfiguration(f);
+			if(!config.isString("base_type")) {
+				return;
+			}
+			GameType gt = GameType.getGameType(config.getString("base_type"));
+			GameTypeOptions options;
+			if(gt == GameType.FFA) {
+				options = new FFAOptions(config);
+			} else if(gt == GameType.HIDE_AND_SEEK) {
+				options = new HideAndSeekOptions(config);
+			} else if(gt == GameType.INFECTION) {
+				options = new InfectionOptions(config);
+			} else if(gt == GameType.JUGGERNAUT) {
+				options = new JuggernautOptions(config);
+			} else if(gt == GameType.KOTH) {
+				options = new KOTHOptions(config);
+			} else if(gt == GameType.TDM) {
+				options = new TDMOptions(config);
+			} else {
+				continue;
+			}
+			if(options.isValid()) {
+				_gameTypes.add(options);
+			}
 		}
 	}
 	

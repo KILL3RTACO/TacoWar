@@ -2,6 +2,7 @@ package com.kill3rtaco.war.game;
 
 import java.util.List;
 
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -9,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import com.kill3rtaco.tacoapi.api.serialization.SingleItemSerialization;
 import com.kill3rtaco.war.TWDefaults;
 import com.kill3rtaco.war.ValidatedConfig;
+import com.kill3rtaco.war.game.player.TeamColor;
 
 /*
  * abstract for there will be a class for every GameType
@@ -42,8 +44,8 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 		}
 		_maxScore = _config.getInt("max_score", 0); //< 1 = game determines score based on players
 		_timeLimit = config.getInt("time_limit", 0); // < 1 = default used
-		setWeapon(true, "primary_weapon", TWDefaults.PRIMARY_WEAPON);
-		setWeapon(false, "primary_weapon", TWDefaults.PRIMARY_WEAPON);
+		_wPrimary = overrideItemStack("primary_weapon", TWDefaults.PRIMARY_WEAPON);
+		_wSecondary = overrideItemStack("secondary_weapon", TWDefaults.SECONDARY_WEAPON);
 		if(_wPrimary.getType() == Material.BOW || _wSecondary.getType() == Material.BOW) {
 			_ammoCount = config.getInt("ammo_count", 0);
 			if(_ammoCount <= 0) {
@@ -64,12 +66,29 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 		}
 	}
 	
-	protected void setWeapon(boolean primary, String path, ItemStack def) {
+	protected ItemStack overrideItemStack(String path, ItemStack override) {
 		ItemStack cItem = SingleItemSerialization.getItem(_config.getString(path, ""));
-		if(primary) {
-			_wPrimary = cItem != null ? cItem : def;
+		if(cItem != null) {
+			return cItem;
 		} else {
-			_wSecondary = cItem != null ? cItem : def;
+			return override;
+		}
+	}
+	
+	protected int overrideInt(String path, int override) {
+		if(_config.isInt(path)) {
+			return _config.getInt(path);
+		} else {
+			return override;
+		}
+	}
+	
+	protected Color overrideColor(String path, Color override) {
+		TeamColor tc = TeamColor.getTeamColor(_config.getString(path, "red"));
+		if(tc != null) {
+			return tc.getArmorColor();
+		} else {
+			return override;
 		}
 	}
 	
