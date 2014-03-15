@@ -13,17 +13,20 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 
 import com.kill3rtaco.tacoapi.TacoAPI;
+import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.game.player.Player;
 import com.kill3rtaco.war.util.WarUtil;
 
 public class AttackInfo {
 	
 	private LivingEntity	_attacker, _victim;
+	private Player			_attackerPlayer, _victimPlayer;
 	private DamageCause		_cause;
 	private String			_toolActionDisplay;
 	private double			_damage;
 	
 	public AttackInfo(EntityDamageEvent event) {
-		_victim = (LivingEntity) event.getEntity();
+		setVictim((LivingEntity) event.getEntity());
 		_cause = event.getCause();
 		_damage = event.getDamage();
 		if(event instanceof EntityDamageByEntityEvent) {
@@ -44,13 +47,13 @@ public class AttackInfo {
 				}
 				_toolActionDisplay = (_attacker == _victim ? "Run" : "Ran") + " Over";
 			} else if(entity instanceof FallingBlock) {
-				_toolActionDisplay = "Squished";
+				FallingBlock b = (FallingBlock) entity;
+				_toolActionDisplay = "Squished : " + TacoAPI.getChatUtils().toProperCase(b.getMaterial().name());
 			} else {
 				//assume living entity
-				_attacker = (LivingEntity) entity;
-				if(_toolActionDisplay == null && _attacker instanceof org.bukkit.entity.Player) {
-					org.bukkit.entity.Player player = (org.bukkit.entity.Player) _attacker;
-					ItemStack item = player.getItemInHand();
+				setAttacker((LivingEntity) entity);
+				if(_toolActionDisplay == null && _attackerPlayer != null) {
+					ItemStack item = _attackerPlayer.getBukkitPlayer().getItemInHand();
 					if(item == null || item.getType() == Material.AIR) {
 						_toolActionDisplay = "Fist";
 					} else {
@@ -60,6 +63,26 @@ public class AttackInfo {
 			}
 		} else {
 			_toolActionDisplay = WarUtil.getDamageCauseName(_cause);
+		}
+	}
+	
+	private void setAttacker(LivingEntity attacker) {
+		_attacker = attacker;
+		if(attacker != null && attacker instanceof org.bukkit.entity.Player) {
+			org.bukkit.entity.Player p = (org.bukkit.entity.Player) attacker;
+			if(TacoWar.plugin.currentGame() != null && TacoWar.plugin.currentGame().isPlaying(p)) {
+				_attackerPlayer = TacoWar.plugin.currentGame().getPlayer(p);
+			}
+		}
+	}
+	
+	private void setVictim(LivingEntity victim) {
+		_victim = victim;
+		if(victim != null && victim instanceof org.bukkit.entity.Player) {
+			org.bukkit.entity.Player p = (org.bukkit.entity.Player) victim;
+			if(TacoWar.plugin.currentGame() != null && TacoWar.plugin.currentGame().isPlaying(p)) {
+				_victimPlayer = TacoWar.plugin.currentGame().getPlayer(p);
+			}
 		}
 	}
 	
@@ -89,6 +112,14 @@ public class AttackInfo {
 	
 	public void setDamage(double damage) {
 		_damage = damage;
+	}
+	
+	public Player getAttackerAsPlayer() {
+		return _attackerPlayer;
+	}
+	
+	public Player getVictimAsPlayer() {
+		return _victimPlayer;
 	}
 	
 }
