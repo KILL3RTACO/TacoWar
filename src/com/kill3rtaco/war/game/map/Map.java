@@ -66,12 +66,12 @@ public class Map extends ValidatedConfig {
 		_origin = getLocation(M_ORIGIN, false, true);
 		_lobby = getLocation(M_LOBBY, true, true);
 		_spawns = new HashMap<TeamColor, List<Location>>();
-		for(String s : section.getConfigurationSection("team_spawns").getKeys(false)) {
+		for(String s : _config.getConfigurationSection("team_spawns").getKeys(false)) {
 			TeamColor c = TeamColor.getTeamColor(s);
 			if(c == null) {
 				continue;
 			}
-			List<Location> locs = map.getLocationList(section.getStringList("team_spawns." + s));
+			List<Location> locs = getLocationList(_config.getStringList("team_spawns." + s));
 			if(!locs.isEmpty()) {
 				_spawns.put(c, locs);
 			}
