@@ -6,6 +6,8 @@ import com.kill3rtaco.war.game.GameTypeOptions;
 
 public class FFAOptions extends GameTypeOptions {
 	
+	//TODO players have customizable armor colors?
+	
 	public FFAOptions(YamlConfiguration config) {
 		super(config);
 		_teamsEnabled = false;

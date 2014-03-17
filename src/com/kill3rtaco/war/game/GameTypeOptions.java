@@ -21,6 +21,7 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 	
 	protected String		_id, _name;
 	protected GameType		_baseType;
+	protected Color			_playerArmorColor;
 	protected int			_maxScore, _timeLimit;	//minutes
 	protected ItemStack		_wPrimary, _wSecondary;
 	protected int			_ammoCount;
@@ -34,6 +35,7 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 		_id = getString("id", true);
 		_name = getString("name", true);
 		_authors = _config.getStringList("authors");
+		_playerArmorColor = overrideColor("player_armor_color", TeamColor.RED.getArmorColor());
 		if(_authors.isEmpty())
 			_authors.add("Unknown");
 		String baseType = getString("base_type", true);
@@ -122,6 +124,10 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 	
 	public ItemStack secondaryWeapon() {
 		return _wSecondary;
+	}
+	
+	public float toSpeedFloat(int speedPercentage) {
+		return 0.1F * (speedPercentage / 100F); //0.1 is default speed
 	}
 	
 }

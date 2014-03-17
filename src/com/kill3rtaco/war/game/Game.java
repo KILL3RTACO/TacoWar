@@ -8,6 +8,7 @@ import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -50,6 +51,21 @@ public class Game {
 			}
 			
 		}.runTaskLater(TacoWar.plugin, 20L * TacoWar.config.getLobbyWaitTime());
+	}
+	
+	public Playlist getPlaylist() {
+		return _playlist;
+	}
+	
+	public void spawnPlayers(List<Location> locs, List<Player> players) {
+		int index = 0;
+		for(Player p : players) {
+			if(index >= locs.size()) {
+				index = 0;
+			}
+			p.teleport(locs.get(index));
+			index++;
+		}
 	}
 	
 	public void setTimeLimits() {

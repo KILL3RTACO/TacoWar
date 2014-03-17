@@ -14,6 +14,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.ValidatedConfig;
 import com.kill3rtaco.war.game.GameType;
+import com.kill3rtaco.war.game.map.options.FFAMapOptions;
+import com.kill3rtaco.war.game.map.options.HideAndSeekMapOptions;
+import com.kill3rtaco.war.game.map.options.InfectionMapOptions;
+import com.kill3rtaco.war.game.map.options.JuggernautMapOptions;
+import com.kill3rtaco.war.game.map.options.KOTHMapOptions;
+import com.kill3rtaco.war.game.map.options.TDMMapOptions;
 import com.kill3rtaco.war.game.player.TeamColor;
 
 public class Map extends ValidatedConfig {
@@ -29,6 +35,14 @@ public class Map extends ValidatedConfig {
 	private long							_timeTicks;
 	private List<Teleporter>				_teleporters;
 	private List<GameType>					_supported;
+	
+	//map options
+	private FFAMapOptions					_ffaOptions;
+	private HideAndSeekMapOptions			_hasOptions;
+	private InfectionMapOptions				_infOptions;
+	private JuggernautMapOptions			_jugOptions;
+	private KOTHMapOptions					_kothOptions;
+	private TDMMapOptions					_tdmOptions;
 	
 	public Map(String id) {
 		super(new YamlConfiguration());
@@ -53,21 +67,23 @@ public class Map extends ValidatedConfig {
 		_author = getString(M_AUTHOR, false);
 		_origin = getLocation(M_ORIGIN, false, true);
 		_lobby = getLocation(M_LOBBY, true, true);
-		_spawns = new HashMap<TeamColor, Location>();
-		for(String s : _config.getConfigurationSection(M_TEAMS).getKeys(false)) {
-			TeamColor c = TeamColor.getTeamColor(s);
-			String node = M_TEAMS + "." + s;
-			if(c != null && _config.isString(node)) {
-				String str = _config.getString(node);
-				Location loc = getPointRelative(str);
-				if(loc == null) {
-					continue;
-				}
-				_spawns.put(c, loc);
-			}
+		if(_config.isConfigurationSection("ffa")) {
+			_ffaOptions = new FFAMapOptions(this, _config.getConfigurationSection("ffa"));
 		}
-		if(_spawns.size() < 2) {
-			_valid = false;
+		if(_config.isConfigurationSection("hide_and_seek")) {
+			_hasOptions = new HideAndSeekMapOptions(this, _config.getConfigurationSection("hide_and_seek"));
+		}
+		if(_config.isConfigurationSection("infection")) {
+			_infOptions = new InfectionMapOptions(this, _config.getConfigurationSection("infection"));
+		}
+		if(_config.isConfigurationSection("juggernaut")) {
+			_jugOptions = new JuggernautMapOptions(this, _config.getConfigurationSection("juggernaut"));
+		}
+		if(_config.isConfigurationSection("koth")) {
+			_kothOptions = new KOTHMapOptions(this, _config.getConfigurationSection("koth"));
+		}
+		if(_config.isConfigurationSection("tdm")) {
+			_tdmOptions = new TDMMapOptions(this, _config.getConfigurationSection("tdm"));
 		}
 		_teleporters = new ArrayList<Teleporter>();
 		for(String s : _config.getConfigurationSection(M_TELEPORTERS).getKeys(false)) {
@@ -213,6 +229,17 @@ public class Map extends ValidatedConfig {
 		save(_file);
 	}
 	
+	public List<Location> getLocationList(List<String> list) {
+		ArrayList<Location> locations = new ArrayList<Location>();
+		for(String s : list) {
+			Location loc = getPointRelative(s);
+			if(loc != null) {
+				locations.add(loc);
+			}
+		}
+		return locations;
+	}
+	
 	private String getLocationString(Location loc) {
 		return loc.getBlockX() + " "
 				+ loc.getBlockY() + " "
@@ -321,6 +348,30 @@ public class Map extends ValidatedConfig {
 	
 	public boolean gameTypeSupported(GameType gameType) {
 		return _supported.contains(gameType);
+	}
+	
+	public FFAMapOptions ffa() {
+		return _ffaOptions;
+	}
+	
+	public HideAndSeekMapOptions has() {
+		return _hasOptions;
+	}
+	
+	public InfectionMapOptions inf() {
+		return _infOptions;
+	}
+	
+	public JuggernautMapOptions jug() {
+		return _jugOptions;
+	}
+	
+	public KOTHMapOptions koth() {
+		return _kothOptions;
+	}
+	
+	public TDMMapOptions tdm() {
+		return _tdmOptions;
 	}
 	
 }
