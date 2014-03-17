@@ -6,7 +6,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -24,32 +23,30 @@ import com.kill3rtaco.war.game.player.TeamColor;
 
 public class Map extends ValidatedConfig {
 	
-	private String							_id, _name, _author, _timeName;
-	private String							_messageGameStart,
-											_messageLobbySpawn;
-	private boolean							_valid	= true;
-	private HashMap<TeamColor, Location>	_spawns;
-	private Location						_origin, _lobby;
-	private File							_file	= null;
-	private List<String>					_perms;
-	private long							_timeTicks;
-	private List<Teleporter>				_teleporters;
-	private List<GameType>					_supported;
+	private String								_id, _name, _author, _timeName;
+	private String								_messageGameStart,
+												_messageLobbySpawn;
+	private Location							_origin, _lobby;
+	private File								_file	= null;
+	private List<String>						_perms;
+	private long								_timeTicks;
+	private List<Teleporter>					_teleporters;
+	private List<GameType>						_supported;
+	private HashMap<TeamColor, List<Location>>	_spawns;
 	
 	//map options
-	private FFAMapOptions					_ffaOptions;
-	private HideAndSeekMapOptions			_hasOptions;
-	private InfectionMapOptions				_infOptions;
-	private JuggernautMapOptions			_jugOptions;
-	private KOTHMapOptions					_kothOptions;
-	private TDMMapOptions					_tdmOptions;
+	private FFAMapOptions						_ffaOptions;
+	private HideAndSeekMapOptions				_hasOptions;
+	private InfectionMapOptions					_infOptions;
+	private JuggernautMapOptions				_jugOptions;
+	private KOTHMapOptions						_kothOptions;
+	private TDMMapOptions						_tdmOptions;
 	
 	public Map(String id) {
 		super(new YamlConfiguration());
 		_id = id;
 		_name = "";
 		_author = "";
-		_spawns = new HashMap<TeamColor, Location>();
 		_origin = null;
 		_lobby = null;
 		_perms = new ArrayList<String>();
@@ -58,6 +55,7 @@ public class Map extends ValidatedConfig {
 	
 	public Map(File file) {
 		super(YamlConfiguration.loadConfiguration(file));
+		_supported = new ArrayList<GameType>();
 		_file = file;
 		_id = getString(M_ID, true);
 		if(_id != null && (_id.isEmpty() || _id.contains(" "))) {
@@ -67,24 +65,21 @@ public class Map extends ValidatedConfig {
 		_author = getString(M_AUTHOR, false);
 		_origin = getLocation(M_ORIGIN, false, true);
 		_lobby = getLocation(M_LOBBY, true, true);
-		if(_config.isConfigurationSection("ffa")) {
-			_ffaOptions = new FFAMapOptions(this, _config.getConfigurationSection("ffa"));
+		_spawns = new HashMap<TeamColor, List<Location>>();
+		for(String s : section.getConfigurationSection("team_spawns").getKeys(false)) {
+			TeamColor c = TeamColor.getTeamColor(s);
+			if(c == null) {
+				continue;
+			}
+			List<Location> locs = map.getLocationList(section.getStringList("team_spawns." + s));
+			if(!locs.isEmpty()) {
+				_spawns.put(c, locs);
+			}
 		}
-		if(_config.isConfigurationSection("hide_and_seek")) {
-			_hasOptions = new HideAndSeekMapOptions(this, _config.getConfigurationSection("hide_and_seek"));
+		if(_spawns.size() < 2) {
+			_valid = false;
 		}
-		if(_config.isConfigurationSection("infection")) {
-			_infOptions = new InfectionMapOptions(this, _config.getConfigurationSection("infection"));
-		}
-		if(_config.isConfigurationSection("juggernaut")) {
-			_jugOptions = new JuggernautMapOptions(this, _config.getConfigurationSection("juggernaut"));
-		}
-		if(_config.isConfigurationSection("koth")) {
-			_kothOptions = new KOTHMapOptions(this, _config.getConfigurationSection("koth"));
-		}
-		if(_config.isConfigurationSection("tdm")) {
-			_tdmOptions = new TDMMapOptions(this, _config.getConfigurationSection("tdm"));
-		}
+		initMapOptions();
 		_teleporters = new ArrayList<Teleporter>();
 		for(String s : _config.getConfigurationSection(M_TELEPORTERS).getKeys(false)) {
 			Teleporter t = getTeleporter(s);
@@ -97,6 +92,35 @@ public class Map extends ValidatedConfig {
 		_messageGameStart = getString(M_M_GAME_START, false);
 		_messageLobbySpawn = getString(M_M_LOBBY_SPAWN, false);
 		setTime(_config.getString(M_WORLD_TIME, "day"));
+	}
+	
+	private void initMapOptions() {
+		if(_config.isConfigurationSection("ffa")) {
+			_ffaOptions = new FFAMapOptions(this, _config.getConfigurationSection("ffa"));
+			if(_ffaOptions.isValid())
+				_supported.add(GameType.FFA);
+		}
+		if(_config.isConfigurationSection("hide_and_seek")) {
+			_hasOptions = new HideAndSeekMapOptions(this, _config.getConfigurationSection("hide_and_seek"));
+			if(_hasOptions.isValid())
+				_supported.add(GameType.HIDE_AND_SEEK);
+		}
+		if(_config.isConfigurationSection("infection")) {
+			_infOptions = new InfectionMapOptions(this, _config.getConfigurationSection("infection"));
+			if(_infOptions.isValid())
+				_supported.add(GameType.INFECTION);
+		}
+		if(_config.isConfigurationSection("juggernaut")) {
+			_jugOptions = new JuggernautMapOptions(this, _config.getConfigurationSection("juggernaut"));
+		}
+		if(_config.isConfigurationSection("koth")) {
+			_kothOptions = new KOTHMapOptions(this, _config.getConfigurationSection("koth"));
+		}
+		if(_config.isConfigurationSection("tdm")) {
+			_tdmOptions = new TDMMapOptions(this, _config.getConfigurationSection("tdm"));
+			if(_tdmOptions.isValid())
+				_supported.add(GameType.TDM);
+		}
 	}
 	
 	private Teleporter getTeleporter(String name) {
@@ -185,14 +209,6 @@ public class Map extends ValidatedConfig {
 		return getPointRelative(getPoint(str));
 	}
 	
-	public Location getTeamSpawn(TeamColor team) {
-		return _spawns.get(team);
-	}
-	
-	public HashMap<TeamColor, Location> getTeamSpawns() {
-		return _spawns;
-	}
-	
 	public Location getOrigin() {
 		return _origin;
 	}
@@ -246,15 +262,6 @@ public class Map extends ValidatedConfig {
 				+ loc.getBlockZ() + " "
 				+ TacoWar.getNearestDegree(loc.getYaw(), 45) + " "
 				+ TacoWar.getNearestDegree(loc.getPitch(), 45);
-	}
-	
-	public TeamColor randomTeam() {
-		ArrayList<TeamColor> teams = teams();
-		return teams.get(new Random().nextInt(teams.size()));
-	}
-	
-	public ArrayList<TeamColor> teams() {
-		return new ArrayList<TeamColor>(_spawns.keySet());
 	}
 	
 	public boolean addPerm(String perm) {

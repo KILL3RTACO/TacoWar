@@ -12,7 +12,7 @@ public class HideAndSeekMapOptions extends MapOptions {
 	private List<Location>	_seekerSpawns, _hiderSpawns;
 	
 	public HideAndSeekMapOptions(Map map, ConfigurationSection section) {
-		super(map);
+		super(map, section);
 		_seekerSpawns = map.getLocationList(section.getStringList("seeker_spawns"));
 		_hiderSpawns = map.getLocationList(section.getStringList("hider_spawns"));
 	}

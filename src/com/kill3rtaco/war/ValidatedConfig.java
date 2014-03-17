@@ -9,7 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class ValidatedConfig {
 	
 	protected YamlConfiguration	_config;
-	private boolean				_valid	= true;
+	protected boolean			_valid	= true;
 	
 	public ValidatedConfig(YamlConfiguration config) {
 		_config = config;

@@ -12,7 +12,7 @@ public class FFAMapOptions extends MapOptions {
 	private List<Location>	_spawns;
 	
 	public FFAMapOptions(Map map, ConfigurationSection section) {
-		super(map);
+		super(map, section);
 		_spawns = map.getLocationList(section.getStringList("spawns"));
 		if(_spawns.isEmpty()) {
 			_valid = false;

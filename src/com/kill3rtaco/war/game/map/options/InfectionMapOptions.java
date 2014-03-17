@@ -12,7 +12,7 @@ public class InfectionMapOptions extends MapOptions {
 	private List<Location>	_infectedSpawns, _survivorSpawns;
 	
 	public InfectionMapOptions(Map map, ConfigurationSection section) {
-		super(map);
+		super(map, section);
 		_infectedSpawns = map.getLocationList(section.getStringList("infected_spawns"));
 		_survivorSpawns = map.getLocationList(section.getStringList("survivor_spawns"));
 	}
