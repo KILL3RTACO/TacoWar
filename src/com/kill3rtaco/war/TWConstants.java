@@ -1,5 +1,6 @@
 package com.kill3rtaco.war;
 
+
 public class TWConstants {
 	
 	public static final String	C_CURRENT_PLAYLIST		= "current_playlist";
@@ -26,4 +27,5 @@ public class TWConstants {
 	public static final String	M_TELEPORTERS			= "teleporters";
 	public static final String	M_WORLD_TIME			= "world_time";
 	
+	//default config for default gametypes
 }

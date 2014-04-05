@@ -1,18 +1,12 @@
 package com.kill3rtaco.war.game;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -21,20 +15,32 @@ import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.kill.KillFeed;
 import com.kill3rtaco.war.game.map.Map;
 import com.kill3rtaco.war.game.player.Player;
-import com.kill3rtaco.war.game.player.TeamColor;
+import com.kill3rtaco.war.game.types.FFAOptions;
+import com.kill3rtaco.war.game.types.HideAndSeekOptions;
+import com.kill3rtaco.war.game.types.InfectionOptions;
+import com.kill3rtaco.war.game.types.JuggernautOptions;
+import com.kill3rtaco.war.game.types.KOTHOptions;
+import com.kill3rtaco.war.game.types.TDMOptions;
 
 public class Game {
 	
-	private Map				_map;
-	private GameTypeOptions	_gameType;
-	private List<Player>	_players;
-	private long			_startTime, _endTime;
-	private int				_maxKills, _checkerId;
-	private long			_timeLimit, _idleTimeLimit, _lastAction;
-	private GameState		_state;
-	private Scoreboard		_board;
-	private KillFeed		_killFeed;
-	private Playlist		_playlist;
+	private Map					_map;
+	private List<Player>		_players;
+	private long				_startTime, _endTime;
+	private int					_maxKills, _checkerId;
+	private long				_timeLimit, _idleTimeLimit, _lastAction;
+	private GameState			_state;
+	private Scoreboard			_board;
+	private KillFeed			_killFeed;
+	private Playlist			_playlist;
+	
+	private GameTypeOptions		_gameType;
+	private FFAOptions			_ffaOptions;
+	private HideAndSeekOptions	_hasOptions;
+	private InfectionOptions	_infOptions;
+	private JuggernautOptions	_jugOptions;
+	private KOTHOptions			_kothOptions;
+	private TDMOptions			_tdmOptions;
 	
 	public Game() {
 		_board = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -51,6 +57,10 @@ public class Game {
 			}
 			
 		}.runTaskLater(TacoWar.plugin, 20L * TacoWar.config.getLobbyWaitTime());
+	}
+	
+	private void selectRandomGameType() {
+		
 	}
 	
 	public Playlist getPlaylist() {
@@ -70,12 +80,12 @@ public class Game {
 	
 	public void setTimeLimits() {
 		long minute = 1000 * 60 * 60;
-		_timeLimit = TacoWar.config.getTimeLimit() * minute;
+		_timeLimit = _gameType.timeLimitTicks();
 		_idleTimeLimit = TacoWar.config.getIdleTimeLimit() * minute;
 	}
 	
 	public Map selectRandomMap() {
-		List<Map> maps = TacoWar.plugin.getMaps();
+		List<Map> maps = (_playlist == null ? TacoWar.plugin.getMaps() : _playlist.getMaps());
 		_map = maps.get(new Random().nextInt(maps.size()));
 		teleportPlayersToLobby();
 		return _map;
@@ -119,26 +129,8 @@ public class Game {
 		}
 	}
 	
-	public void addPlayer(org.bukkit.entity.Player p) {
-		addPlayer(p, _map.randomTeam());
-	}
-	
-	public void addPlayer(org.bukkit.entity.Player p, TeamColor team) {
-		if(isPlaying(p)) {
-			return;
-		}
-		Player player = new Player(p);
-		player.setTeam(team);
-		launchPlayer(player);
-	}
-	
 	private void launchPlayer(Player p) {
-		p.getBukkitPlayer().setScoreboard(_board);
-		p.teleport(_map.getTeamSpawn(p.getTeam()));
-		p.addArmor();
-		p.giveItems();
-		p.resetStats();
-		p.setCanFly(false);
+		
 	}
 	
 	public void teleportPlayersToLobby() {
@@ -158,44 +150,10 @@ public class Game {
 	}
 	
 	private void decideTeams() {
-		List<TeamColor> teams = new ArrayList<TeamColor>(_map.getTeamSpawns().keySet());
-		Objective obj = _board.registerNewObjective("tw.game.kills", "");
-		obj.setDisplaySlot(DisplaySlot.SIDEBAR);
-		obj.setDisplayName(ChatColor.RED + "War");
-		for(TeamColor t : teams) {
-			Team team = _board.registerNewTeam(t.getName());
-			team.setAllowFriendlyFire(TacoWar.config.friendlyFireEnabled());
-			team.setCanSeeFriendlyInvisibles(true);
-			setScore(t, 0);
-		}
-		for(Player p : _players) {
-			if(teams.isEmpty()) {
-				teams = new ArrayList<TeamColor>(_map.getTeamSpawns().keySet());
-			}
-			TeamColor color = teams.remove(new Random().nextInt(teams.size()));
-			p.setTeam(color);
-			_board.getTeam(color.getName()).addPlayer(p.getBukkitPlayer());
-		}
 		
 	}
 	
-	private Score getScoreboardScore(TeamColor team) {
-		return _board.getObjective("tw.game.kills").getScore(Bukkit.getOfflinePlayer(team.getColorfulName() + "     "));
-	}
-	
-	public void setScore(TeamColor team, int score) {
-		getScoreboardScore(team).setScore(score);
-		_lastAction = System.currentTimeMillis();
-	}
-	
-	public int getScore(TeamColor team) {
-		return getScoreboardScore(team).getScore();
-	}
-	
-	public void addToScore(TeamColor team, int add) {
-		Score s = getScoreboardScore(team);
-		s.setScore(s.getScore() + add);
-	}
+	//get and add to score
 	
 	public void start() {
 		if(_players.isEmpty()) {
@@ -231,8 +189,7 @@ public class Game {
 				p.teleport(_map.getLobbyLocation());
 				p.clearInventory();
 			}
-			TeamColor winningTeam = getTeamInLead();
-			sendMessageToPlayers("&aThe game is over! " + winningTeam.getColorfulName() + " Team &ais the winner!");
+			//winner team message
 			if(TacoWar.plugin.isAutomating()) {
 				sendMessageToPlayers("&aThe next game will start soon");
 			}
@@ -251,25 +208,6 @@ public class Game {
 	
 	public void determineMaxKills() {
 		_maxKills = _players.size() * (2 / 3);
-	}
-	
-	public void sendScores(org.bukkit.entity.Player player) {
-		List<TeamColor> teams = new ArrayList<TeamColor>(_map.getTeamSpawns().keySet());
-		Collections.sort(teams, new Comparator<TeamColor>() {
-			
-			@Override
-			public int compare(TeamColor t1, TeamColor t2) {
-				Integer score1 = getScore(t1);
-				Integer score2 = getScore(t2);
-				return score1.compareTo(score2);
-			}
-			
-		});
-		String scores = "";
-		for(TeamColor t : teams) {
-			scores += t.getColorfulName() + " &7- " + getScore(t) + " ";
-		}
-		TacoWar.plugin.chat.sendPlayerMessageNoHeader(player, scores.trim());
 	}
 	
 	private void registerChecker() {
@@ -361,18 +299,7 @@ public class Game {
 		return _map;
 	}
 	
-	public TeamColor getTeamInLead() {
-		int max = -1;
-		TeamColor winning = null;
-		for(TeamColor t : _map.getTeamSpawns().keySet()) {
-			int score = getScore(t);
-			if(score > max) {
-				max = score;
-				winning = t;
-			}
-		}
-		return winning;
-	}
+	//get team in lead
 	
 	public long getGameIdleTime() {
 		return System.currentTimeMillis() - _lastAction;
@@ -393,28 +320,30 @@ public class Game {
 		return _killFeed;
 	}
 	
-	public boolean teamExists(TeamColor color) {
-		for(TeamColor c : _map.teams()) {
-			if(c == color) {
-				return true;
-			}
-		}
-		return false;
-	}
+	//get if a team exists
 	
 	public enum GameState {
 		IN_LOBBY, IN_PROGRESS, POST_GAME;
 	}
 	
 	public int getWinningScore() {
-		int max = -1;
-		for(TeamColor t : _map.getTeamSpawns().keySet()) {
-			int score = getScore(t);
-			if(score > max) {
-				max = score;
-			}
-		}
-		return max;
+		
+	}
+	
+	public GameTypeOptions options() {
+		return _gameType;
+	}
+	
+	public Player getJuggernaut() {
+		
+	}
+	
+	public List<Player> getHiders() {
+		
+	}
+	
+	public List<Player> getSeekers() {
+		
 	}
 	
 }

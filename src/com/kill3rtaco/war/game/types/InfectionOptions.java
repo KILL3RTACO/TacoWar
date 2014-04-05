@@ -2,26 +2,24 @@ package com.kill3rtaco.war.game.types;
 
 import org.bukkit.Color;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
 
-import com.kill3rtaco.war.TWDefaults;
 import com.kill3rtaco.war.game.GameTypeOptions;
+import com.kill3rtaco.war.game.Kit;
 import com.kill3rtaco.war.game.player.TeamColor;
 
 public class InfectionOptions extends GameTypeOptions {
 	
-	private Color		_infectedArmorColor, _survivorArmorColor;
-	private int			_infectedSpeed;
-	private ItemStack	_infectedWeapon;
+	private Color	_infectedArmorColor, _survivorArmorColor;
+	private int		_infectedSpeed;
+	private Kit		_infectedKit, _survivorKit;
 	
 	public InfectionOptions(YamlConfiguration config) {
 		super(config);
-		_wPrimary = TWDefaults.MAX_BOW;
-		_wSecondary = null;
+		_infectedKit = kit("infected_kit");
+		_survivorKit = kit("survivor_kit");
 		_infectedArmorColor = overrideColor("infected_armor_color", TeamColor.GREEN.getArmorColor());
 		_survivorArmorColor = overrideColor("survivor_armor_color", TeamColor.BLUE.getArmorColor());
 		_infectedSpeed = overrideInt("infected_speed", 125);
-		_infectedWeapon = overrideItemStack("infected_weapon", TWDefaults.MAX_SWORD);
 	}
 	
 	public Color infectedArmorColor() {
@@ -36,8 +34,12 @@ public class InfectionOptions extends GameTypeOptions {
 		return _infectedSpeed;
 	}
 	
-	public ItemStack infectedWeapon() {
-		return _infectedWeapon;
+	public Kit infectedKit() {
+		return _infectedKit;
+	}
+	
+	public Kit survivorKit() {
+		return _survivorKit;
 	}
 	
 }

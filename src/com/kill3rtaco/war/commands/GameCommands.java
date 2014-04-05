@@ -45,18 +45,7 @@ public class GameCommands {
 	@ParentCommand("tacowar")
 	@Command(name = "gameinfo", aliases = {"gi"}, desc = "View information about the current game")
 	public static void gameInfo(CommandContext context) {
-		Game game = TacoWar.plugin.currentGame();
-		if(game == null) {
-			context.sendMessageToSender("&aThere isn't a game - either in lobby, running or finished");
-			return;
-		}
-		context.sendMessageToSender("&a=====[&2TacoWar Game Information&a]=====");
-		context.sendMessageToSender("&2GameState&7: &a" + game.getGameState());
-		context.sendMessageToSender("&2Time Running&7: " + game.getGameRunTimeString() + (game.isRunning() ? " &aTime Left&7: " + game.getTimeLeftString() : ""));
-		context.sendMessageToSender("&2Winning Team&7: " + game.getTeamInLead().getColorfulName() + " &2[&a" + game.getWinningScore() + "&2]");
-		context.sendMessageToSender("&2Max Score&7: &a" + game.getMaxKills());
-		context.sendMessageToSender("&2Map&7: &e" + game.getMap().getName() + " &aby &e" + game.getMap().getAuthor());
-//		context.sendMessageToSender("");
+		
 	}
 	
 	@ParentCommand("tacowar")

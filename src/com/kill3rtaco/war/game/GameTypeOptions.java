@@ -1,14 +1,16 @@
 package com.kill3rtaco.war.game;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Color;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import com.kill3rtaco.tacoapi.api.serialization.SingleItemSerialization;
 import com.kill3rtaco.war.TWDefaults;
+import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.ValidatedConfig;
 import com.kill3rtaco.war.game.player.TeamColor;
 
@@ -23,13 +25,15 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 	protected GameType		_baseType;
 	protected Color			_playerArmorColor;
 	protected int			_maxScore, _timeLimit;	//minutes
-	protected ItemStack		_wPrimary, _wSecondary;
 	protected int			_ammoCount;
 	protected List<String>	_authors;
+	protected List<Kit>		_kits;
 	protected boolean		_teamsEnabled;
 	protected int			_playerSpeed;			//percentage
 	protected int			_maxHealth;			//half-hearts
-													
+	protected int			_friendlyFirePenalty;
+	protected int			_suicidePenalty;
+	
 	public GameTypeOptions(YamlConfiguration config) {
 		super(config);
 		_id = getString("id", true);
@@ -44,16 +48,9 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 			if(_baseType == null)
 				_baseType = GameType.TDM;
 		}
+		_kits = getKitList("kits");
 		_maxScore = _config.getInt("max_score", 0); //< 1 = game determines score based on players
 		_timeLimit = config.getInt("time_limit", 0); // < 1 = default used
-		_wPrimary = overrideItemStack("primary_weapon", TWDefaults.PRIMARY_WEAPON);
-		_wSecondary = overrideItemStack("secondary_weapon", TWDefaults.SECONDARY_WEAPON);
-		if(_wPrimary.getType() == Material.BOW || _wSecondary.getType() == Material.BOW) {
-			_ammoCount = config.getInt("ammo_count", 0);
-			if(_ammoCount <= 0) {
-				_ammoCount = 64 * 2;
-			}
-		}
 		_teamsEnabled = _config.getBoolean("teams_enabled", true);
 		_playerSpeed = _config.getInt("player_speed", 100);
 		if(_playerSpeed < TWDefaults.MIN_PLAYER_SPEED) {
@@ -66,6 +63,8 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 		if(_maxHealth <= 0) {
 			_maxHealth = 20;
 		}
+		_friendlyFirePenalty = overrideInt("friendly_fire_penalty", 0); // <0 -> off, 0-> on; no penalty, >0 -> on w/penalty
+		_suicidePenalty = overrideInt("suicide_penalty", 0);
 	}
 	
 	protected ItemStack overrideItemStack(String path, ItemStack override) {
@@ -118,16 +117,43 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 		return _timeLimit * 60 * 20L; //time limit is in minutes
 	}
 	
-	public ItemStack primaryWeapon() {
-		return _wPrimary;
-	}
-	
-	public ItemStack secondaryWeapon() {
-		return _wSecondary;
+	public List<Kit> getKitList(String path) {
+		List<Kit> kits = new ArrayList<Kit>();
+		List<String> kitIds = _config.getStringList(path);
+		for(String s : kitIds) {
+			Kit k = TacoWar.plugin.getKit(s);
+			if(k != null) {
+				kits.add(k);
+			}
+		}
+		return kits;
 	}
 	
 	public float toSpeedFloat(int speedPercentage) {
 		return 0.1F * (speedPercentage / 100F); //0.1 is default speed
+	}
+	
+	public boolean friendlyFireEnabled() {
+		return _friendlyFirePenalty >= 0;
+	}
+	
+	public int friendlyFirePenalty() {
+		return _friendlyFirePenalty;
+	}
+	
+	public int suicidePenalty() {
+		return Math.abs(_suicidePenalty);
+	}
+	
+	public Kit randomKit(List<Kit> kits) {
+		if(kits == null || kits.isEmpty()) {
+			return null;
+		}
+		return kits.get(new Random().nextInt(kits.size()));
+	}
+	
+	protected Kit kit(String path) {
+		return TacoWar.plugin.getKit(_config.getString(path));
 	}
 	
 }

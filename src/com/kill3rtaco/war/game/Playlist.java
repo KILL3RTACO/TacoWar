@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.kill3rtaco.tacoapi.TacoAPI;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.ValidatedConfig;
 import com.kill3rtaco.war.game.map.Map;
@@ -45,7 +45,7 @@ public class Playlist extends ValidatedConfig {
 			_maps = new HashMap<Map, List<GameTypeOptions>>();
 			for(String s : list) {
 				String[] split = s.split("\\s+");
-				if(split.length == 0) {
+				if(split.length <= 1) {
 					continue;
 				}
 				String mapId = split[0];
@@ -53,7 +53,14 @@ public class Playlist extends ValidatedConfig {
 				if(map == null) {
 					continue;
 				}
-				
+				List<GameTypeOptions> options = new ArrayList<GameTypeOptions>();
+				String[] types = TacoAPI.getChatUtils().removeFirstArg(split);
+				for(String t : types) {
+					//default types
+					if(t.equals("ffa")) {
+						
+					}
+				}
 			}
 		}
 	}
@@ -96,8 +103,8 @@ public class Playlist extends ValidatedConfig {
 		return _currentGameType;
 	}
 	
-	public Set<Map> getMaps() {
-		return _maps.keySet();
+	public List<Map> getMaps() {
+		return new ArrayList<Map>(_maps.keySet());
 	}
 	
 	public List<GameTypeOptions> getGameTypesFor(String mapId) {

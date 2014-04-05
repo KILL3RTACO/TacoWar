@@ -97,7 +97,7 @@ public class GameListener implements Listener {
 			boolean suicide = info.isSuicide();
 			PlayerKill kill = game.getKillFeed().addToFeed(player, weapon, player);
 			game.getKillFeed().printKill(kill);
-			int penalty = TacoWar.config.suicidePenalty();
+			int penalty = game.options().suicidePenalty();
 			if(suicide && penalty != 0) {
 				game.addToScore(player.getTeam(), Math.abs(penalty) * -1);
 			}
@@ -111,7 +111,7 @@ public class GameListener implements Listener {
 			
 			//should not be needed - cancel friendly fire if needed
 			if(attacker.getTeam() == player.getTeam()) {
-				if(TacoWar.config.friendlyFireEnabled()) {
+				if(game.options().friendlyFireEnabled()) {
 					friendly = true;
 				} else {
 					e.setCancelled(true);
@@ -123,7 +123,7 @@ public class GameListener implements Listener {
 			PlayerKill kill = game.getKillFeed().addToFeed(attacker, weapon, player);
 			game.getKillFeed().printKill(kill);
 			if(friendly) {
-				int penalty = TacoWar.config.friendlyFirePenalty();
+				int penalty = game.options().friendlyFirePenalty();
 				if(penalty != 0) {
 					game.addToScore(attacker.getTeam(), Math.abs(penalty) * -1);
 				}
@@ -152,7 +152,8 @@ public class GameListener implements Listener {
 			if(player == null) {
 				return;
 			}
-			Location location = game.getMap().getTeamSpawn(player.getTeam());
+			Location location = null;
+			//determine location based on gametype
 			event.setRespawnLocation(location);
 			player.addArmor();
 			player.giveItems();

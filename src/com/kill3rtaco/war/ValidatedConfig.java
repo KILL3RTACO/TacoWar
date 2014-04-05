@@ -2,16 +2,18 @@ package com.kill3rtaco.war;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class ValidatedConfig {
 	
-	protected YamlConfiguration	_config;
-	protected boolean			_valid	= true;
+	protected ConfigurationSection	_config;
+	protected boolean				_valid	= true;
 	
-	public ValidatedConfig(YamlConfiguration config) {
+	public ValidatedConfig(ConfigurationSection config) {
 		_config = config;
 	}
 	
@@ -52,10 +54,15 @@ public class ValidatedConfig {
 	}
 	
 	public void save(File file) {
+		YamlConfiguration yaml = new YamlConfiguration();
+		Map<String, Object> map = _config.getValues(true);
+		for(String k : map.keySet()) {
+			yaml.set(k, map.get(k));
+		}
 		try {
 			if(file != null) {
 				file.getParentFile().mkdirs();
-				_config.save(file);
+				yaml.save(file);
 				return;
 			}
 		} catch (IOException e) {

@@ -15,6 +15,7 @@ import com.kill3rtaco.war.commands.MapCreationCommands;
 import com.kill3rtaco.war.game.Game;
 import com.kill3rtaco.war.game.GameType;
 import com.kill3rtaco.war.game.GameTypeOptions;
+import com.kill3rtaco.war.game.Kit;
 import com.kill3rtaco.war.game.Playlist;
 import com.kill3rtaco.war.game.map.Map;
 import com.kill3rtaco.war.game.types.FFAOptions;
@@ -32,6 +33,7 @@ public class TacoWar extends TacoPlugin {
 	private List<Map>				_maps, _experimental;
 	private List<Playlist>			_playlists;
 	private List<GameTypeOptions>	_gameTypes;
+	private List<Kit>				_kits;
 	private Game					_currentGame;
 	private boolean					_automate	= true;
 	private CommandManager			_commands;
@@ -44,8 +46,10 @@ public class TacoWar extends TacoPlugin {
 		_commands.reg(MapCreationCommands.class);
 		config = new TacoWarConfig(new File(getDataFolder() + "/config.yml"));
 		_experimental = new ArrayList<Map>();
-		reloadMaps();
-		reloadPlaylists();
+		reloadKits();
+		reloadGameTypes(); //gametypes are need kits to load properly
+		reloadMaps(); //maps require gametypes to load properly
+		reloadPlaylists(); //playlists needs maps and gametypes to load
 		registerEvents(new GameListener());
 		new BukkitRunnable() {
 			
@@ -82,6 +86,30 @@ public class TacoWar extends TacoPlugin {
 	//whether new games are automatically created or not
 	public boolean isAutomating() {
 		return _automate;
+	}
+	
+	public void reloadKits() {
+		_kits = new ArrayList<Kit>();
+		File kitDir = new File(getDataFolder(), "kits/");
+		if(!kitDir.isDirectory()) {
+			return;
+		}
+		for(File f : kitDir.listFiles()) {
+			YamlConfiguration kitConfig = YamlConfiguration.loadConfiguration(f);
+			Kit k = new Kit(kitConfig);
+			if(k.isValid()) {
+				_kits.add(k);
+			}
+		}
+	}
+	
+	public Kit getKit(String id) {
+		for(Kit k : _kits) {
+			if(k.getId().equals(id)) {
+				return k;
+			}
+		}
+		return null;
 	}
 	
 	public void reloadMaps() {

@@ -18,6 +18,7 @@ import com.kill3rtaco.war.game.map.options.HideAndSeekMapOptions;
 import com.kill3rtaco.war.game.map.options.InfectionMapOptions;
 import com.kill3rtaco.war.game.map.options.JuggernautMapOptions;
 import com.kill3rtaco.war.game.map.options.KOTHMapOptions;
+import com.kill3rtaco.war.game.map.options.MapOptions;
 import com.kill3rtaco.war.game.map.options.TDMMapOptions;
 import com.kill3rtaco.war.game.player.TeamColor;
 
@@ -35,6 +36,7 @@ public class Map extends ValidatedConfig {
 	private HashMap<TeamColor, List<Location>>	_spawns;
 	
 	//map options
+	private MapOptions							_currentOptions;
 	private FFAMapOptions						_ffaOptions;
 	private HideAndSeekMapOptions				_hasOptions;
 	private InfectionMapOptions					_infOptions;
@@ -81,10 +83,12 @@ public class Map extends ValidatedConfig {
 		}
 		initMapOptions();
 		_teleporters = new ArrayList<Teleporter>();
-		for(String s : _config.getConfigurationSection(M_TELEPORTERS).getKeys(false)) {
-			Teleporter t = getTeleporter(s);
-			if(t != null && getTeleporter(t.getSource()) == null) {
-				_teleporters.add(t);
+		if(_config.isConfigurationSection(M_TELEPORTERS)) {
+			for(String s : _config.getConfigurationSection(M_TELEPORTERS).getKeys(false)) {
+				Teleporter t = getTeleporter(s);
+				if(t != null && getTeleporter(t.getSource()) == null) {
+					_teleporters.add(t);
+				}
 			}
 		}
 		_perms = new ArrayList<String>(_config.getStringList(M_PERMS));
@@ -355,6 +359,26 @@ public class Map extends ValidatedConfig {
 	
 	public boolean gameTypeSupported(GameType gameType) {
 		return _supported.contains(gameType);
+	}
+	
+	public void setCurrentType(GameType gameType) {
+		if(gameType == GameType.FFA) {
+			_currentOptions = _ffaOptions;
+		} else if(gameType == GameType.HIDE_AND_SEEK) {
+			_currentOptions = _hasOptions;
+		} else if(gameType == GameType.INFECTION) {
+			_currentOptions = _infOptions;
+		} else if(gameType == GameType.JUGGERNAUT) {
+			_currentOptions = _jugOptions;
+		} else if(gameType == GameType.KOTH) {
+			_currentOptions = _kothOptions;
+		} else if(gameType == GameType.TDM) {
+			_currentOptions = _tdmOptions;
+		}
+	}
+	
+	public MapOptions options() {
+		return _currentOptions;
 	}
 	
 	public FFAMapOptions ffa() {
