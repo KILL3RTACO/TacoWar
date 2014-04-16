@@ -3,6 +3,7 @@ package com.kill3rtaco.war.game.player;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,16 +13,17 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.game.Kit;
 import com.kill3rtaco.war.game.kill.PlayerDamage;
 
 public class Player {
 	
 	private org.bukkit.entity.Player	_player;
-	private String						_name;
-	private TeamColor					_team;
-	private List<PlayerDamage>			_allAttackers;			//not cleared periodically
+	private String						_name, _team, _teamColor;
+	private List<PlayerDamage>			_allAttackers;				//not cleared periodically
 	private List<PlayerDamage>			_attackers;
 	private boolean						_invincible	= false;
+	private Kit							_kit;
 	
 	public Player(org.bukkit.entity.Player player) {
 		setPlayer(player);
@@ -36,9 +38,9 @@ public class Player {
 		}.runTaskTimer(TacoWar.plugin, 0L, 20L);
 	}
 	
-	public void setTeam(TeamColor team) {
+	public void setTeam(String team) {
 		_team = team;
-		sendMessage("You are now on the " + team.getColorfulName() + " team");
+		sendMessage("You are now on the " + team + " team");
 	}
 	
 	//necessary because Player object are deleted onPlayerQuit [Bukkit]
@@ -87,7 +89,7 @@ public class Player {
 		}
 	}
 	
-	public TeamColor getTeam() {
+	public String getTeam() {
 		return _team;
 	}
 	
@@ -100,39 +102,44 @@ public class Player {
 		_player.getInventory().setChestplate(new ItemStack(Material.LEATHER_CHESTPLATE));
 		_player.getInventory().setLeggings(new ItemStack(Material.LEATHER_LEGGINGS));
 		_player.getInventory().setBoots(new ItemStack(Material.LEATHER_BOOTS));
-		repaintArmor();
 	}
 	
-	public void repaintArmor() {
+	public void setKit(Kit kit) {
+		if(!kit.isValid()) {
+			return;
+		}
+		_kit = kit;
+		PlayerInventory inv = _player.getInventory();
+		inv.clear();
+		addArmor();
+		inv.getHelmet().addUnsafeEnchantments(kit.getHelmetEnchants());
+		inv.getChestplate().addUnsafeEnchantments(kit.getChestplateEnchants());
+		inv.getLeggings().addUnsafeEnchantments(kit.getLeggingEnchants());
+		inv.getBoots().addUnsafeEnchantments(kit.getBootEnchants());
+		giveItems();
+	}
+	
+	public void setArmorColor(Color color) {
 		for(ItemStack i : _player.getInventory().getArmorContents()) {
 			if(i == null || !(i.getItemMeta() instanceof LeatherArmorMeta)) {
 				continue;
 			}
 			LeatherArmorMeta meta = (LeatherArmorMeta) i.getItemMeta();
-			meta.setColor(_team.getArmorColor());
+			meta.setColor(color);
 			i.setItemMeta(meta);
 		}
 	}
 	
-	public void giveItems() {
-		PlayerInventory inv = _player.getInventory();
-		inv.setHeldItemSlot(0);
-		inv.setItemInHand(new ItemStack(Material.IRON_SWORD));
-		inv.setHeldItemSlot(1);
-		inv.setItemInHand(new ItemStack(Material.BOW));
-		inv.setHeldItemSlot(2);
-		inv.setItemInHand(new ItemStack(Material.APPLE, 5));
-		
-		inv.setHeldItemSlot(7);
-		inv.setItemInHand(new ItemStack(Material.ARROW, 64));
-		inv.setHeldItemSlot(8);
-		inv.setItemInHand(new ItemStack(Material.ARROW, 64));
-		
-		inv.setHeldItemSlot(0);
+	public Kit getKit() {
+		return _kit;
+	}
+	
+	public void setTeamColor(String colorPrefix) {
+		_teamColor = colorPrefix;
 	}
 	
 	public String getColorfulName() {
-		return _team.getChatColor() + _name;
+		return _teamColor + _name;
 	}
 	
 	public boolean equals(Player player) {
@@ -149,7 +156,7 @@ public class Player {
 	
 	public void clearInventory() {
 		_player.getInventory().clear();
-		_player.getInventory().setArmorContents(new ItemStack[4]);
+//		_player.getInventory().setArmorContents(new ItemStack[4]);
 	}
 	
 	public void clearAttackers() {
@@ -205,5 +212,9 @@ public class Player {
 	public void resetStats() {
 		_player.setHealth(_player.getMaxHealth());
 		_player.setFoodLevel(20);
+	}
+	
+	public void giveItems() {
+		_player.getInventory().setContents(_kit.getItems());
 	}
 }

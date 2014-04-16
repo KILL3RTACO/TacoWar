@@ -20,29 +20,28 @@ import com.kill3rtaco.war.game.map.options.JuggernautMapOptions;
 import com.kill3rtaco.war.game.map.options.KOTHMapOptions;
 import com.kill3rtaco.war.game.map.options.MapOptions;
 import com.kill3rtaco.war.game.map.options.TDMMapOptions;
-import com.kill3rtaco.war.game.player.TeamColor;
 
 public class Map extends ValidatedConfig {
 	
-	private String								_id, _name, _author, _timeName;
-	private String								_messageGameStart,
-												_messageLobbySpawn;
-	private Location							_origin, _lobby;
-	private File								_file	= null;
-	private List<String>						_perms;
-	private long								_timeTicks;
-	private List<Teleporter>					_teleporters;
-	private List<GameType>						_supported;
-	private HashMap<TeamColor, List<Location>>	_spawns;
+	private String							_id, _name, _author, _timeName;
+	private String							_messageGameStart,
+											_messageLobbySpawn;
+	private Location						_origin, _lobby;
+	private File							_file	= null;
+	private List<String>					_perms;
+	private long							_timeTicks;
+	private List<Teleporter>				_teleporters;
+	private List<GameType>					_supported;
+	private HashMap<String, List<Location>>	_spawns;
 	
 	//map options
-	private MapOptions							_currentOptions;
-	private FFAMapOptions						_ffaOptions;
-	private HideAndSeekMapOptions				_hasOptions;
-	private InfectionMapOptions					_infOptions;
-	private JuggernautMapOptions				_jugOptions;
-	private KOTHMapOptions						_kothOptions;
-	private TDMMapOptions						_tdmOptions;
+	private MapOptions						_currentOptions;
+	private FFAMapOptions					_ffaOptions;
+	private HideAndSeekMapOptions			_hasOptions;
+	private InfectionMapOptions				_infOptions;
+	private JuggernautMapOptions			_jugOptions;
+	private KOTHMapOptions					_kothOptions;
+	private TDMMapOptions					_tdmOptions;
 	
 	public Map(String id) {
 		super(new YamlConfiguration());
@@ -67,16 +66,9 @@ public class Map extends ValidatedConfig {
 		_author = getString(M_AUTHOR, false);
 		_origin = getLocation(M_ORIGIN, false, true);
 		_lobby = getLocation(M_LOBBY, true, true);
-		_spawns = new HashMap<TeamColor, List<Location>>();
+		_spawns = new HashMap<String, List<Location>>();
 		for(String s : _config.getConfigurationSection("team_spawns").getKeys(false)) {
-			TeamColor c = TeamColor.getTeamColor(s);
-			if(c == null) {
-				continue;
-			}
-			List<Location> locs = getLocationList(_config.getStringList("team_spawns." + s));
-			if(!locs.isEmpty()) {
-				_spawns.put(c, locs);
-			}
+			
 		}
 		if(_spawns.size() < 2) {
 			_valid = false;

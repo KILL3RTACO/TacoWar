@@ -1,11 +1,14 @@
 package com.kill3rtaco.war.game.types;
 
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.kill3rtaco.war.game.GameTypeOptions;
 import com.kill3rtaco.war.game.Kit;
-import com.kill3rtaco.war.game.player.TeamColor;
+import com.kill3rtaco.war.game.kill.AttackInfo;
+import com.kill3rtaco.war.game.player.Player;
+import com.kill3rtaco.war.game.player.TeamConstants;
 
 public class InfectionOptions extends GameTypeOptions {
 	
@@ -17,8 +20,8 @@ public class InfectionOptions extends GameTypeOptions {
 		super(config);
 		_infectedKit = kit("infected_kit");
 		_survivorKit = kit("survivor_kit");
-		_infectedArmorColor = overrideColor("infected_armor_color", TeamColor.GREEN.getArmorColor());
-		_survivorArmorColor = overrideColor("survivor_armor_color", TeamColor.BLUE.getArmorColor());
+		_infectedArmorColor = overrideColor("infected_armor_color", TeamConstants.GREEN_ARMOR);
+		_survivorArmorColor = overrideColor("survivor_armor_color", TeamConstants.BLUE_ARMOR);
 		_infectedSpeed = overrideInt("infected_speed", 125);
 	}
 	
@@ -30,8 +33,8 @@ public class InfectionOptions extends GameTypeOptions {
 		return _survivorArmorColor;
 	}
 	
-	public int infectedSpeed() {
-		return _infectedSpeed;
+	public float infectedSpeed() {
+		return toSpeedFloat(_infectedSpeed);
 	}
 	
 	public Kit infectedKit() {
@@ -40,6 +43,24 @@ public class InfectionOptions extends GameTypeOptions {
 	
 	public Kit survivorKit() {
 		return _survivorKit;
+	}
+	
+	@Override
+	public void registerTimers() {
+	}
+	
+	@Override
+	public void onPlayerMove(Player player, Location from, Location to) {
+	}
+	
+	@Override
+	public boolean onPlayerAttack(AttackInfo info) {
+		return false;
+	}
+	
+	@Override
+	public Location onPlayerDeath(AttackInfo info) {
+		return null;
 	}
 	
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
@@ -12,7 +13,9 @@ import com.kill3rtaco.tacoapi.api.serialization.SingleItemSerialization;
 import com.kill3rtaco.war.TWDefaults;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.ValidatedConfig;
-import com.kill3rtaco.war.game.player.TeamColor;
+import com.kill3rtaco.war.game.kill.AttackInfo;
+import com.kill3rtaco.war.game.player.Player;
+import com.kill3rtaco.war.game.player.TeamConstants;
 
 /*
  * abstract for there will be a class for every GameType
@@ -39,7 +42,7 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 		_id = getString("id", true);
 		_name = getString("name", true);
 		_authors = _config.getStringList("authors");
-		_playerArmorColor = overrideColor("player_armor_color", TeamColor.RED.getArmorColor());
+		_playerArmorColor = overrideColor("player_armor_color", TeamConstants.RED_ARMOR);
 		if(_authors.isEmpty())
 			_authors.add("Unknown");
 		String baseType = getString("base_type", true);
@@ -85,9 +88,9 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 	}
 	
 	protected Color overrideColor(String path, Color override) {
-		TeamColor tc = TeamColor.getTeamColor(_config.getString(path, "red"));
-		if(tc != null) {
-			return tc.getArmorColor();
+		Color c = TeamConstants.getArmorColor(_config.getString(path, "red"));
+		if(c != null) {
+			return c;
 		} else {
 			return override;
 		}
@@ -155,5 +158,15 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 	protected Kit kit(String path) {
 		return TacoWar.plugin.getKit(_config.getString(path));
 	}
+	
+	//different events
+	
+	public abstract void registerTimers();
+	
+	public abstract void onPlayerMove(Player player, Location from, Location to);
+	
+	public abstract boolean onPlayerAttack(AttackInfo info); //return if should be cancelled
+	
+	public abstract Location onPlayerDeath(AttackInfo info); //return respawn location, null if cancel
 	
 }

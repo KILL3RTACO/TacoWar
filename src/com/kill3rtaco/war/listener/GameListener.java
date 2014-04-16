@@ -110,7 +110,7 @@ public class GameListener implements Listener {
 			boolean friendly = false;
 			
 			//should not be needed - cancel friendly fire if needed
-			if(attacker.getTeam() == player.getTeam()) {
+			if(attacker.getTeam().equalsIgnoreCase(player.getTeam())) {
 				if(game.options().friendlyFireEnabled()) {
 					friendly = true;
 				} else {

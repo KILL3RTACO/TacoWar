@@ -7,6 +7,7 @@ import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -127,6 +128,7 @@ public class Game {
 			warPlayer.setAdventureMode();
 			warPlayer.setCanFly(true);
 		}
+		
 	}
 	
 	private void launchPlayer(Player p) {
@@ -153,7 +155,23 @@ public class Game {
 		
 	}
 	
-	//get and add to score
+	private Score getScoreboardScore(String team) {
+		return _board.getObjective("tw.game.kills").getScore(Bukkit.getOfflinePlayer(team + "     "));
+	}
+	
+	public void setScore(String team, int score) {
+		getScoreboardScore(team).setScore(score);
+		_lastAction = System.currentTimeMillis();
+	}
+	
+	public int getScore(String team) {
+		return getScoreboardScore(team).getScore();
+	}
+	
+	public void addToScore(String team, int add) {
+		Score s = getScoreboardScore(team);
+		s.setScore(s.getScore() + add);
+	}
 	
 	public void start() {
 		if(_players.isEmpty()) {
@@ -183,7 +201,7 @@ public class Game {
 		_endTime = System.currentTimeMillis();
 		if(!_players.isEmpty()) {
 			for(Player p : _players) {
-				Team team = _board.getTeam(p.getTeam().getName());
+				Team team = _board.getTeam(p.getTeam());
 				team.removePlayer(p.getBukkitPlayer());
 				p.getBukkitPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
 				p.teleport(_map.getLobbyLocation());
@@ -299,7 +317,10 @@ public class Game {
 		return _map;
 	}
 	
-	//get team in lead
+	public String getTeamInLead() {
+		int max = 0;
+		
+	}
 	
 	public long getGameIdleTime() {
 		return System.currentTimeMillis() - _lastAction;
@@ -322,12 +343,9 @@ public class Game {
 	
 	//get if a team exists
 	
-	public enum GameState {
-		IN_LOBBY, IN_PROGRESS, POST_GAME;
-	}
-	
 	public int getWinningScore() {
-		
+		String winner = getTeamInLead();
+		return getScore(winner);
 	}
 	
 	public GameTypeOptions options() {
@@ -344,6 +362,10 @@ public class Game {
 	
 	public List<Player> getSeekers() {
 		
+	}
+	
+	public enum GameState {
+		IN_LOBBY, IN_PROGRESS, POST_GAME;
 	}
 	
 }
