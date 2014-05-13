@@ -19,8 +19,9 @@ import com.kill3rtaco.war.game.kill.PlayerDamage;
 public class Player {
 	
 	private org.bukkit.entity.Player	_player;
-	private String						_name, _team, _teamColor;
-	private List<PlayerDamage>			_allAttackers;				//not cleared periodically
+	private String						_name, _teamColor;
+	private Team						_team;
+	private List<PlayerDamage>			_allAttackers;			//not cleared periodically
 	private List<PlayerDamage>			_attackers;
 	private boolean						_invincible	= false;
 	private Kit							_kit;
@@ -38,7 +39,7 @@ public class Player {
 		}.runTaskTimer(TacoWar.plugin, 0L, 20L);
 	}
 	
-	public void setTeam(String team) {
+	public void setTeam(Team team) {
 		_team = team;
 		sendMessage("You are now on the " + team + " team");
 	}
@@ -89,7 +90,7 @@ public class Player {
 		}
 	}
 	
-	public String getTeam() {
+	public Team getTeam() {
 		return _team;
 	}
 	

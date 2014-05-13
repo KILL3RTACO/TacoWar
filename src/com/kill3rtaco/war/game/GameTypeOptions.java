@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Color;
-import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,8 +12,6 @@ import com.kill3rtaco.tacoapi.api.serialization.SingleItemSerialization;
 import com.kill3rtaco.war.TWDefaults;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.ValidatedConfig;
-import com.kill3rtaco.war.game.kill.AttackInfo;
-import com.kill3rtaco.war.game.player.Player;
 import com.kill3rtaco.war.game.player.TeamConstants;
 
 /*
@@ -163,10 +160,6 @@ public abstract class GameTypeOptions extends ValidatedConfig {
 	
 	public abstract void registerTimers();
 	
-	public abstract void onPlayerMove(Player player, Location from, Location to);
-	
-	public abstract boolean onPlayerAttack(AttackInfo info); //return if should be cancelled
-	
-	public abstract Location onPlayerDeath(AttackInfo info); //return respawn location, null if cancel
+	public abstract boolean isKillBased();
 	
 }

@@ -1,13 +1,10 @@
 package com.kill3rtaco.war.game.types;
 
 import org.bukkit.Color;
-import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.kill3rtaco.war.game.GameTypeOptions;
 import com.kill3rtaco.war.game.Kit;
-import com.kill3rtaco.war.game.kill.AttackInfo;
-import com.kill3rtaco.war.game.player.Player;
 import com.kill3rtaco.war.game.player.TeamConstants;
 
 public class HideAndSeekOptions extends GameTypeOptions {
@@ -48,17 +45,8 @@ public class HideAndSeekOptions extends GameTypeOptions {
 	}
 	
 	@Override
-	public void onPlayerMove(Player player, Location from, Location to) {
-	}
-	
-	@Override
-	public boolean onPlayerAttack(AttackInfo info) {
+	public boolean isKillBased() {
 		return false;
-	}
-	
-	@Override
-	public Location onPlayerDeath(AttackInfo info) {
-		return null;
 	}
 	
 }

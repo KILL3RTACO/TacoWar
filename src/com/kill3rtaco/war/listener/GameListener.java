@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.Game;
+import com.kill3rtaco.war.game.GameType;
 import com.kill3rtaco.war.game.kill.AttackInfo;
 import com.kill3rtaco.war.game.kill.PlayerKill;
 import com.kill3rtaco.war.game.map.Teleporter;
@@ -92,14 +93,16 @@ public class GameListener implements Listener {
 		}
 		EntityDamageEvent e = event.getEntity().getLastDamageCause();
 		AttackInfo info = new AttackInfo(e);
+		PlayerKill kill;
 		if(info.getAttacker() == null || info.getAttacker().getType() != EntityType.PLAYER) {
 			String weapon = info.getToolActionDisplay();
 			boolean suicide = info.isSuicide();
-			PlayerKill kill = game.getKillFeed().addToFeed(player, weapon, player);
-			game.getKillFeed().printKill(kill);
-			int penalty = game.options().suicidePenalty();
-			if(suicide && penalty != 0) {
-				game.addToScore(player.getTeam(), Math.abs(penalty) * -1);
+			kill = game.getKillFeed().addToFeed(player, weapon, player);
+			if(game.options().isKillBased()) {
+				int penalty = game.options().suicidePenalty();
+				if(suicide && penalty != 0) {
+					game.updateScoreboard(player.getTeam().getName(), Math.abs(penalty) * -1);
+				}
 			}
 		} else {
 			Player attacker = game.getPlayer((org.bukkit.entity.Player) info.getAttacker());
@@ -110,7 +113,7 @@ public class GameListener implements Listener {
 			boolean friendly = false;
 			
 			//should not be needed - cancel friendly fire if needed
-			if(attacker.getTeam().equalsIgnoreCase(player.getTeam())) {
+			if(attacker.getTeam().hasPlayer(player)) {
 				if(game.options().friendlyFireEnabled()) {
 					friendly = true;
 				} else {
@@ -120,21 +123,25 @@ public class GameListener implements Listener {
 			}
 			
 			String weapon = info.getToolActionDisplay();
-			PlayerKill kill = game.getKillFeed().addToFeed(attacker, weapon, player);
-			game.getKillFeed().printKill(kill);
-			if(friendly) {
-				int penalty = game.options().friendlyFirePenalty();
-				if(penalty != 0) {
-					game.addToScore(attacker.getTeam(), Math.abs(penalty) * -1);
+			kill = game.getKillFeed().addToFeed(attacker, weapon, player);
+			if(game.options().isKillBased()) {
+				if(friendly) {
+					int penalty = game.options().friendlyFirePenalty();
+					if(penalty != 0) {
+						game.updateScoreboard(attacker.getTeam().getName(), Math.abs(penalty) * -1);
+					}
+				} else {
+					game.updateScoreboard(attacker.getTeam().getName(), 1);
 				}
-			} else {
-				game.addToScore(attacker.getTeam(), 1);
 			}
 		}
 		event.setDeathMessage(null); //remove death message
+		game.getKillFeed().printKill(kill);
 		event.getDrops().clear(); //clear any items dropped
 		event.setDroppedExp(0); //clear any xp dropped
-		if(game.getScore(game.getTeamInLead()) >= game.getMaxKills()) {
+		
+		//no point in moving forward if people dying does not award points
+		if(game.options().isKillBased() && game.getScore(game.getTeamInLead().getName()) >= game.getMaxScore()) {
 			game.end();
 		}
 	}
@@ -153,7 +160,16 @@ public class GameListener implements Listener {
 				return;
 			}
 			Location location = null;
-			//determine location based on gametype
+			
+			GameType type = game.options().baseType();
+			if(type == GameType.FFA) {
+				
+			} else if(type == GameType.JUGGERNAUT) {
+				//get if juggernaut
+			} else {
+				location = game.getMap().getRandomSpawn(player.getTeam().getId());
+			}
+			
 			event.setRespawnLocation(location);
 			player.addArmor();
 			player.giveItems();

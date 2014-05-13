@@ -9,13 +9,13 @@ import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.Team;
 
 import com.kill3rtaco.tacoapi.util.Time;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.kill.KillFeed;
 import com.kill3rtaco.war.game.map.Map;
 import com.kill3rtaco.war.game.player.Player;
+import com.kill3rtaco.war.game.player.Team;
 import com.kill3rtaco.war.game.types.FFAOptions;
 import com.kill3rtaco.war.game.types.HideAndSeekOptions;
 import com.kill3rtaco.war.game.types.InfectionOptions;
@@ -28,7 +28,7 @@ public class Game {
 	private Map					_map;
 	private List<Player>		_players;
 	private long				_startTime, _endTime;
-	private int					_maxKills, _checkerId;
+	private int					_maxScore, _checkerId;
 	private long				_timeLimit, _idleTimeLimit, _lastAction;
 	private GameState			_state;
 	private Scoreboard			_board;
@@ -156,7 +156,7 @@ public class Game {
 	}
 	
 	private Score getScoreboardScore(String team) {
-		return _board.getObjective("tw.game.kills").getScore(Bukkit.getOfflinePlayer(team + "     "));
+		return _board.getObjective("tw.game.score").getScore(Bukkit.getOfflinePlayer(team + "     "));
 	}
 	
 	public void setScore(String team, int score) {
@@ -168,9 +168,9 @@ public class Game {
 		return getScoreboardScore(team).getScore();
 	}
 	
-	public void addToScore(String team, int add) {
+	public void updateScoreboard(String team, int points) {
 		Score s = getScoreboardScore(team);
-		s.setScore(s.getScore() + add);
+		s.setScore(s.getScore() + points);
 	}
 	
 	public void start() {
@@ -201,7 +201,7 @@ public class Game {
 		_endTime = System.currentTimeMillis();
 		if(!_players.isEmpty()) {
 			for(Player p : _players) {
-				Team team = _board.getTeam(p.getTeam());
+				org.bukkit.scoreboard.Team team = _board.getTeam(p.getTeam().getName());
 				team.removePlayer(p.getBukkitPlayer());
 				p.getBukkitPlayer().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
 				p.teleport(_map.getLobbyLocation());
@@ -225,7 +225,7 @@ public class Game {
 	}
 	
 	public void determineMaxKills() {
-		_maxKills = _players.size() * (2 / 3);
+		_maxScore = _players.size() * (2 / 3);
 	}
 	
 	private void registerChecker() {
@@ -280,11 +280,11 @@ public class Game {
 	}
 	
 	public void setMaxKills(int max) {
-		_maxKills = max <= 0 ? 1 : max;
+		_maxScore = max <= 0 ? 1 : max;
 	}
 	
-	public int getMaxKills() {
-		return _maxKills;
+	public int getMaxScore() {
+		return _maxScore;
 	}
 	
 	public long getTimeLimit() {
@@ -317,9 +317,21 @@ public class Game {
 		return _map;
 	}
 	
-	public String getTeamInLead() {
+	public Team getTeamInLead() {
 		int max = 0;
-		
+		Team winning = null;
+		for(org.bukkit.scoreboard.Team t : _board.getTeams()) {
+			int score = getScore(t.getName());
+			if(score > max) {
+				max = score;
+				for(Player p : _players) {
+					Team team = p.getTeam();
+					if(team.getName().equalsIgnoreCase(t.getName()))
+						winning = team;
+				}
+			}
+		}
+		return winning;
 	}
 	
 	public long getGameIdleTime() {
@@ -344,24 +356,12 @@ public class Game {
 	//get if a team exists
 	
 	public int getWinningScore() {
-		String winner = getTeamInLead();
+		String winner = getTeamInLead().getName();
 		return getScore(winner);
 	}
 	
 	public GameTypeOptions options() {
 		return _gameType;
-	}
-	
-	public Player getJuggernaut() {
-		
-	}
-	
-	public List<Player> getHiders() {
-		
-	}
-	
-	public List<Player> getSeekers() {
-		
 	}
 	
 	public enum GameState {

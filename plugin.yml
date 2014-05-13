@@ -1,8 +1,7 @@
 name: TacoWar
 main: com.kill3rtaco.war.TacoWar
 version: 1.0
-depend: [TacoAPI]
-softdepend: [WorldEdit]
+depend: [TacoAPI, WorldEdit]
 commands:
   tacowar:
     description: Commands for TacoWar

@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -58,7 +59,7 @@ public class Map extends ValidatedConfig {
 		super(YamlConfiguration.loadConfiguration(file));
 		_supported = new ArrayList<GameType>();
 		_file = file;
-		_id = getString(M_ID, true);
+		_id = getString(M_ID, true).trim();
 		if(_id != null && (_id.isEmpty() || _id.contains(" "))) {
 			_valid = false;
 		}
@@ -67,13 +68,28 @@ public class Map extends ValidatedConfig {
 		_origin = getLocation(M_ORIGIN, false, true);
 		_lobby = getLocation(M_LOBBY, true, true);
 		_spawns = new HashMap<String, List<Location>>();
-		for(String s : _config.getConfigurationSection("team_spawns").getKeys(false)) {
-			
-		}
-		if(_spawns.size() < 2) {
-			_valid = false;
+		//examples:
+		//spawns.ffa - all ffa spawns
+		//spanwns.red - red team spawns for team based games
+		//spawns.infected - infected spawns in INF
+		for(String s : _config.getConfigurationSection("spawns").getKeys(false)) {
+			String root = "spawns." + s;
+			ArrayList<Location> spawns = new ArrayList<Location>();
+			if(_config.isString(root)) {
+				Location spawn = getPointRelative(root);
+				if(spawn == null)
+					continue;
+				spawns.add(spawn);
+			} else {
+				List<String> locs = _config.getStringList(root);
+				if(locs.isEmpty())
+					continue;
+				spawns.addAll(getLocationList(locs));
+			}
+			_spawns.put(s, spawns);
 		}
 		initMapOptions();
+		
 		_teleporters = new ArrayList<Teleporter>();
 		if(_config.isConfigurationSection(M_TELEPORTERS)) {
 			for(String s : _config.getConfigurationSection(M_TELEPORTERS).getKeys(false)) {
@@ -367,6 +383,15 @@ public class Map extends ValidatedConfig {
 		} else if(gameType == GameType.TDM) {
 			_currentOptions = _tdmOptions;
 		}
+	}
+	
+	public Location getRandomSpawn(String team) {
+		List<Location> locs = _spawns.get(team);
+		if(locs == null || locs.isEmpty())
+			return null;
+		if(locs.size() == 1)
+			return locs.get(0);
+		return locs.get(new Random().nextInt(locs.size()));
 	}
 	
 	public MapOptions options() {
