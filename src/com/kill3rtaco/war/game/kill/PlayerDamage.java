@@ -1,41 +1,41 @@
 package com.kill3rtaco.war.game.kill;
 
-import com.kill3rtaco.war.game.player.Player;
+import com.kill3rtaco.war.game.player.WarPlayer;
 
 public class PlayerDamage {
-	
-	private long	_time;
-	private Player	_player;
-	private double	_damage;
-	
-	public PlayerDamage(Player player, double damage) {
+
+	private long _time;
+	private WarPlayer _player;
+	private double _damage;
+
+	public PlayerDamage(WarPlayer player, double damage) {
 		this(player, damage, System.currentTimeMillis());
 	}
-	
-	public PlayerDamage(Player player, double damage, long time) {
+
+	public PlayerDamage(WarPlayer player, double damage, long time) {
 		_time = time;
 		_player = player;
 		_damage = damage;
 	}
-	
-	public Player getAttacker() {
+
+	public WarPlayer getAttacker() {
 		return _player;
 	}
-	
+
 	public long getTime() {
 		return _time;
 	}
-	
+
 	public double getDamage() {
 		return _damage;
 	}
-	
+
 	public void setTime(long time) {
 		_time = time;
 	}
-	
+
 	public void setDamage(double damage) {
 		_damage = damage;
 	}
-	
+
 }

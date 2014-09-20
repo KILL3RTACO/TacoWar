@@ -1,4 +1,4 @@
-package com.kill3rtaco.war.game;
+package com.kill3rtaco.war.game.player;
 
 import java.util.Map;
 
@@ -11,12 +11,12 @@ import com.kill3rtaco.tacoapi.api.serialization.InventorySerialization;
 import com.kill3rtaco.war.ValidatedConfig;
 
 public class Kit extends ValidatedConfig {
-	
-	private String		_id, _name;
-	private ItemStack[]	_items;
-	private Map<Enchantment, Integer>	_helmetEnchants, _chestplateEnchants,
-										_leggingEnchants, _bootEnchants;
-	
+
+	private String _id, _name;
+	private ItemStack[] _items;
+	private Map<Enchantment, Integer> _helmetEnchants, _chestplateEnchants,
+			_leggingEnchants, _bootEnchants;
+
 	public Kit(ConfigurationSection section) {
 		super(section);
 		_id = getString("id", true);
@@ -28,31 +28,31 @@ public class Kit extends ValidatedConfig {
 		_leggingEnchants = EnchantmentSerialization.getEnchantments(getString("legging_enchants", false));
 		_bootEnchants = EnchantmentSerialization.getEnchantments(getString("boot_enchants", false));
 	}
-	
+
 	public String getId() {
 		return _id;
 	}
-	
+
 	public String getName() {
 		return _name;
 	}
-	
+
 	public ItemStack[] getItems() {
 		return _items;
 	}
-	
+
 	public Map<Enchantment, Integer> getHelmetEnchants() {
 		return _helmetEnchants;
 	}
-	
+
 	public Map<Enchantment, Integer> getChestplateEnchants() {
 		return _chestplateEnchants;
 	}
-	
+
 	public Map<Enchantment, Integer> getLeggingEnchants() {
 		return _leggingEnchants;
 	}
-	
+
 	public Map<Enchantment, Integer> getBootEnchants() {
 		return _bootEnchants;
 	}

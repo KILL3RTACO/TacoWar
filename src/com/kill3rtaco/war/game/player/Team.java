@@ -3,64 +3,64 @@ package com.kill3rtaco.war.game.player;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.entity.Player;
+
+import com.kill3rtaco.war.util.WarUtil;
+
 public class Team {
-	
-	private List<Player>	_players;
-	private String			_id, _name;
-	
-	public Team(String id, String name) {
-		_id = id;
+
+	private String _name;
+	private ArrayList<WarPlayer> _players = new ArrayList<WarPlayer>();
+
+	public Team(String name) {
 		_name = name;
-		_players = new ArrayList<Player>();
 	}
-	
-	public boolean addPlayer(Player player) {
-		if(!hasPlayer(player)) {
-			_players.add(player);
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean hasPlayer(Player player) {
-		return hasPlayer(player.getName());
-	}
-	
-	public boolean hasPlayer(String name) {
-		for(Player p : _players) {
-			if(p.getName().equalsIgnoreCase(name))
-				return true;
-		}
-		return true;
-	}
-	
-	public boolean removePlayer(Player player) {
-		return removePlayer(player.getName()) != null;
-	}
-	
-	public Player removePlayer(String name) {
-		for(Player p : _players) {
-			if(p.getName().equalsIgnoreCase(name)) {
-				_players.remove(p);
-				return p;
-			}
-		}
-		return null;
-	}
-	
-	public String getId() {
-		return _id;
-	}
-	
+
 	public String getName() {
 		return _name;
 	}
-	
-	//for possible team chat
-	public void sendMessage(String message) {
-		for(Player p : _players) {
-			p.sendMessage("&8[team] &f" + message);
-		}
+
+	public void addPlayer(WarPlayer player) {
+		if (!hasPlayer(player.getName()))
+			_players.add(player);
 	}
-	
+
+	public void removePlayer(Player p) {
+		removePlayer(p.getName());
+	}
+
+	public void removePlayer(WarPlayer player) {
+		removePlayer(player.getName());
+	}
+
+	public void removePlayer(String name) {
+		WarUtil.removePlayer(_players, name);
+	}
+
+	public String getColor() {
+		if (_name.matches("\\&[0-9a-f].+")) //color code and at least on letter
+			return _name.substring(0, 2);
+		return "&f";
+	}
+
+	public List<WarPlayer> getPlayers() {
+		return _players;
+	}
+
+	public boolean hasPlayer(Player p) {
+		return hasPlayer(p.getName());
+	}
+
+	public boolean hasPlayer(WarPlayer player) {
+		return hasPlayer(player.getName());
+	}
+
+	public boolean hasPlayer(String name) {
+		return WarUtil.hasPlayer(_players, name);
+	}
+
+	public void broadcast(String message) {
+		WarUtil.broadcast(_players, message);
+	}
+
 }
