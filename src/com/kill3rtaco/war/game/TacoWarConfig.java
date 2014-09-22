@@ -9,7 +9,7 @@ import com.kill3rtaco.tacoapi.api.TacoConfig;
 
 public class TacoWarConfig extends TacoConfig {
 
-	public static final String KEY_WAR_WORLD = "war_world";
+	public static final String	KEY_WAR_WORLD	= "war_world";
 
 	public TacoWarConfig(File file) {
 		super(file);

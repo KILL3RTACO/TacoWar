@@ -8,9 +8,10 @@ import com.kill3rtaco.war.TacoWar;
 
 public class WarPlayer {
 
-	private String _name;
-	private Team _team;
-	private Kit _kit;
+	private String	_name;
+	private WarTeam	_team;
+	private WarKit	_kit;
+	private boolean	_invincible	= false;
 
 	public WarPlayer(String name) {
 		_name = name;
@@ -20,15 +21,22 @@ public class WarPlayer {
 		return _name;
 	}
 
-	public Kit getKit() {
+	public WarKit getKit() {
 		return _kit;
+	}
+
+	public void setInvicible(boolean invincible) {
+		_invincible = invincible;
+	}
+
+	public boolean isInvincible() {
+		return _invincible;
 	}
 
 	public void giveKit() {
 		Player p = getBukkitPlayer();
 		if (p != null) {
-			p.getInventory().setContents(_kit.getItems());
-			//give colored armor and apply enchants, if any
+
 		}
 	}
 
@@ -40,14 +48,14 @@ public class WarPlayer {
 		return Bukkit.getPlayer(_name);
 	}
 
-	public void setTeam(Team team) {
+	public void setTeam(WarTeam team) {
 		if (_team != null)
 			_team.removePlayer(this);
 		_team = team;
 		team.addPlayer(this);
 	}
 
-	public Team getTeam() {
+	public WarTeam getTeam() {
 		return _team;
 	}
 
@@ -77,6 +85,21 @@ public class WarPlayer {
 		Player p = getBukkitPlayer();
 		if (p != null)
 			p.getInventory().clear();
+	}
+
+	public Weapon getHeldWeapon() {
+		Player p = getBukkitPlayer();
+		if (p != null)
+			return _kit.getWeapon(p.getInventory().getHeldItemSlot());
+		else
+			return null;
+	}
+
+	public void updateAmmoCount() {
+		Player p = getBukkitPlayer();
+		Weapon w = getHeldWeapon();
+		if (p != null)
+			p.setLevel(w.getAmmo());
 	}
 
 }

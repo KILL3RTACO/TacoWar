@@ -6,40 +6,44 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.kill3rtaco.war.Identifyable;
 import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.ValidatedConfig;
 import com.kill3rtaco.war.game.GameType;
+import com.kill3rtaco.war.game.player.WarTeam;
 
-public class Map extends ValidatedConfig {
+public class WarMap extends ValidatedConfig implements Identifyable {
 
-	private String _id, _name, _author, _timeName;
-	private String _messageGameStart,
-			_messageLobbySpawn;
-	private Location _origin, _lobby;
-	private File _file = null;
+	private String				_id, _name, _author, _timeName;
+	private String				_messageGameStart,
+								_messageLobbySpawn;
+	private Location			_origin, _lobby;
+	private File				_file				= null;
 //	private List<String> _perms;
-	private long _timeTicks;
-	private List<Teleporter> _teleporters;
-	private int _supportedGametypes = 0;
-	private List<Spawnpoint> _spawns;
-	private List<Hill> _hills;
+	private long				_timeTicks;
+	private List<Teleporter>	_teleporters;
+	private int					_supportedGametypes	= 0;
+	private List<Spawnpoint>	_spawns;
+	private List<Hill>			_hills;
 
-	public static final String KEY_AUTHOR = "author";
-	public static final String KEY_HILLS = "hills";
-	public static final String KEY_ID = "id";
-	public static final String KEY_NAME = "name";
-	public static final String KEY_LOBBY = "lobby_spawn";
-	public static final String KEY_SPAWNPOINTS = "spawnpoints";
-	public static final String KEY_TELEPORTERS = "teleporters";
-	public static final String KEY_WORLD_TIME = "time";
-	public static final String KEY_MSG_GAME_START = "msg_game_start";
-	public static final String KEY_MSG_LOBBY_SPAWN = "msg_lobby_spawn";
-	public static final String KEY_ORIGIN = "origin";
+	public static final String	KEY_AUTHOR			= "author";
+	public static final String	KEY_HILLS			= "hills";
+	public static final String	KEY_ID				= "id";
+	public static final String	KEY_NAME			= "name";
+	public static final String	KEY_ORIGIN			= "origin";
+	public static final String	KEY_LOBBY			= "lobby_spawn";
+	public static final String	KEY_READY			= "ready";
+	public static final String	KEY_SPAWNPOINTS		= "spawnpoints";
+	public static final String	KEY_TELEPORTERS		= "teleporters";
+	public static final String	KEY_WORLD_TIME		= "time";
+	public static final String	KEY_MSG_GAME_START	= "msg_game_start";
+	public static final String	KEY_MSG_LOBBY_SPAWN	= "msg_lobby_spawn";
 
-	public Map(String id) {
+	public WarMap(String id) {
 		super(new YamlConfiguration());
 		_id = id;
 		_name = "";
@@ -49,10 +53,10 @@ public class Map extends ValidatedConfig {
 //		_perms = new ArrayList<String>();
 	}
 
-	public Map(File file) {
-		super(YamlConfiguration.loadConfiguration(file));
-		_file = file;
+	public WarMap(ConfigurationSection config) {
+		super(config);
 		_id = getString(KEY_ID, true).trim();
+		_file = new File(TW.MAPS_FOLDER, _id + ".yml");
 		if (_id != null && (_id.isEmpty() || _id.contains(" "))) {
 			_valid = false;
 		}
@@ -67,6 +71,10 @@ public class Map extends ValidatedConfig {
 		_messageGameStart = getString(KEY_MSG_GAME_START, false);
 		_messageLobbySpawn = getString(KEY_MSG_LOBBY_SPAWN, false);
 		setTime(_config.getString(KEY_WORLD_TIME, "day"));
+	}
+
+	public boolean isReady() {
+		return _config.getBoolean(KEY_READY);
 	}
 
 	private void initSpawns() {
@@ -164,6 +172,10 @@ public class Map extends ValidatedConfig {
 			return null;
 
 		return new Hill(this, name, location, radius);
+	}
+
+	public List<Hill> getHills() {
+		return _hills;
 	}
 
 	private Location getLocation(String path, boolean relative, boolean req) {
@@ -394,7 +406,7 @@ public class Map extends ValidatedConfig {
 		ArrayList<Spawnpoint> locs = new ArrayList<Spawnpoint>();
 		for (Spawnpoint s : _spawns) {
 			if ((s.getTeam() == null || s.getTeam().isEmpty() || s.getTeam().equals(team))
-					&& s.appliesTo(TacoWar.currentGame().getGameType()))
+					&& s.appliesTo(TacoWar.currentGame().getGameType().getType()))
 				locs.add(s);
 		}
 		if (locs.isEmpty())
@@ -402,6 +414,10 @@ public class Map extends ValidatedConfig {
 		if (locs.size() == 1)
 			return locs.get(0).getLocation();
 		return locs.get(new Random().nextInt(locs.size())).getLocation();
+	}
+
+	public Location getRandomSpawn(WarTeam team) {
+		return getRandomSpawn(team.getId());
 	}
 
 }

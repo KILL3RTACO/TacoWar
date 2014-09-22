@@ -1,16 +1,25 @@
 package com.kill3rtaco.war;
 
+import java.io.File;
+
 public class TW {
 
-	public static final String BLACK_TEAM = "&0Black Team";
-	public static final String BLUE_TEAM = "&9Blue Team";
-	public static final String GREEN_TEAM = "&aGreen Team";
-	public static final String ORANGE_TEAM = "&6Orange Team";
-	public static final String PINK_TEAM = "&dPink Team";
-	public static final String PURPLE_TEAM = "&5Purple Team";
-	public static final String RED_TEAM = "&cRed Team";
-	public static final String WHITE_TEAM = "&eYellow Team";
-	public static final String YELLOW_TEAM = "&eYellow Team";
+	public static final String	BLACK_TEAM		= "&0Black Team";
+	public static final String	BLUE_TEAM		= "&9Blue Team";
+	public static final String	GREEN_TEAM		= "&aGreen Team";
+	public static final String	ORANGE_TEAM		= "&6Orange Team";
+	public static final String	PINK_TEAM		= "&dPink Team";
+	public static final String	PURPLE_TEAM		= "&5Purple Team";
+	public static final String	RED_TEAM		= "&cRed Team";
+	public static final String	WHITE_TEAM		= "&eYellow Team";
+	public static final String	YELLOW_TEAM		= "&eYellow Team";
+
+	public static final File	DATA_FOLDER		= TacoWar.plugin.getDataFolder();
+	public static final File	MAPS_FOLDER		= new File(DATA_FOLDER, "maps");
+	public static final File	GT_FOLDER		= new File(DATA_FOLDER, "gametypes");
+	public static final File	PL_FOLDER		= new File(DATA_FOLDER, "playlists");
+	public static final File	WEAPONS_FOLDER	= new File(DATA_FOLDER, "weapons");
+	public static final File	KITS_FOLDER		= new File(DATA_FOLDER, "kits");
 
 	public static boolean eic(String test, String... tests) {
 		for (String s : tests) {

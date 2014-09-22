@@ -12,71 +12,71 @@ public class WarUtil {
 
 	public static String getDamageCauseName(DamageCause cause) {
 		switch (cause) {
-		case ENTITY_ATTACK:
-			return random("Attacked", "Jumped", "Wrecked");
-		case BLOCK_EXPLOSION:
-		case ENTITY_EXPLOSION:
-			return random("Explosion", "Exploded");
-		case CONTACT:
-			return random("Cactus", "Pricked", "Poked");
-		case DROWNING:
-			return random("Drowned", "Glub Glub");
-		case FALL:
-			return random("Fell", "Tripped");
-		case FALLING_BLOCK:
-			return random("Squished", "Squashed", "Look Out Below");
-		case FIRE:
-		case FIRE_TICK:
-			return random("Fire", "Burned");
-		case LAVA:
-			return "Lava";
-		case LIGHTNING:
-			return random("Lightning", "Zeus'd", "Thor'd");
-		case MAGIC:
-			return "Magic";
-		case POISON:
-			return "Poisoned";
-		case MELTING:
-			return "Melted";
-		case PROJECTILE:
-			return random("Shot", "Sniped");
-		case STARVATION:
-			return "Starved";
-		case SUFFOCATION:
-			return "Suffocated";
-		case SUICIDE:
-			return "Suicide";
-		case THORNS:
-			return "Thorns Armor";
-		case VOID:
-			return "Void";
-		case WITHER:
-			return "Withered";
-		default:
-			return "Natural Causes";
+			case ENTITY_ATTACK:
+				return random("Attacked", "Jumped", "Wrecked");
+			case BLOCK_EXPLOSION:
+			case ENTITY_EXPLOSION:
+				return random("Explosion", "Exploded");
+			case CONTACT:
+				return random("Cactus", "Pricked", "Poked");
+			case DROWNING:
+				return random("Drowned", "Glub Glub");
+			case FALL:
+				return random("Fell", "Tripped");
+			case FALLING_BLOCK:
+				return random("Squished", "Squashed", "Look Out Below");
+			case FIRE:
+			case FIRE_TICK:
+				return random("Fire", "Burned");
+			case LAVA:
+				return "Lava";
+			case LIGHTNING:
+				return random("Lightning", "Zeus'd", "Thor'd");
+			case MAGIC:
+				return "Magic";
+			case POISON:
+				return "Poisoned";
+			case MELTING:
+				return "Melted";
+			case PROJECTILE:
+				return random("Shot", "Sniped");
+			case STARVATION:
+				return "Starved";
+			case SUFFOCATION:
+				return "Suffocated";
+			case SUICIDE:
+				return "Suicide";
+			case THORNS:
+				return "Thorns Armor";
+			case VOID:
+				return "Void";
+			case WITHER:
+				return "Withered";
+			default:
+				return "Natural Causes";
 		}
 	}
 
-	public static <T extends Object> T random(T... objects) {
-		if (objects.length == 0)
+	public static String random(String... strings) {
+		if (strings.length == 0)
 			throw new IllegalArgumentException("Parameter length cannot be 0");
-		return objects[new Random().nextInt(objects.length)];
+		return strings[new Random().nextInt(strings.length)];
 	}
 
 	public static boolean isSuicide(DamageCause cause) {
 		switch (cause) {
-		case CONTACT:
-		case DROWNING:
-		case FALL:
-		case FIRE:
-		case FIRE_TICK:
-		case LAVA:
-		case SUFFOCATION:
-		case SUICIDE:
-		case VOID:
-			return true;
-		default:
-			return false;
+			case CONTACT:
+			case DROWNING:
+			case FALL:
+			case FIRE:
+			case FIRE_TICK:
+			case LAVA:
+			case SUFFOCATION:
+			case SUICIDE:
+			case VOID:
+				return true;
+			default:
+				return false;
 		}
 	}
 

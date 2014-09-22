@@ -6,67 +6,56 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.kill3rtaco.tacoapi.TacoAPI;
-import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.Identifyable;
+import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.ValidatedConfig;
 import com.kill3rtaco.war.game.GameType;
 
-public class Playlist extends ValidatedConfig {
+public class Playlist extends ValidatedConfig implements Identifyable {
 
-	private String _id;
-	private HashMap<Map, List<GameType>> _maps;
-	private Map _currentMap;
-	private GameType _currentGameType;
-	private File _file;
+	public static final String				KEY_ID			= "id";
+	public static final String				KEY_MAPS		= "maps";
+	public static final String				KEY_GAMETYPES	= "gametypes";
+
+	private HashMap<WarMap, List<GameType>>	_maps;
+	private WarMap							_currentMap;
+	private GameType						_currentGameType;
+	private File							_file;
 
 	public Playlist(String id) {
-		this(id, new HashMap<Map, List<GameType>>());
+		super(new YamlConfiguration());
+		_config.set(KEY_ID, id);
+		_file = new File(TW.PL_FOLDER, id + ".yml");
 	}
 
-	public Playlist(File file) {
-		super(YamlConfiguration.loadConfiguration(file));
-		_file = file;
-		_id = getString("id", true);
+	public Playlist(ConfigurationSection config) {
+		super(config);
 		reload();
 	}
 
-	public Playlist(String id, HashMap<Map, List<GameType>> maps) {
-		super(new YamlConfiguration());
-		_file = new File(TacoWar.plugin.getDataFolder(), "playlists/playlist_" + id + ".yml");
-		_id = id;
-		_maps = maps;
-	}
-
+	/*
+	 * maps: 
+	 *   map_id: 
+	 *     - gametype_id 
+	 *     - gametype_id 
+	 * gametypes: 
+	 *    - gametype_id 
+	 *    - gametype_id
+	 */
+	//TODO: Actually do stuff here
 	private void reload() {
-		if (_config != null) {
-			List<String> list = _config.getStringList("playlist");
-			_maps = new HashMap<Map, List<GameType>>();
-			for (String s : list) {
-				String[] split = s.split("\\s+");
-				if (split.length <= 1) {
-					continue;
-				}
-				String mapId = split[0];
-				Map map = TacoWar.getMap(mapId);
-				if (map == null) {
-					continue;
-				}
-				List<GameType> options = new ArrayList<GameType>();
-				String[] types = TacoAPI.getChatUtils().removeFirstArg(split);
-				for (String t : types) {
-					//default types
-					if (t.equals("ffa")) {
+		if (_config == null)
+			return;
 
-					}
-				}
-			}
-		}
+		List<String> list = _config.getStringList("playlist");
+		_maps = new HashMap<WarMap, List<GameType>>();
 	}
 
 	public String getId() {
-		return _id;
+		return _config.getString(KEY_ID);
 	}
 
 	public boolean isEmpty() {
@@ -76,8 +65,8 @@ public class Playlist extends ValidatedConfig {
 	//selectMap()
 	//selectGameType() - based on map, fails if map not selected
 
-	public Map selectMap() {
-		List<Map> maps = new ArrayList<Map>(getMaps());
+	public WarMap selectMap() {
+		List<WarMap> maps = new ArrayList<WarMap>(getMaps());
 		if (maps.isEmpty()) {
 			_currentMap = null;
 			return null;
@@ -86,7 +75,7 @@ public class Playlist extends ValidatedConfig {
 		return _currentMap;
 	}
 
-	public Map getCurrentMap() {
+	public WarMap getCurrentMap() {
 		return _currentMap;
 	}
 
@@ -103,12 +92,12 @@ public class Playlist extends ValidatedConfig {
 		return _currentGameType;
 	}
 
-	public List<Map> getMaps() {
-		return new ArrayList<Map>(_maps.keySet());
+	public List<WarMap> getMaps() {
+		return new ArrayList<WarMap>(_maps.keySet());
 	}
 
 	public List<GameType> getGameTypesFor(String mapId) {
-		for (Map m : getMaps()) {
+		for (WarMap m : getMaps()) {
 			if (m.getId().equals(mapId)) {
 				return _maps.get(m);
 			}

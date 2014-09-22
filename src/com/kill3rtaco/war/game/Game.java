@@ -1,38 +1,43 @@
 package com.kill3rtaco.war.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 import org.bukkit.entity.Player;
 
 import com.kill3rtaco.war.game.kill.KillFeed;
-import com.kill3rtaco.war.game.map.Map;
-import com.kill3rtaco.war.game.player.Kit;
+import com.kill3rtaco.war.game.map.WarMap;
+import com.kill3rtaco.war.game.player.WarKit;
 import com.kill3rtaco.war.game.player.WarPlayer;
+import com.kill3rtaco.war.game.player.WarTeam;
 import com.kill3rtaco.war.util.WarUtil;
 
 public class Game {
 
-	private int _currentGametype = 0;
-	private boolean _running = false;
-	private ArrayList<WarPlayer> _players = new ArrayList<WarPlayer>();
-	private KillFeed _killfeed = new KillFeed();
-	private Map _map;
-	private GameType _gametype;
-	private Kit _kit;
+	private boolean						_running	= false;
+	private ArrayList<WarPlayer>		_players	= new ArrayList<WarPlayer>();
+	private KillFeed					_killfeed	= new KillFeed();
+	private WarMap							_map;
+	private GameType					_gametype;
+	private WarKit						_kit;
+	private HashMap<WarTeam, Integer>	_scores		= new HashMap<WarTeam, Integer>();
 
 	public Game() {
 
 	}
 
-	public Map currentMap() {
+	public WarMap getMap() {
 		return _map;
 	}
 
-	public GameType currentGameType() {
+	public GameType getGameType() {
 		return _gametype;
 	}
 
-	public Kit currentKit() {
+	public WarKit getKit() {
 		return _kit;
 	}
 
@@ -73,14 +78,27 @@ public class Game {
 		return _running;
 	}
 
-	public int getGameType() {
-		return _currentGametype;
-	}
-
 	public void addPlayerToGame(String name) {
 		WarPlayer player = new WarPlayer(name);
 		//spawn at base
 		//give items
+	}
+
+	//can add negative points to remove poitnts
+	public void addPoints(WarTeam team, int points) {
+		_scores.put(team, getScore(team) + points);
+	}
+
+	public void addPoints(HashMap<WarTeam, Integer> points) {
+		for (WarTeam t : points.keySet()) {
+			addPoints(t, points.get(t));
+		}
+	}
+
+	public int getScore(WarTeam team) {
+		if (!_scores.containsKey(team))
+			return 0;
+		return _scores.get(team);
 	}
 
 	public boolean isPlaying(Player p) {
@@ -115,6 +133,19 @@ public class Game {
 
 	public KillFeed getKillFeed() {
 		return _killfeed;
+	}
+
+	public WarTeam getTeamInLead() {
+		List<WarTeam> teams = new ArrayList<WarTeam>(_scores.keySet());
+		Collections.sort(teams, new Comparator<WarTeam>() {
+
+			@Override
+			public int compare(WarTeam t1, WarTeam t2) {
+				return _scores.get(t2).compareTo(_scores.get(t1));
+			}
+
+		});
+		return teams.get(0);
 	}
 
 }

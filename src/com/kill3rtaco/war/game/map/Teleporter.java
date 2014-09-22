@@ -13,12 +13,12 @@ public class Teleporter {
 
 	//cannot change map or name
 
-	private Map _map;
+	private WarMap _map;
 	private Location _src;
 	private String _name, _channel;
 	private boolean _transmitter, _receiver;
 
-	public Teleporter(Map map, String name, Location src, String channel,
+	public Teleporter(WarMap map, String name, Location src, String channel,
 			boolean transmitter, boolean receiver) {
 		_src = src;
 		_name = name;
@@ -28,11 +28,11 @@ public class Teleporter {
 		_map = map;
 	}
 
-	public Teleporter(Map map, String name, Location src, String channel) {
+	public Teleporter(WarMap map, String name, Location src, String channel) {
 		this(map, name, src, channel, true, true);
 	}
 
-	public Map getMap() {
+	public WarMap getMap() {
 		return _map;
 	}
 

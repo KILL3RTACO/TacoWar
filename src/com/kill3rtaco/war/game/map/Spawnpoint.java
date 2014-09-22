@@ -6,18 +6,18 @@ import com.kill3rtaco.war.game.GameType;
 
 public class Spawnpoint {
 
-	private Map _map;
+	private WarMap _map;
 	private String _id, _team;
 	private Location _location;
 
-	public Spawnpoint(Map map, String id, String team, Location location) {
+	public Spawnpoint(WarMap map, String id, String team, Location location) {
 		_map = map;
 		_id = id;
 		_team = team;
 		_location = location;
 	}
 
-	public Map getMap() {
+	public WarMap getMap() {
 		return _map;
 	}
 

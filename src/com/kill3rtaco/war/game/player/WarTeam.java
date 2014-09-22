@@ -7,13 +7,18 @@ import org.bukkit.entity.Player;
 
 import com.kill3rtaco.war.util.WarUtil;
 
-public class Team {
+public class WarTeam {
 
-	private String _name;
-	private ArrayList<WarPlayer> _players = new ArrayList<WarPlayer>();
+	private String					_id, _name;
+	private ArrayList<WarPlayer>	_players	= new ArrayList<WarPlayer>();
 
-	public Team(String name) {
+	public WarTeam(String id, String name) {
+		_id = id;
 		_name = name;
+	}
+
+	public String getId() {
+		return _id;
 	}
 
 	public String getName() {
