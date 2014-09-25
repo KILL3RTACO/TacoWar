@@ -45,6 +45,10 @@ public class WarPlayerList implements Iterable<WarPlayer> {
 		WarUtil.teleport(_players, location);
 	}
 
+	public void respawnAll() {
+		WarUtil.respawn(_players);
+	}
+
 	public void add(WarPlayer player) {
 		if (!contains(player.getName()))
 			_players.add(player);

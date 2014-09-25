@@ -213,6 +213,7 @@ public class GameListener implements Listener {
 		}
 		if (location == null)
 			location = player.getTargetBlock(500).getLocation();
+		event.setCancelled(true);
 	}
 
 	@EventHandler

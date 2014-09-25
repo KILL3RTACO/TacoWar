@@ -14,7 +14,7 @@ import com.kill3rtaco.war.game.Game;
 import com.kill3rtaco.war.game.GameType;
 import com.kill3rtaco.war.game.map.Playlist;
 import com.kill3rtaco.war.game.map.WarMap;
-import com.kill3rtaco.war.game.map.playlist.DefaultPlaylist;
+import com.kill3rtaco.war.game.map.playlist.PlaylistDefault;
 import com.kill3rtaco.war.game.player.WarKit;
 import com.kill3rtaco.war.game.player.Weapon;
 import com.kill3rtaco.war.game.player.kit.KitDefault;
@@ -155,7 +155,7 @@ public class TacoWar extends TacoPlugin {
 	public static void reloadPlaylists() {
 		_playlists = new ArrayList<Playlist>();
 		chat.out("[Maps] Reloading Playlists...");
-		_playlists.add(new DefaultPlaylist());
+		_playlists.add(new PlaylistDefault());
 		List<ConfigurationSection> configs = getConfigsInDirectory(TW.PL_FOLDER);
 		for (ConfigurationSection c : configs) {
 			Playlist pl = new Playlist(c);
@@ -248,7 +248,7 @@ public class TacoWar extends TacoPlugin {
 		return null;
 	}
 
-	private static <T extends Identifyable> List<T> getIdentifyableList(List<T> list, List<String> ids) {
+	public static <T extends Identifyable> List<T> getIdentifyableList(List<T> list, List<String> ids) {
 		List<T> l = new ArrayList<T>();
 		for (String s : ids) {
 			T identifyable = getIdentifyable(list, s);

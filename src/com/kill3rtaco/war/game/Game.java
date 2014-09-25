@@ -6,10 +6,14 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.TacoWarQueue;
 import com.kill3rtaco.war.game.kill.KillFeed;
+import com.kill3rtaco.war.game.map.Playlist;
 import com.kill3rtaco.war.game.map.WarMap;
 import com.kill3rtaco.war.game.player.WarKit;
 import com.kill3rtaco.war.game.player.WarPlayer;
@@ -27,11 +31,23 @@ public class Game {
 	private HashMap<WarTeam, Integer>	_scores		= new HashMap<WarTeam, Integer>();
 
 	public Game() {
+		this(TacoWar.getPlaylist(""));
+	}
+
+	public Game(Playlist playlist) {
 		addPlayersFromQueue();
 		decideMap();
 		decideGameType();
 		decideTeams();
 		decideKit();
+		new BukkitRunnable() {
+
+			@Override
+			public void run() {
+				start();
+			}
+
+		}.runTaskLater(TacoWar.plugin, TacoWar.config.getTimeBeforeGame() * 20L);
 	}
 
 	public WarMap getMap() {
@@ -47,12 +63,14 @@ public class Game {
 	}
 
 	public void addPlayersFromQueue() {
-		//get players from queue
 		_players = TacoWarQueue.removeOnlineAsPlayers();
+		Location worldLobby = TacoWar.config.getWorldLobby();
+		if (worldLobby != null)
+			_players.teleportAll(worldLobby);
 	}
 
 	public void decideMap() {
-		//get a random map from Playlist
+
 	}
 
 	public void decideGameType() {
@@ -71,7 +89,8 @@ public class Game {
 
 	public void start() {
 		_running = true;
-		//respawn() all players
+		_players.respawnAll();
+		_players.broadcast("&aUsing Kit&7: &e" + _kit.getName());
 	}
 
 	public void end() {

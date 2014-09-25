@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.potion.PotionEffectType;
 
 import com.kill3rtaco.war.game.player.WarPlayer;
 
@@ -132,6 +134,12 @@ public class WarUtil {
 		}
 	}
 
+	public static void respawn(List<WarPlayer> players) {
+		for (WarPlayer p : players) {
+			p.respawn();
+		}
+	}
+
 	public static <T extends WarCloneable<T>> List<T> cloneList(List<T> list) {
 		List<T> clones = new ArrayList<T>();
 		for (T t : list) {
@@ -151,5 +159,18 @@ public class WarUtil {
 		if (clone)
 			return cloneList(list);
 		return list;
+	}
+
+	@SuppressWarnings("deprecation")
+	public static boolean possibleCrit(Player player) {
+		if (player == null)
+			return false;
+		return !player.isOnGround() &&
+				player.getVelocity().getY() < 0 &&
+				!player.isInsideVehicle() &&
+				player.getLocation().getBlock().getType() == Material.AIR &&
+				player.getLocation().clone().add(0, 1, 0).getBlock().getType() == Material.AIR &&
+				!player.getActivePotionEffects().contains(PotionEffectType.BLINDNESS);
+
 	}
 }

@@ -2,7 +2,6 @@ package com.kill3rtaco.war.game.map;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -12,20 +11,24 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.GameType;
+import com.kill3rtaco.war.game.player.WarKit;
 import com.kill3rtaco.war.util.Identifyable;
 import com.kill3rtaco.war.util.ValidatedConfig;
 
 public class Playlist extends ValidatedConfig implements Identifyable {
 
-	public static final String				KEY_ID			= "id";
-	public static final String				KEY_MAPS		= "maps";
-	public static final String				KEY_GAMETYPES	= "gametypes";
+	public static final String	KEY_ID			= "id";
+	public static final String	KEY_MAPS		= "maps";
+	public static final String	KEY_KITS		= "kits";
+	public static final String	KEY_GAMETYPES	= "gametypes";
 
-	private HashMap<WarMap, List<GameType>>	_maps;
-	private List<GameType>					_genericGameTypes;
-	private WarMap							_currentMap;
-	private GameType						_currentGameType;
-	private File							_file;
+	private List<PlaylistEntry>	_maps;
+	private List<GameType>		_genericGameTypes;
+	private List<WarKit>		_genericKits;
+	private WarMap				_currentMap;
+	private GameType			_currentGameType;
+	private WarKit				_currentKit;
+	private File				_file;
 
 	public Playlist(String id) {
 		super(new YamlConfiguration());
@@ -39,9 +42,13 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 
 	/*
 	 * maps: 
-	 *   map_id: 
-	 *     - gametype_id 
-	 *     - gametype_id 
+	 *   map_id:
+	 *     gametypes:
+	 *       - gametype_id 
+	 *       - gametype_id 
+	 *     kits:
+	 *       - kit_id
+	 *       - kit_id
 	 * gametypes: 
 	 *    - gametype_id 
 	 *    - gametype_id
@@ -50,22 +57,36 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		if (_config == null || !_config.isConfigurationSection(KEY_MAPS))
 			return;
 
-		_maps = new HashMap<WarMap, List<GameType>>();
+		_maps = new ArrayList<PlaylistEntry>();
 		List<String> list = new ArrayList<String>(_config.getConfigurationSection(KEY_MAPS).getKeys(false));
 		for (String s : list) {
 			WarMap map = TacoWar.getMap(s);
 			if (map == null)
 				continue;
-			List<String> ids = getStringList(KEY_MAPS + "." + s, false);
+			PlaylistEntry entry = new PlaylistEntry(map);
+
+			List<String> ids = getStringList(KEY_MAPS + "." + s + "." + KEY_GAMETYPES, false);
 			List<GameType> gametypes = TacoWar.getGameTypes(ids);
 			if (gametypes.isEmpty())
 				continue;
-			_maps.put(map, gametypes);
+			entry.getGameTypes().addAll(gametypes);
+
+			ids = getStringList(KEY_MAPS + "." + s + "." + KEY_KITS, false);
+			List<WarKit> kits = TacoWar.getKits(ids);
+			if (gametypes.isEmpty())
+				continue;
+			entry.getKits().addAll(kits);
 		}
+
 		List<String> ids = getStringList(KEY_GAMETYPES, false);
 		if (ids == null || ids.isEmpty())
 			return;
 		_genericGameTypes = TacoWar.getGameTypes(ids);
+
+		ids = getStringList(KEY_KITS, false);
+		if (ids == null || ids.isEmpty())
+			return;
+		_genericKits = TacoWar.getKits(ids);
 	}
 
 	public String getId() {
@@ -102,7 +123,7 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		if (_currentMap == null) {
 			return null;
 		}
-		List<GameType> gameTypes = _maps.get(_currentMap);
+		List<GameType> gameTypes = _maps.get(_maps.indexOf(new PlaylistEntry(_currentMap))).getGameTypes();
 		if (gameTypes == null || gameTypes.isEmpty()) {
 			_currentGameType = null;
 			return null;
@@ -113,14 +134,44 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		return _currentGameType;
 	}
 
+	public WarKit selectKit() {
+		if (_currentMap == null) {
+			return null;
+		}
+		List<WarKit> kits = _maps.get(_maps.indexOf(new PlaylistEntry(_currentMap))).getKits();
+		if (kits == null || kits.isEmpty()) {
+			_currentKit = null;
+			return null;
+		}
+		List<WarKit> available = new ArrayList<WarKit>(kits);
+		available.addAll(_genericKits);
+		_currentKit = available.get(new Random().nextInt(available.size()));
+		return _currentKit;
+	}
+
 	public List<WarMap> getMaps() {
-		return new ArrayList<WarMap>(_maps.keySet());
+		List<WarMap> maps = new ArrayList<WarMap>();
+		for (PlaylistEntry e : _maps) {
+			maps.add(e.getMap());
+		}
+		return maps;
 	}
 
 	public List<GameType> getGameTypesFor(String mapId) {
-		for (WarMap m : getMaps()) {
-			if (m.getId().equals(mapId)) {
-				return _maps.get(m);
+		List<WarMap> maps = getMaps();
+		for (int i = 0; i < maps.size(); i++) {
+			if (maps.get(i).getId().equals(mapId)) {
+				return _maps.get(i).getGameTypes();
+			}
+		}
+		return null;
+	}
+
+	public List<WarKit> getKitsFor(String mapId) {
+		List<WarMap> maps = getMaps();
+		for (int i = 0; i < maps.size(); i++) {
+			if (maps.get(i).getId().equals(mapId)) {
+				return _maps.get(i).getKits();
 			}
 		}
 		return null;
