@@ -8,10 +8,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 
 import com.kill3rtaco.tacoapi.api.serialization.EnchantmentSerialization;
-import com.kill3rtaco.war.Identifyable;
 import com.kill3rtaco.war.TacoWar;
-import com.kill3rtaco.war.ValidatedConfig;
-import com.kill3rtaco.war.WarCloneable;
+import com.kill3rtaco.war.util.Identifyable;
+import com.kill3rtaco.war.util.ValidatedConfig;
+import com.kill3rtaco.war.util.WarCloneable;
 import com.kill3rtaco.war.util.WarUtil;
 
 public class WarKit extends ValidatedConfig implements Identifyable, WarCloneable<WarKit> {

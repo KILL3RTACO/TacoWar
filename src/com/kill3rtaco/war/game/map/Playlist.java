@@ -9,11 +9,11 @@ import java.util.Random;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.kill3rtaco.war.Identifyable;
 import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
-import com.kill3rtaco.war.ValidatedConfig;
 import com.kill3rtaco.war.game.GameType;
+import com.kill3rtaco.war.util.Identifyable;
+import com.kill3rtaco.war.util.ValidatedConfig;
 
 public class Playlist extends ValidatedConfig implements Identifyable {
 

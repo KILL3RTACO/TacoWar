@@ -34,6 +34,7 @@ import com.kill3rtaco.war.game.player.weapon.WeaponThorsHammer;
 import com.kill3rtaco.war.game.types.FFA;
 import com.kill3rtaco.war.game.types.KOTH;
 import com.kill3rtaco.war.game.types.TDM;
+import com.kill3rtaco.war.util.Identifyable;
 import com.kill3rtaco.war.util.WarUtil;
 
 public class TacoWar extends TacoPlugin {

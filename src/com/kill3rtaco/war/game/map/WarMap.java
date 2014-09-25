@@ -9,12 +9,13 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.kill3rtaco.war.Identifyable;
 import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
-import com.kill3rtaco.war.ValidatedConfig;
 import com.kill3rtaco.war.game.GameType;
 import com.kill3rtaco.war.game.player.WarTeam;
+import com.kill3rtaco.war.util.Identifyable;
+import com.kill3rtaco.war.util.MapUtil;
+import com.kill3rtaco.war.util.ValidatedConfig;
 
 public class WarMap extends ValidatedConfig implements Identifyable {
 
@@ -188,7 +189,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 
 	private Location getLocation(String path, boolean relative, boolean req) {
 		if (_config.isString(path)) {
-			Location loc = getPoint(_config.getString(path));
+			Location loc = MapUtil.getLocation(_config.getString(path));
 			Location value;
 			if (relative) {
 				value = getPointRelative(loc);
@@ -255,7 +256,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 	}
 
 	public Location getPointRelative(String str) {
-		return getPointRelative(getPoint(str));
+		return getPointRelative(MapUtil.getLocation(str));
 	}
 
 	public Location getOrigin() {

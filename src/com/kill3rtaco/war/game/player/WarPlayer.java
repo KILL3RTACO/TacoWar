@@ -109,9 +109,9 @@ public class WarPlayer {
 
 	public void setTeam(WarTeam team) {
 		if (_team != null)
-			_team.removePlayer(this);
+			_team.remove(this);
 		_team = team;
-		team.addPlayer(this);
+		team.add(this);
 	}
 
 	public WarTeam getTeam() {
@@ -119,7 +119,7 @@ public class WarPlayer {
 	}
 
 	public boolean sameTeam(WarPlayer player) {
-		return player == this || player.getTeam().hasPlayer(this);
+		return player == this || player.getTeam().contains(this);
 	}
 
 	public void sendMessage(String message) {

@@ -81,7 +81,7 @@ public class AttackInfo {
 		if (attacker != null && attacker instanceof org.bukkit.entity.Player) {
 			org.bukkit.entity.Player p = (org.bukkit.entity.Player) attacker;
 			if (TacoWar.currentGame() != null && TacoWar.currentGame().isPlaying(p)) {
-				_attackerPlayer = TacoWar.currentGame().getPlayer(p);
+				_attackerPlayer = TacoWar.currentGame().getPlayers().get(p);
 			}
 		}
 	}
@@ -91,7 +91,7 @@ public class AttackInfo {
 		if (victim != null && victim instanceof org.bukkit.entity.Player) {
 			org.bukkit.entity.Player p = (org.bukkit.entity.Player) victim;
 			if (TacoWar.currentGame() != null && TacoWar.currentGame().isPlaying(p)) {
-				_victimPlayer = TacoWar.currentGame().getPlayer(p);
+				_victimPlayer = TacoWar.currentGame().getPlayers().get(p);
 			}
 		}
 	}

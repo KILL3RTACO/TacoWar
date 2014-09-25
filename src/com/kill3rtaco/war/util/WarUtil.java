@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
-import com.kill3rtaco.war.WarCloneable;
 import com.kill3rtaco.war.game.player.WarPlayer;
 
 public class WarUtil {
@@ -123,6 +123,12 @@ public class WarUtil {
 	public static void broadcast(List<WarPlayer> players, String message) {
 		for (WarPlayer p : players) {
 			p.sendMessage(message);
+		}
+	}
+
+	public static void teleport(List<WarPlayer> players, Location location) {
+		for (WarPlayer p : players) {
+			p.teleport(location);
 		}
 	}
 

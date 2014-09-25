@@ -8,12 +8,12 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.kill3rtaco.war.Identifyable;
-import com.kill3rtaco.war.ValidatedConfig;
 import com.kill3rtaco.war.game.player.WarPlayer;
 import com.kill3rtaco.war.game.types.FFA;
 import com.kill3rtaco.war.game.types.KOTH;
 import com.kill3rtaco.war.game.types.TDM;
+import com.kill3rtaco.war.util.Identifyable;
+import com.kill3rtaco.war.util.ValidatedConfig;
 
 public abstract class GameType extends ValidatedConfig implements Identifyable {
 

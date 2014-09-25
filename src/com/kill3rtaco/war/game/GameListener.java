@@ -49,7 +49,7 @@ public class GameListener implements Listener {
 			return;
 		}
 
-		WarPlayer p = game.getPlayer(player);
+		WarPlayer p = game.getPlayers().get(player);
 		if (p == null) { //only continue if the player involved is in the game
 			return;
 		}
@@ -107,7 +107,7 @@ public class GameListener implements Listener {
 			return;
 		}
 		Player p = event.getEntity();
-		WarPlayer player = game.getPlayer(p);
+		WarPlayer player = game.getPlayers().get(p);
 		if (player == null) {
 			return;
 		}
@@ -126,7 +126,7 @@ public class GameListener implements Listener {
 				}
 			}
 		} else { //player kill player
-			WarPlayer attacker = game.getPlayer((Player) info.getAttacker());
+			WarPlayer attacker = game.getPlayers().get((Player) info.getAttacker());
 			if (attacker == null) {
 				return;
 			}
@@ -135,7 +135,7 @@ public class GameListener implements Listener {
 			int ffPen = gametype.getConfig().getInt(GameType.KEY_PENALTY_FRIENDLY_FIRE);
 
 			//cancel friendly fire if needed
-			if (attacker.getTeam().hasPlayer(player)) {
+			if (attacker.getTeam().contains(player)) {
 				if (ffPen >= 0) {
 					friendly = true;
 				} else {
@@ -177,7 +177,7 @@ public class GameListener implements Listener {
 		}
 		Game game = TacoWar.currentGame();
 		if (game != null && game.isRunning()) {
-			WarPlayer player = game.getPlayer(event.getPlayer());
+			WarPlayer player = game.getPlayers().get(event.getPlayer());
 			if (player == null) {
 				return;
 			}
@@ -193,7 +193,7 @@ public class GameListener implements Listener {
 
 	@EventHandler
 	public void onWeaponUse(PlayerInteractEvent event) {
-		WarPlayer player = TacoWar.currentGame().getPlayer(event.getPlayer());
+		WarPlayer player = TacoWar.currentGame().getPlayers().get(event.getPlayer());
 		if (player == null)
 			return;
 		Action action = event.getAction();

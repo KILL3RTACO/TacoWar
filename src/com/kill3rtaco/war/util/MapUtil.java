@@ -28,4 +28,28 @@ public class MapUtil {
 		return TacoWar.config.getWarWorld().getHighestBlockAt(loc).getLocation();
 	}
 
+	public static Location getLocation(String s) {
+		String[] split = s.split("\\s+");
+		if (split.length < 3)
+			return null;
+		int x = getInt(split[0]);
+		int y = getInt(split[1]);
+		int z = getInt(split[2]);
+		int pitch = 0;
+		int yaw = 0;
+		if (split.length > 3)
+			yaw = getInt(split[3]);
+		if (split.length > 4)
+			pitch = getInt(split[4]);
+		return new Location(TacoWar.config.getWarWorld(), x, y, z, yaw, pitch);
+	}
+
+	private static int getInt(String s) {
+		try {
+			return Integer.parseInt(s);
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+	}
+
 }

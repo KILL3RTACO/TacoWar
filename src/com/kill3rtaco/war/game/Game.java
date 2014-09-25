@@ -8,17 +8,18 @@ import java.util.List;
 
 import org.bukkit.entity.Player;
 
+import com.kill3rtaco.war.TacoWarQueue;
 import com.kill3rtaco.war.game.kill.KillFeed;
 import com.kill3rtaco.war.game.map.WarMap;
 import com.kill3rtaco.war.game.player.WarKit;
 import com.kill3rtaco.war.game.player.WarPlayer;
 import com.kill3rtaco.war.game.player.WarTeam;
-import com.kill3rtaco.war.util.WarUtil;
+import com.kill3rtaco.war.util.WarPlayerList;
 
 public class Game {
 
 	private boolean						_running	= false;
-	private ArrayList<WarPlayer>		_players	= new ArrayList<WarPlayer>();
+	private WarPlayerList				_players;
 	private KillFeed					_killfeed	= new KillFeed();
 	private WarMap						_map;
 	private GameType					_gametype;
@@ -26,7 +27,11 @@ public class Game {
 	private HashMap<WarTeam, Integer>	_scores		= new HashMap<WarTeam, Integer>();
 
 	public Game() {
-
+		addPlayersFromQueue();
+		decideMap();
+		decideGameType();
+		decideTeams();
+		decideKit();
 	}
 
 	public WarMap getMap() {
@@ -43,7 +48,7 @@ public class Game {
 
 	public void addPlayersFromQueue() {
 		//get players from queue
-		//spawn them at lobby
+		_players = TacoWarQueue.removeOnlineAsPlayers();
 	}
 
 	public void decideMap() {
@@ -66,22 +71,18 @@ public class Game {
 
 	public void start() {
 		_running = true;
+		//respawn() all players
 	}
 
 	public void end() {
 		_running = false;
 		//spawn all players at lobby
 		//remove all players from the game
+		//re-add them to queue
 	}
 
 	public boolean isRunning() {
 		return _running;
-	}
-
-	public void addPlayerToGame(String name) {
-		WarPlayer player = new WarPlayer(name);
-		//spawn at base
-		//give items
 	}
 
 	//can add negative points to remove poitnts
@@ -106,33 +107,25 @@ public class Game {
 	}
 
 	public boolean isPlaying(String name) {
-		return getPlayer(name) != null;
+		return _players.get(name) != null;
 	}
 
-	public void removePlayer(Player p) {
-		removePlayer(p.getName());
+	public void removePlayerFromGame(Player p) {
+		removePlayerFromGame(p.getName());
 	}
 
-	public void removePlayer(String name) {
-		WarPlayer player = WarUtil.removePlayer(_players, name);
+	public void removePlayerFromGame(String name) {
+		WarPlayer player = _players.remove(name);
 		if (player != null)
 			player.clearInventory();
 	}
 
-	public List<WarPlayer> getPlayers() {
+	public WarPlayerList getPlayers() {
 		return _players;
 	}
 
-	public WarPlayer getPlayer(Player p) {
-		return getPlayer(p.getName());
-	}
-
-	public WarPlayer getPlayer(String name) {
-		return WarUtil.getPlayer(_players, name);
-	}
-
 	public void broadcast(String message) {
-		WarUtil.broadcast(_players, message);
+		_players.broadcast(message);
 	}
 
 	public KillFeed getKillFeed() {

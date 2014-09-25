@@ -17,11 +17,11 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.Metadatable;
 
 import com.kill3rtaco.tacoapi.api.serialization.SingleItemSerialization;
-import com.kill3rtaco.war.Identifyable;
 import com.kill3rtaco.war.TacoWar;
-import com.kill3rtaco.war.ValidatedConfig;
-import com.kill3rtaco.war.WarCloneable;
+import com.kill3rtaco.war.util.Identifyable;
 import com.kill3rtaco.war.util.MapUtil;
+import com.kill3rtaco.war.util.ValidatedConfig;
+import com.kill3rtaco.war.util.WarCloneable;
 
 public class Weapon extends ValidatedConfig implements Identifyable, WarCloneable<Weapon> {
 

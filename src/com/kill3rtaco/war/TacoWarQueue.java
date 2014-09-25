@@ -7,17 +7,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.kill3rtaco.war.game.player.WarPlayer;
+import com.kill3rtaco.war.util.WarPlayerList;
 
 //did not use a queue class because they are all confusing
-public class WarQueue {
+public class TacoWarQueue {
 
-	private List<String>	_queue	= new ArrayList<String>();
+	private static List<String>	_queue	= new ArrayList<String>();
 
-	public int playersOnline() {
+	public static int playersOnline() {
 		int count = 0;
 		for (String s : _queue) {
-			Player p = Bukkit.getPlayer(s);
-			if (p == null || !p.isOnline())
+			if (!isOnline(s))
 				continue;
 
 			count++;
@@ -25,31 +25,30 @@ public class WarQueue {
 		return count;
 	}
 
-	public void addPlayer(String name) {
+	public static void addPlayer(String name) {
 		_queue.add(name);
 	}
 
-	public String removeFirstOnline() {
+	public static String removeFirstOnline() {
 		String firstOnline = firstOnline();
 		if (firstOnline == null)
 			return null;
 		return remove(firstOnline);
 	}
 
-	public String firstOnline() {
+	public static String firstOnline() {
 		if (_queue.isEmpty())
 			return null;
 		for (int i = 0; i < _queue.size(); i++) {
 			String s = _queue.get(i);
-			Player p = Bukkit.getPlayer(s);
-			if (p == null || !p.isOnline())
+			if (!isOnline(s))
 				continue;
 			return _queue.get(i);
 		}
 		return null;
 	}
 
-	public WarPlayer removeFirstOnlineAsPlayer() {
+	public static WarPlayer removeFirstOnlineAsPlayer() {
 		if (playersOnline() == 0)
 			return null;
 		String name = removeFirstOnline();
@@ -58,7 +57,20 @@ public class WarQueue {
 		return new WarPlayer(name);
 	}
 
-	public String remove(String str) {
+	public static WarPlayerList removeOnlineAsPlayers() {
+		WarPlayerList players = new WarPlayerList();
+		for (String s : _queue) {
+			players.add(new WarPlayer(s));
+		}
+		return players;
+	}
+
+	private static boolean isOnline(String name) {
+		Player p = Bukkit.getPlayer(name);
+		return p == null || !p.isOnline();
+	}
+
+	public static String remove(String str) {
 		for (int i = 0; i < _queue.size(); i++) {
 			if (_queue.get(i).equalsIgnoreCase(str)) {
 				return _queue.remove(i);
@@ -67,7 +79,7 @@ public class WarQueue {
 		return null;
 	}
 
-	public boolean contains(String str) {
+	public static boolean contains(String str) {
 		for (String s : _queue) {
 			if (s.equalsIgnoreCase(str))
 				return true;
