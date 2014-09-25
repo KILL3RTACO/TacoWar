@@ -4,22 +4,22 @@ import com.kill3rtaco.war.game.player.WarPlayer;
 
 public class PlayerDamage {
 
-	private long _time;
-	private WarPlayer _player;
-	private double _damage;
+	private long		_time;
+	private WarPlayer	_attacker;
+	private double		_damage;
 
-	public PlayerDamage(WarPlayer player, double damage) {
-		this(player, damage, System.currentTimeMillis());
+	public PlayerDamage(WarPlayer attacker, double damage) {
+		this(attacker, damage, System.currentTimeMillis());
 	}
 
-	public PlayerDamage(WarPlayer player, double damage, long time) {
+	public PlayerDamage(WarPlayer attacker, double damage, long time) {
 		_time = time;
-		_player = player;
+		_attacker = attacker;
 		_damage = damage;
 	}
 
 	public WarPlayer getAttacker() {
-		return _player;
+		return _attacker;
 	}
 
 	public long getTime() {

@@ -40,8 +40,10 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 	public static final String	KEY_SPAWNPOINTS		= "spawnpoints";
 	public static final String	KEY_TELEPORTERS		= "teleporters";
 	public static final String	KEY_WORLD_TIME		= "time";
-	public static final String	KEY_MSG_GAME_START	= "msg_game_start";
-	public static final String	KEY_MSG_LOBBY_SPAWN	= "msg_lobby_spawn";
+	public static final String	KEY_MAX_PLAYERS		= "max_players";		//-1 means no limit
+	public static final String	KEY_MIN_PLAYERS		= "min_players";		//-1 means no limit
+	public static final String	KEY_MSG_GAME_START	= "msg.game_start";
+	public static final String	KEY_MSG_LOBBY_SPAWN	= "msg.lobby_spawn";
 
 	public WarMap(String id) {
 		super(new YamlConfiguration());
@@ -55,7 +57,10 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 
 	public WarMap(ConfigurationSection config) {
 		super(config);
-		_id = getString(KEY_ID, true).trim();
+	}
+
+	public void reload() {
+		_id = getString(KEY_ID, true);
 		_file = new File(TW.MAPS_FOLDER, _id + ".yml");
 		if (_id != null && (_id.isEmpty() || _id.contains(" "))) {
 			_valid = false;
@@ -67,14 +72,17 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		initSpawns();
 		initTeleporters();
 		initHills();
-//		_perms = new ArrayList<String>(_config.getStringList(M_PERMS));
-		_messageGameStart = getString(KEY_MSG_GAME_START, false);
-		_messageLobbySpawn = getString(KEY_MSG_LOBBY_SPAWN, false);
 		setTime(_config.getString(KEY_WORLD_TIME, "day"));
 	}
 
 	public boolean isReady() {
 		return _config.getBoolean(KEY_READY);
+	}
+
+	public boolean canHoldPlayers(int playerCount) {
+		int min = getInt(KEY_MIN_PLAYERS, -1);
+		int max = getInt(KEY_MAX_PLAYERS, -1);
+		return playerCount > min && (max == -1 || playerCount <= max);
 	}
 
 	private void initSpawns() {
@@ -403,6 +411,8 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 	}
 
 	public Location getRandomSpawn(String team) {
+		if (TacoWar.currentGame().getGameType().getConfig().getBoolean(GameType.KEY_TEAMS_ENABLED))
+			team = ""; //hack, players in ffa have a team id of their own name
 		ArrayList<Spawnpoint> locs = new ArrayList<Spawnpoint>();
 		for (Spawnpoint s : _spawns) {
 			if ((s.getTeam() == null || s.getTeam().isEmpty() || s.getTeam().equals(team))

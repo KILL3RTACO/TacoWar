@@ -16,12 +16,10 @@ public class FFA extends GameType {
 		set(KEY_NAME, "Free for All");
 		set(KEY_AUTHOR, "KILL3RTACO");
 		set(KEY_TEAMS_ENABLED, false);
-		_type = GameType.FFA;
 	}
 
 	public FFA(ConfigurationSection config) {
-		this();
-		_config = config;
+		super(config);
 	}
 
 	@Override
@@ -32,6 +30,11 @@ public class FFA extends GameType {
 	@Override
 	public void onMove(WarPlayer player, Location from, Location to) {
 		return;
+	}
+
+	@Override
+	public int getType() {
+		return GameType.FFA;
 	}
 
 }

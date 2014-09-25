@@ -50,11 +50,17 @@ public class KOTH extends GameType {
 		for (Hill h : hills) {
 			if (!h.isInside(from) && h.isInside(to)) { //onEnter
 				h.addPlayer(player);
+				player.sendMessage("&aEntered Hill");
 			} else if (h.isInside(from) && !h.isInside(to)) { //onExit
 				h.removePlayer(player);
+				player.sendMessage("&cExited Hill");
 			}
 		}
+	}
 
+	@Override
+	public int getType() {
+		return GameType.KOTH;
 	}
 
 }

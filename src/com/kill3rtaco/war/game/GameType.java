@@ -27,12 +27,13 @@ public abstract class GameType extends ValidatedConfig implements Identifyable {
 	public static final String		KEY_BASE_TYPE				= "gametype";
 	public static final String		KEY_FORCE_KIT				= "force_kit";
 	public static final String		KEY_ID						= "id";
-	public static final String		KEY_MAX_HEALTH				= "max_health";			//hearts
-	public static final String		KEY_MAX_SCORE				= "max_score";				//hearts
+	public static final String		KEY_MAX_HEALTH				= "player.max_health";		//half-hearts
+	public static final String		KEY_MAX_SCORE				= "max_score";
+	public static final String		KEY_MVP_KILL_BONUS			= "kill_bonus.mvp";
 	public static final String		KEY_NAME					= "name";
-	public static final String		KEY_PENALTY_FRIENDLY_FIRE	= "friendly_fire_penalty";	//-1 is off; 0 is on, no pen; 1 is on, with pren
-	public static final String		KEY_PENALTY_SUICIDE			= "suicide_penalty";		//0 means can't harm self, otherwise abs()
-	public static final String		KEY_PLAYER_SPEED			= "player_speed";			//percent
+	public static final String		KEY_PENALTY_FRIENDLY_FIRE	= "penalty.friendly_fire";	//-1 is off; 0 is on, no pen; 1 is on, with pren
+	public static final String		KEY_PENALTY_SUICIDE			= "penalty.suicide";		//0 means can't harm self, otherwise abs()
+	public static final String		KEY_PLAYER_SPEED			= "player.speed";			//percent
 	public static final String		KEY_TEAMS_ENABLED			= "teams_enabled";
 	public static final String		KEY_TIME_LIMIT				= "time_limit";
 
@@ -43,9 +44,9 @@ public abstract class GameType extends ValidatedConfig implements Identifyable {
 	public static final int			DEF_TIME_LIMIT				= 0;
 	public static final boolean		DEF_TEAMS_ENABLED			= true;
 
-	private static final GameType	freeForAll					= new FFA();
-	private static final GameType	teamDeathmatch				= new TDM();
-	private static final GameType	kingOfTheHill				= new KOTH();
+	public static final GameType	freeForAll					= new FFA();
+	public static final GameType	teamDeathmatch				= new TDM();
+	public static final GameType	kingOfTheHill				= new KOTH();
 
 	protected int					_type						= 0;
 
@@ -61,13 +62,13 @@ public abstract class GameType extends ValidatedConfig implements Identifyable {
 		return _config.getString(KEY_ID);
 	}
 
+	public void reload() {}
+
 	public abstract boolean onKill();
 
 	public abstract void onMove(WarPlayer player, Location from, Location to);
 
-	public int getType() {
-		return _type;
-	}
+	public abstract int getType();
 
 	public static int getGameType(String id) {
 		if (id.equalsIgnoreCase("ffa"))
@@ -77,19 +78,6 @@ public abstract class GameType extends ValidatedConfig implements Identifyable {
 		if (id.equalsIgnoreCase("koth"))
 			return KOTH;
 		return 0;
-	}
-
-	public GameType get(int id) {
-		switch (id) {
-			case TDM:
-				return teamDeathmatch;
-			case FFA:
-				return freeForAll;
-			case KOTH:
-				return kingOfTheHill;
-			default:
-				return null;
-		}
 	}
 
 	public static ConfigurationSection getDefaults() {

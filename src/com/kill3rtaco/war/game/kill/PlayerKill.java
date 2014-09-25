@@ -1,18 +1,31 @@
 package com.kill3rtaco.war.game.kill;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.Game;
 import com.kill3rtaco.war.game.player.WarPlayer;
 
 public class PlayerKill {
 
-	private WarPlayer _killer, _victim;
-	private String _weapon;
+	private WarPlayer		_killer, _victim;
+	private String			_weapon;
+	private List<WarPlayer>	_assists;
 
 	public PlayerKill(WarPlayer killer, String weapon, WarPlayer victim) {
 		_killer = killer;
 		_weapon = weapon;
 		_victim = victim;
+		_assists = new ArrayList<WarPlayer>();
+	}
+
+	public void setAssists(List<WarPlayer> players) {
+		_assists = players;
+	}
+
+	public List<WarPlayer> getAssists() {
+		return _assists;
 	}
 
 	public WarPlayer getKiller() {

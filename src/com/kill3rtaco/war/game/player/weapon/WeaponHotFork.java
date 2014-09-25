@@ -1,21 +1,23 @@
 package com.kill3rtaco.war.game.player.weapon;
 
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
+import java.util.Arrays;
+
+import org.bukkit.Material;
 
 public class WeaponHotFork extends InternalWeapon {
 
-	protected ConfigurationSection getWeaponConfig() {
-		YamlConfiguration c = new YamlConfiguration();
+	public static final String	ID	= "hot_fork";
 
-		c.set(KEY_ID, "hot_fork");
-		c.set(KEY_NAME, "Hot Fork");
-		c.set(KEY_DESC, "Pokey pokey!");
-		c.set(KEY_ON_HIT, "damage 2");
-		c.set(KEY_ON_DEATH, "explode 1");
-		c.set(KEY_AMMO, -1);
-
-		return c;
+	@Override
+	@SuppressWarnings("deprecation")
+	protected void setConfig() {
+		set(KEY_ID, ID);
+		set(KEY_ITEM_INFO, "{id: " + Material.BLAZE_ROD.getId() + "}");
+		set(KEY_NAME, "Hot Fork");
+		set(KEY_DESC, Arrays.asList("\"Not all Forks are created equal...\"", "  - Unknown"));
+		set(KEY_ON_HIT, ACTION_DAMAGE + " 2");
+		set(KEY_ON_DEATH, Arrays.asList(ACTION_EXPLODE + " 1"));
+		set(KEY_AMMO, -1);
 	}
 
 }

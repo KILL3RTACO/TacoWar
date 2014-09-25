@@ -20,7 +20,7 @@ public class Game {
 	private boolean						_running	= false;
 	private ArrayList<WarPlayer>		_players	= new ArrayList<WarPlayer>();
 	private KillFeed					_killfeed	= new KillFeed();
-	private WarMap							_map;
+	private WarMap						_map;
 	private GameType					_gametype;
 	private WarKit						_kit;
 	private HashMap<WarTeam, Integer>	_scores		= new HashMap<WarTeam, Integer>();
@@ -117,6 +117,10 @@ public class Game {
 		WarPlayer player = WarUtil.removePlayer(_players, name);
 		if (player != null)
 			player.clearInventory();
+	}
+
+	public List<WarPlayer> getPlayers() {
+		return _players;
 	}
 
 	public WarPlayer getPlayer(Player p) {

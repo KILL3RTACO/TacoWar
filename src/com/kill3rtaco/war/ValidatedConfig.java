@@ -10,14 +10,17 @@ import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-public class ValidatedConfig {
+public abstract class ValidatedConfig {
 
 	protected ConfigurationSection	_config;
 	protected boolean				_valid	= true;
 
 	public ValidatedConfig(ConfigurationSection config) {
 		_config = config;
+		reload();
 	}
+
+	public abstract void reload();
 
 	protected int getInt(String path, int def) {
 		if (!_config.isInt(path))
@@ -36,7 +39,7 @@ public class ValidatedConfig {
 	protected List<String> getStringList(String path, boolean req) {
 		List<String> list;
 		if (!_config.isSet(path) || !_config.isList(path))
-			return null;
+			return new ArrayList<String>();
 
 		if (_config.isString(path)) {
 			list = new ArrayList<String>();

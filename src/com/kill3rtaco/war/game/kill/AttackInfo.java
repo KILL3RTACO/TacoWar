@@ -2,8 +2,8 @@ package com.kill3rtaco.war.game.kill;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Vehicle;
@@ -15,15 +15,16 @@ import org.bukkit.inventory.ItemStack;
 import com.kill3rtaco.tacoapi.TacoAPI;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.player.WarPlayer;
+import com.kill3rtaco.war.game.player.Weapon;
 import com.kill3rtaco.war.util.WarUtil;
 
 public class AttackInfo {
 
-	private LivingEntity _attacker, _victim;
-	private WarPlayer _attackerPlayer, _victimPlayer;
-	private DamageCause _cause;
-	private String _toolActionDisplay;
-	private double _damage;
+	private LivingEntity	_attacker, _victim;
+	private WarPlayer		_attackerPlayer, _victimPlayer;
+	private DamageCause		_cause;
+	private String			_toolActionDisplay;
+	private double			_damage;
 
 	public AttackInfo(EntityDamageEvent event) {
 		setVictim((LivingEntity) event.getEntity());
@@ -35,8 +36,9 @@ public class AttackInfo {
 			if (entity instanceof Projectile) {
 				Projectile projectile = (Projectile) entity;
 				_attacker = projectile.getShooter();
-				if (projectile.getType() == EntityType.ARROW) {
-					_toolActionDisplay = "Bow + Arrow";
+				if (projectile.hasMetadata(Weapon.METADATA_KEY)) {
+					Weapon w = (Weapon) projectile.getMetadata(Weapon.METADATA_KEY).get(0).value();
+					_toolActionDisplay = w.getConfig().getString(Weapon.KEY_NAME);
 				} else {
 					_toolActionDisplay = TacoAPI.getChatUtils().toProperCase(projectile.getType().name());
 				}
@@ -49,6 +51,14 @@ public class AttackInfo {
 			} else if (entity instanceof FallingBlock) {
 				FallingBlock b = (FallingBlock) entity;
 				_toolActionDisplay = "Squished : " + TacoAPI.getChatUtils().toProperCase(b.getMaterial().name());
+			} else if (entity instanceof LightningStrike) {
+				LightningStrike strike = (LightningStrike) entity;
+				if (strike.hasMetadata(Weapon.METADATA_KEY)) {
+					Weapon w = (Weapon) strike.getMetadata(Weapon.METADATA_KEY).get(0).value();
+					_toolActionDisplay = w.getConfig().getString(Weapon.KEY_NAME);
+				} else {
+					_toolActionDisplay = WarUtil.getDamageCauseName(DamageCause.LIGHTNING);
+				}
 			} else {
 				//assume living entity
 				setAttacker((LivingEntity) entity);

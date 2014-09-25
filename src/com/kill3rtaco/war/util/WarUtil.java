@@ -1,11 +1,13 @@
 package com.kill3rtaco.war.util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
+import com.kill3rtaco.war.WarCloneable;
 import com.kill3rtaco.war.game.player.WarPlayer;
 
 public class WarUtil {
@@ -122,5 +124,26 @@ public class WarUtil {
 		for (WarPlayer p : players) {
 			p.sendMessage(message);
 		}
+	}
+
+	public static <T extends WarCloneable<T>> List<T> cloneList(List<T> list) {
+		List<T> clones = new ArrayList<T>();
+		for (T t : list) {
+			if (t != null)
+				clones.add(t.cloneObject());
+		}
+		return clones;
+	}
+
+	public static <T extends WarCloneable<T>> T cloneOrNot(T cloneable, boolean clone) {
+		if (clone && cloneable != null)
+			return cloneable.cloneObject();
+		return cloneable;
+	}
+
+	public static <T extends WarCloneable<T>> List<T> cloneOrNotList(List<T> list, boolean clone) {
+		if (clone)
+			return cloneList(list);
+		return list;
 	}
 }

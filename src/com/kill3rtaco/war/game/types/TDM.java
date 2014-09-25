@@ -33,4 +33,9 @@ public class TDM extends GameType {
 		return;
 	}
 
+	@Override
+	public int getType() {
+		return GameType.TDM;
+	}
+
 }

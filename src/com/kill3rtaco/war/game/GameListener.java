@@ -1,16 +1,27 @@
 package com.kill3rtaco.war.game;
 
+import java.util.List;
+
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -82,11 +93,10 @@ public class GameListener implements Listener {
 		if (attacker.getTeam() == victim.getTeam() && gametype.getConfig().getInt(GameType.KEY_PENALTY_FRIENDLY_FIRE) < 0) {
 			event.setCancelled(true);
 		}
-		//more stuff?...
+
 	}
 
 	@EventHandler
-	//main method for game logic - player deaths
 	public void onDeath(PlayerDeathEvent event) {
 		Game game = TacoWar.currentGame();
 		GameType gametype = game.getGameType();
@@ -96,7 +106,7 @@ public class GameListener implements Listener {
 		if (event.getEntity().getWorld() != TacoWar.config.getWarWorld()) {
 			return;
 		}
-		org.bukkit.entity.Player p = event.getEntity();
+		Player p = event.getEntity();
 		WarPlayer player = game.getPlayer(p);
 		if (player == null) {
 			return;
@@ -104,6 +114,7 @@ public class GameListener implements Listener {
 		EntityDamageEvent e = event.getEntity().getLastDamageCause();
 		AttackInfo info = new AttackInfo(e);
 		PlayerKill kill;
+		//possible suicide
 		if (info.getAttacker() == null || info.getAttacker().getType() != EntityType.PLAYER) {
 			String weapon = info.getToolActionDisplay();
 			boolean suicide = info.isSuicide();
@@ -114,17 +125,18 @@ public class GameListener implements Listener {
 					game.addPoints(player.getTeam(), Math.abs(penalty) * -1);
 				}
 			}
-		} else {
-			WarPlayer attacker = game.getPlayer((org.bukkit.entity.Player) info.getAttacker());
+		} else { //player kill player
+			WarPlayer attacker = game.getPlayer((Player) info.getAttacker());
 			if (attacker == null) {
 				return;
 			}
 
 			boolean friendly = false;
+			int ffPen = gametype.getConfig().getInt(GameType.KEY_PENALTY_FRIENDLY_FIRE);
 
 			//cancel friendly fire if needed
 			if (attacker.getTeam().hasPlayer(player)) {
-				if (gametype.getConfig().getInt(GameType.KEY_PENALTY_FRIENDLY_FIRE) >= 0) {
+				if (ffPen >= 0) {
 					friendly = true;
 				} else {
 					e.setCancelled(true);
@@ -136,9 +148,8 @@ public class GameListener implements Listener {
 			kill = game.getKillFeed().addToFeed(attacker, weapon, player);
 			if (gametype.onKill()) {
 				if (friendly) {
-					int penalty = gametype.getConfig().getInt(GameType.KEY_PENALTY_FRIENDLY_FIRE);
-					if (penalty > 0) {
-						game.addPoints(attacker.getTeam(), Math.abs(penalty) * -1);
+					if (ffPen > 0) {
+						game.addPoints(attacker.getTeam(), ffPen * -1);
 					}
 				} else {
 					game.addPoints(attacker.getTeam(), 1);
@@ -150,8 +161,8 @@ public class GameListener implements Listener {
 		kill.broadcast();
 		event.getDrops().clear(); //clear any items dropped
 		event.setDroppedExp(0); //clear any xp dropped
+		player.clearDamages();
 
-		//no point in moving forward if people dying does not award points
 		if (game.getScore(game.getTeamInLead()) >= gametype.getConfig().getInt(GameType.KEY_MAX_SCORE)) {
 			game.end();
 		}
@@ -172,7 +183,7 @@ public class GameListener implements Listener {
 			}
 			Location location = null;
 
-			GameType type = game.getGameType();
+//			GameType type = game.getGameType();
 			location = game.getMap().getRandomSpawn(player.getTeam());
 
 			event.setRespawnLocation(location);
@@ -182,7 +193,54 @@ public class GameListener implements Listener {
 
 	@EventHandler
 	public void onWeaponUse(PlayerInteractEvent event) {
+		WarPlayer player = TacoWar.currentGame().getPlayer(event.getPlayer());
+		if (player == null)
+			return;
+		Action action = event.getAction();
+		if (action == Action.PHYSICAL)
+			return;
+		Location location = null;
+		for (WarPlayer p : TacoWar.currentGame().getPlayers()) {
+			if (p == player)
+				continue;
+			Player plyr = p.getBukkitPlayer();
+			if (plyr == null)
+				continue;
+			if (player.getBukkitPlayer().hasLineOfSight(plyr)) {
+				location = plyr.getLocation();
+				break;
+			}
+		}
+		if (location == null)
+			location = player.getTargetBlock(500).getLocation();
+	}
 
+	@EventHandler
+	public void onBlockIgnite(BlockIgniteEvent event) {
+		if (event.getBlock().getWorld() == TacoWar.config.getWarWorld())
+			event.setCancelled(true);
+	}
+
+	@EventHandler
+	public void onTntPlace(BlockPlaceEvent event) {
+		Block block = event.getBlock();
+		if (block.getWorld() != TacoWar.config.getWarWorld() || block.getType() != Material.TNT)
+			return;
+
+		block.setType(Material.AIR);
+		TNTPrimed tnt = ((TNTPrimed) block.getWorld().spawnEntity(block.getLocation(), EntityType.PRIMED_TNT));
+		tnt.setIsIncendiary(false);
+		tnt.setFuseTicks(tnt.getFuseTicks() + 5);
+	}
+
+	@EventHandler
+	public void onExplosion(EntityExplodeEvent event) {
+		List<Block> blocks = event.blockList();
+		if (blocks == null || blocks.isEmpty())
+			return;
+
+		if (blocks.get(0).getWorld() == TacoWar.config.getWarWorld())
+			blocks.clear();
 	}
 
 	@EventHandler
@@ -190,12 +248,11 @@ public class GameListener implements Listener {
 		Projectile projectile = event.getEntity();
 		if (!projectile.hasMetadata(Weapon.METADATA_KEY))
 			return;
-		String weaponId = projectile.getMetadata(Weapon.METADATA_KEY).get(0).asString();
-		Weapon firedFrom = TacoWar.getWeapon(weaponId);
+		Weapon firedFrom = (Weapon) projectile.getMetadata(Weapon.METADATA_KEY).get(0).value();
 		if (firedFrom == null)
 			return;
 		projectile.setBounce(false);
-		firedFrom.onUse(projectile.getLocation());
+		firedFrom.onProjectileHit(projectile.getLocation());
 	}
 
 	@EventHandler
@@ -208,6 +265,12 @@ public class GameListener implements Listener {
 				event.setCancelled(true);
 			}
 		}
+	}
+
+	@EventHandler
+	public void onPlayerDropItem(PlayerDropItemEvent event) {
+		if (TacoWar.currentGame().isPlaying(event.getPlayer()))
+			event.setCancelled(true);
 	}
 
 }
