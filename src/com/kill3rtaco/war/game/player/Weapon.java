@@ -8,8 +8,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Egg;
-import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.SmallFireball;
 import org.bukkit.entity.Snowball;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -24,7 +24,7 @@ import com.kill3rtaco.war.util.ValidatedConfig;
 import com.kill3rtaco.war.util.WarCloneable;
 
 public class Weapon extends ValidatedConfig implements Identifyable, WarCloneable<Weapon> {
-
+	
 	public static final String	KEY_AMMO				= "ammo";
 	public static final String	KEY_DESC				= "description";		//list of strings
 	public static final String	KEY_ID					= "id";
@@ -35,7 +35,7 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 	public static final String	KEY_ON_HIT				= "onHit";				//hit player (left click)
 	public static final String	KEY_ON_PROJECTILE_HIT	= "onProjectileHit";	//when a projectile hits, if launched
 	public static final String	KEY_ON_USE				= "onUse";				//right click
-
+																				
 	public static final String	ACTION_ARROW			= "arrow";
 	public static final String	ACTION_DAMAGE			= "damage";			//player hit
 	public static final String	ACTION_EGG				= "egg";
@@ -45,16 +45,16 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 	public static final String	ACTION_LIGHTNING		= "lightning";
 	public static final String	ACTION_LIGHTNING_EFFECT	= "lightning-effect";
 	public static final String	ACTION_SNOWBALL			= "snowball";
-
+	
 	public static final String	METADATA_KEY			= "tw.weapon";
-
+	
 	private String				_id;
 	private int					_ammo;
 	private HashMap<String, Integer>	_onCrit, _onDeath, _onHit,
 										_onProjectileHit, _onUse;
 	private WarPlayer					_holder;
 	private ItemStack					_item;
-
+	
 	//event actions:
 	// - damage [amount-in-half-hearts]
 	// - explode [force(def:tnt)]
@@ -62,19 +62,19 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 	// - lightning
 	// - lightning-effect
 	// - snowball 
-
+	
 	protected Weapon() {
 		this(new YamlConfiguration());
 	}
-
+	
 	public Weapon(ConfigurationSection config) {
 		super(config);
 	}
-
+	
 	private void setMetadata(Metadatable entity) {
 		entity.setMetadata(METADATA_KEY, new FixedMetadataValue(TacoWar.plugin, this));
 	}
-
+	
 	public void reload() {
 		_id = getString(KEY_ID, true);
 		_ammo = getInt(KEY_AMMO, -1);
@@ -84,47 +84,47 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 		_onUse = getActions(KEY_ON_USE);
 		createItem();
 	}
-
+	
 	public String getId() {
 		return _id;
 	}
-
+	
 	protected void createItem() {
 		String info = getString(KEY_ITEM_INFO, true);
 		if (info == null || info.isEmpty() || !_valid)
 			return;
-
+		
 		_item = SingleItemSerialization.getItem(info);
 		String name = getString(KEY_NAME, false);
 		ItemMeta meta = _item.getItemMeta();
 		if (name != null)
 			meta.setDisplayName(_config.getString(KEY_NAME));
-
+		
 		List<String> lore = getStringList(KEY_DESC, false);
 		if (lore != null)
 			meta.setLore(lore);
-
+		
 		_item.setItemMeta(meta);
-
+		
 	}
-
+	
 	public ItemStack asItem() {
 		return _item;
 	}
-
+	
 	public void setHolder(WarPlayer player) {
 		_holder = player;
 	}
-
+	
 	public WarPlayer getHolder() {
 		return _holder;
 	}
-
+	
 	private HashMap<String, Integer> getActions(String key) {
 		List<String> list = getStringList(key, false);
 		if (list == null)
 			return new HashMap<String, Integer>();
-
+		
 		HashMap<String, Integer> actions = new HashMap<String, Integer>();
 		for (String s : list) {
 			String k = "";
@@ -144,14 +144,14 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 		}
 		return actions;
 	}
-
+	
 	public boolean hasAction(String event, String action) {
 		HashMap<String, Integer> map = getActionMap(event);
 		if (map == null)
 			return false;
 		return map.containsKey(action);
 	}
-
+	
 	//hasAction should be called first
 	public int getActionValue(String event, String action) {
 		HashMap<String, Integer> map = getActionMap(event);
@@ -159,7 +159,7 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 			return 0;
 		return map.get(action);
 	}
-
+	
 	private HashMap<String, Integer> getActionMap(String event) {
 		if (event.equals(KEY_ON_DEATH)) {
 			return _onDeath;
@@ -175,132 +175,145 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 			return null;
 		}
 	}
-
+	
 	public int getAmmo() {
 		return _ammo;
 	}
-
+	
 	public void setAmmo(int ammo) {
 		_ammo = ammo;
+		if (_ammo == 0) {
+			
+		}
 	}
-
+	
 	public void incrementAmmo() {
 		incrementAmmo(1);
 	}
-
+	
 	public void incrementAmmo(int amount) {
 		setAmmo(_ammo + amount);
 	}
-
+	
 	public void decrementAmmo() {
 		decrementAmmo(1);
 	}
-
+	
 	public void decrementAmmo(int amount) {
 		setAmmo(_ammo - amount);
 	}
-
+	
 	public void onUse(Location looking) {
-		doLocationEvents(KEY_ON_USE, looking);
+		if (doLocationEvents(KEY_ON_USE, looking))
+			decrementAmmo();
 	}
-
-	public void onHit(Location hit) {
-		doLocationEvents(KEY_ON_HIT, hit);
-	}
-
+	
 	public void onHit(WarPlayer hit) {
-		doPlayerEvents(KEY_ON_HIT, hit);
+		if (doPlayerEvents(KEY_ON_HIT, hit))
+			decrementAmmo();
 	}
-
+	
 	public void onDeath(WarPlayer killed) {
-		doPlayerEvents(KEY_ON_DEATH, killed);
+		if (doPlayerEvents(KEY_ON_DEATH, killed))
+			decrementAmmo();
 	}
-
+	
 	public void onCrit(WarPlayer hit) {
-		doPlayerEvents(KEY_ON_CRIT, hit);
+		if (doPlayerEvents(KEY_ON_CRIT, hit))
+			decrementAmmo();
 	}
-
+	
 	public void onProjectileHit(Location hit) {
-		doLocationEvents(KEY_ON_PROJECTILE_HIT, hit);
+		if (doLocationEvents(KEY_ON_PROJECTILE_HIT, hit))
+			decrementAmmo();
 	}
-
-	private void doLocationEvents(String event, Location location) {
-		arrow(event);
-		egg(event);
-		explosion(event, location);
-		fireball(event);
-		lightning(event, location, false);
-		lightning(event, location, true);
-		snowball(event);
+	
+	private boolean doLocationEvents(String event, Location location) {
+		boolean decrementAmmo = false;
+		decrementAmmo = arrow(event) || decrementAmmo;
+		decrementAmmo = egg(event) || decrementAmmo;
+		decrementAmmo = explosion(event, location) || decrementAmmo;
+		decrementAmmo = fireball(event) || decrementAmmo;
+		decrementAmmo = lightning(event, location, false) || decrementAmmo;
+		decrementAmmo = lightning(event, location, true) || decrementAmmo;
+		decrementAmmo = snowball(event) || decrementAmmo;
+		return decrementAmmo;
 	}
-
-	private void doPlayerEvents(String event, WarPlayer player) {
+	
+	private boolean doPlayerEvents(String event, WarPlayer player) {
+		boolean decrementAmmo = false;
 		Location location = player.getLocation();
 		if (location == null)
-			return;
-		doLocationEvents(event, player.getLocation());
+			return false;
+		decrementAmmo = doLocationEvents(event, player.getLocation()) || decrementAmmo;
 		damage(event, player);
-		ignite(event, player);
+		decrementAmmo = ignite(event, player) || decrementAmmo;
+		return decrementAmmo;
 	}
-
-	private void damage(String event, WarPlayer player) {
+	
+	private boolean damage(String event, WarPlayer player) {
 		if (!hasAction(event, ACTION_DAMAGE))
-			return;
+			return false;
 		player.setHealthRelative(getActionValue(event, ACTION_DAMAGE));
+		return true;
 	}
-
-	private void explosion(String event, Location loc) {
+	
+	private boolean explosion(String event, Location loc) {
 		if (!hasAction(event, ACTION_EXPLODE))
-			return;
+			return false;
 		int f = getActionValue(event, ACTION_EXPLODE);
 		loc.getWorld().createExplosion(loc.getX(), loc.getY(), loc.getZ(), f, false, false);
+		return true;
 	}
-
-	private void lightning(String event, Location location, boolean isEffect) {
+	
+	private boolean lightning(String event, Location location, boolean isEffect) {
 		if ((isEffect && !hasAction(event, ACTION_LIGHTNING_EFFECT))
 				|| (!isEffect && !hasAction(event, ACTION_LIGHTNING))) {
-			return;
+			return false;
 		}
 		location = MapUtil.getLightningStrikeLocation(location);
 		if (isEffect)
 			location.getWorld().strikeLightningEffect(location);
 		else
 			setMetadata(location.getWorld().strikeLightning(location));
+		return true;
 	}
-
-	private void ignite(String event, WarPlayer player) {
+	
+	private boolean ignite(String event, WarPlayer player) {
 		if (!hasAction(event, ACTION_IGNITE))
-			return;
+			return false;
 		int ticks = getActionValue(event, ACTION_IGNITE);
 		player.ignite(ticks);
+		return true;
 	}
-
-	private void arrow(String event) {
-		projectile(event, ACTION_ARROW, Arrow.class);
+	
+	private boolean arrow(String event) {
+		return projectile(event, ACTION_ARROW, Arrow.class);
 	}
-
-	private void egg(String event) {
-		projectile(event, ACTION_EGG, Egg.class);
+	
+	private boolean egg(String event) {
+		return projectile(event, ACTION_EGG, Egg.class);
 	}
-
-	private void fireball(String event) {
-		projectile(event, ACTION_FIREBALL, Fireball.class);
+	
+	private boolean fireball(String event) {
+		return projectile(event, ACTION_FIREBALL, SmallFireball.class);
 	}
-
-	private void snowball(String event) {
-		projectile(event, ACTION_SNOWBALL, Snowball.class);
+	
+	private boolean snowball(String event) {
+		return projectile(event, ACTION_SNOWBALL, Snowball.class);
 	}
-
-	private void projectile(String event, String action, Class<? extends Projectile> projectile) {
+	
+	private boolean projectile(String event, String action, Class<? extends Projectile> projectile) {
 		if (!hasAction(event, action))
-			return;
+			return false;
 		setMetadata(_holder.getBukkitPlayer().launchProjectile(projectile));
+		return true;
 	}
-
+	
 	public Weapon cloneObject() {
 		Weapon w = new Weapon(_config);
 		w.setAmmo(_ammo);
 		return w;
 	}
-
+	
 }

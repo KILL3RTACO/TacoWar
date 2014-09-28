@@ -16,30 +16,30 @@ import com.kill3rtaco.war.util.Identifyable;
 import com.kill3rtaco.war.util.ValidatedConfig;
 
 public class Playlist extends ValidatedConfig implements Identifyable {
-
-	public static final String	KEY_ID			= "id";
-	public static final String	KEY_MAPS		= "maps";
-	public static final String	KEY_KITS		= "kits";
-	public static final String	KEY_GAMETYPES	= "gametypes";
-
-	private List<PlaylistEntry>	_maps;
-	private List<GameType>		_genericGameTypes;
-	private List<WarKit>		_genericKits;
-	private WarMap				_currentMap;
-	private GameType			_currentGameType;
-	private WarKit				_currentKit;
-	private File				_file;
-
+	
+	public static final String		KEY_ID			= "id";
+	public static final String		KEY_MAPS		= "maps";
+	public static final String		KEY_KITS		= "kits";
+	public static final String		KEY_GAMETYPES	= "gametypes";
+	
+	protected List<PlaylistEntry>	_maps;
+	protected List<GameType>		_genericGameTypes;
+	protected List<WarKit>			_genericKits;
+	private WarMap					_currentMap;
+	private GameType				_currentGameType;
+	private WarKit					_currentKit;
+	private File					_file;
+	
 	public Playlist(String id) {
 		super(new YamlConfiguration());
 		_config.set(KEY_ID, id);
 		_file = new File(TW.PL_FOLDER, id + ".yml");
 	}
-
+	
 	public Playlist(ConfigurationSection config) {
 		super(config);
 	}
-
+	
 	/*
 	 * maps: 
 	 *   map_id:
@@ -56,7 +56,7 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 	public void reload() {
 		if (_config == null || !_config.isConfigurationSection(KEY_MAPS))
 			return;
-
+		
 		_maps = new ArrayList<PlaylistEntry>();
 		List<String> list = new ArrayList<String>(_config.getConfigurationSection(KEY_MAPS).getKeys(false));
 		for (String s : list) {
@@ -64,42 +64,42 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 			if (map == null)
 				continue;
 			PlaylistEntry entry = new PlaylistEntry(map);
-
+			
 			List<String> ids = getStringList(KEY_MAPS + "." + s + "." + KEY_GAMETYPES, false);
 			List<GameType> gametypes = TacoWar.getGameTypes(ids);
 			if (gametypes.isEmpty())
 				continue;
 			entry.getGameTypes().addAll(gametypes);
-
+			
 			ids = getStringList(KEY_MAPS + "." + s + "." + KEY_KITS, false);
 			List<WarKit> kits = TacoWar.getKits(ids);
 			if (gametypes.isEmpty())
 				continue;
 			entry.getKits().addAll(kits);
 		}
-
+		
 		List<String> ids = getStringList(KEY_GAMETYPES, false);
 		if (ids == null || ids.isEmpty())
 			return;
 		_genericGameTypes = TacoWar.getGameTypes(ids);
-
+		
 		ids = getStringList(KEY_KITS, false);
 		if (ids == null || ids.isEmpty())
 			return;
 		_genericKits = TacoWar.getKits(ids);
 	}
-
+	
 	public String getId() {
 		return _config.getString(KEY_ID);
 	}
-
+	
 	public boolean isEmpty() {
 		return _maps.isEmpty();
 	}
-
+	
 	//selectMap()
 	//selectGameType() - based on map, fails if map not selected
-
+	
 	public WarMap selectMap(int playerCount) {
 		List<WarMap> maps = getMaps();
 		if (maps.isEmpty()) {
@@ -114,11 +114,11 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		_currentMap = available.get(new Random().nextInt(available.size()));
 		return _currentMap;
 	}
-
+	
 	public WarMap getCurrentMap() {
 		return _currentMap;
 	}
-
+	
 	public GameType selectGameType() {
 		if (_currentMap == null) {
 			return null;
@@ -133,7 +133,7 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		_currentGameType = available.get(new Random().nextInt(available.size()));
 		return _currentGameType;
 	}
-
+	
 	public WarKit selectKit() {
 		if (_currentMap == null) {
 			return null;
@@ -148,7 +148,7 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		_currentKit = available.get(new Random().nextInt(available.size()));
 		return _currentKit;
 	}
-
+	
 	public List<WarMap> getMaps() {
 		List<WarMap> maps = new ArrayList<WarMap>();
 		for (PlaylistEntry e : _maps) {
@@ -156,7 +156,18 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		}
 		return maps;
 	}
-
+	
+	public List<WarMap> getMaps(int amount) {
+		List<WarMap> maps = new ArrayList<WarMap>(getMaps());
+		List<WarMap> avail = new ArrayList<WarMap>();
+		for (int i = 0; i < amount; i++) {
+			if (maps.isEmpty())
+				return avail;
+			avail.add(maps.remove(new Random().nextInt(maps.size())));
+		}
+		return avail;
+	}
+	
 	public List<GameType> getGameTypesFor(String mapId) {
 		List<WarMap> maps = getMaps();
 		for (int i = 0; i < maps.size(); i++) {
@@ -166,7 +177,7 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		}
 		return null;
 	}
-
+	
 	public List<WarKit> getKitsFor(String mapId) {
 		List<WarMap> maps = getMaps();
 		for (int i = 0; i < maps.size(); i++) {
@@ -176,9 +187,9 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		}
 		return null;
 	}
-
+	
 	public void save() {
 		save(_file);
 	}
-
+	
 }

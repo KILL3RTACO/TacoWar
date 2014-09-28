@@ -116,7 +116,10 @@ public class WarKit extends ValidatedConfig implements Identifyable, WarCloneabl
 	public Weapon getWeapon(int slot) {
 		if (slot < 0 || _weapons.size() < slot)
 			return null;
-		return _weapons.get(slot);
+		Weapon w = _weapons.get(slot);
+		if (w == null || w.getAmmo() == 0)
+			return null;
+		return w;
 	}
 
 	public Weapon getWeapon(String id) {

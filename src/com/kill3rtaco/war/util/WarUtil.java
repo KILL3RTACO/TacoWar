@@ -13,7 +13,7 @@ import org.bukkit.potion.PotionEffectType;
 import com.kill3rtaco.war.game.player.WarPlayer;
 
 public class WarUtil {
-
+	
 	public static String getDamageCauseName(DamageCause cause) {
 		switch (cause) {
 			case ENTITY_ATTACK:
@@ -60,13 +60,13 @@ public class WarUtil {
 				return "Natural Causes";
 		}
 	}
-
+	
 	public static String random(String... strings) {
 		if (strings.length == 0)
 			throw new IllegalArgumentException("Parameter length cannot be 0");
 		return strings[new Random().nextInt(strings.length)];
 	}
-
+	
 	public static boolean isSuicide(DamageCause cause) {
 		switch (cause) {
 			case CONTACT:
@@ -83,11 +83,11 @@ public class WarUtil {
 				return false;
 		}
 	}
-
+	
 	public static WarPlayer getPlayer(List<WarPlayer> players, Player p) {
 		return getPlayer(players, p.getName());
 	}
-
+	
 	public static WarPlayer getPlayer(List<WarPlayer> players, String name) {
 		for (WarPlayer p : players) {
 			if (p.getName().equalsIgnoreCase(name))
@@ -95,23 +95,23 @@ public class WarUtil {
 		}
 		return null;
 	}
-
+	
 	public static boolean hasPlayer(List<WarPlayer> players, Player p) {
 		return hasPlayer(players, p.getName());
 	}
-
+	
 	public static boolean hasPlayer(List<WarPlayer> players, String name) {
 		return getPlayer(players, name) != null;
 	}
-
+	
 	public static WarPlayer removePlayer(List<WarPlayer> players, Player p) {
 		return removePlayer(players, p.getName());
 	}
-
+	
 	public static WarPlayer removePlayer(List<WarPlayer> players, WarPlayer player) {
 		return removePlayer(players, player.getName());
 	}
-
+	
 	public static WarPlayer removePlayer(List<WarPlayer> players, String name) {
 		for (WarPlayer p : players) {
 			if (p.getName().equalsIgnoreCase(name)) {
@@ -121,25 +121,25 @@ public class WarUtil {
 		}
 		return null;
 	}
-
+	
 	public static void broadcast(List<WarPlayer> players, String message) {
 		for (WarPlayer p : players) {
 			p.sendMessage(message);
 		}
 	}
-
+	
 	public static void teleport(List<WarPlayer> players, Location location) {
 		for (WarPlayer p : players) {
 			p.teleport(location);
 		}
 	}
-
+	
 	public static void respawn(List<WarPlayer> players) {
 		for (WarPlayer p : players) {
 			p.respawn();
 		}
 	}
-
+	
 	public static <T extends WarCloneable<T>> List<T> cloneList(List<T> list) {
 		List<T> clones = new ArrayList<T>();
 		for (T t : list) {
@@ -148,29 +148,36 @@ public class WarUtil {
 		}
 		return clones;
 	}
-
+	
 	public static <T extends WarCloneable<T>> T cloneOrNot(T cloneable, boolean clone) {
 		if (clone && cloneable != null)
 			return cloneable.cloneObject();
 		return cloneable;
 	}
-
+	
 	public static <T extends WarCloneable<T>> List<T> cloneOrNotList(List<T> list, boolean clone) {
 		if (clone)
 			return cloneList(list);
 		return list;
 	}
-
-	@SuppressWarnings("deprecation")
+	
 	public static boolean possibleCrit(Player player) {
 		if (player == null)
 			return false;
-		return !player.isOnGround() &&
-				player.getVelocity().getY() < 0 &&
-				!player.isInsideVehicle() &&
-				player.getLocation().getBlock().getType() == Material.AIR &&
-				player.getLocation().clone().add(0, 1, 0).getBlock().getType() == Material.AIR &&
+		return isOnGround(player) &&
+				!isInsideBlockOrVehicle(player) &&
 				!player.getActivePotionEffects().contains(PotionEffectType.BLINDNESS);
-
+		
+	}
+	
+	public static boolean isOnGround(Player player) {
+		return player.getLocation().getY() - player.getLocation().getBlockY() > 0 &&
+				player.getVelocity().getY() < 0;
+	}
+	
+	public static boolean isInsideBlockOrVehicle(Player player) {
+		return player.isInsideVehicle() &&
+				player.getLocation().getBlock().getType() != Material.AIR &&
+				player.getLocation().clone().add(0, 1, 0).getBlock().getType() != Material.AIR;
 	}
 }
