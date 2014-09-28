@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.GameType;
 import com.kill3rtaco.war.game.player.WarKit;
@@ -29,12 +27,6 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 	private GameType				_currentGameType;
 	private WarKit					_currentKit;
 	private File					_file;
-	
-	public Playlist(String id) {
-		super(new YamlConfiguration());
-		_config.set(KEY_ID, id);
-		_file = new File(TW.PL_FOLDER, id + ".yml");
-	}
 	
 	public Playlist(ConfigurationSection config) {
 		super(config);
@@ -57,15 +49,9 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		if (_config == null || !_config.isConfigurationSection(KEY_MAPS))
 			return;
 		
-		List<String> ids = getStringList(KEY_GAMETYPES, false);
-		if (ids == null || ids.isEmpty())
-			return;
-		_genericGameTypes = TacoWar.getGameTypes(ids);
-		
-		ids = getStringList(KEY_KITS, false);
-		if (ids == null || ids.isEmpty())
-			return;
-		_genericKits = TacoWar.getKits(ids);
+		//prevent removing first element from actual list in config
+		_genericGameTypes = getGameTypesFromList(new ArrayList<String>(getStringList(KEY_GAMETYPES, false)));
+		_genericKits = getKitsFromList(new ArrayList<String>(getStringList(KEY_KITS, false)));
 		
 		_maps = new ArrayList<PlaylistEntry>();
 		List<String> list = new ArrayList<String>(_config.getConfigurationSection(KEY_MAPS).getKeys(false));
@@ -93,6 +79,28 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 			_maps.add(entry);
 		}
 		
+	}
+	
+	private List<GameType> getGameTypesFromList(List<String> ids) {
+		if (ids.size() == 1 && ids.get(0).equalsIgnoreCase("none")) {
+			return _genericGameTypes = new ArrayList<GameType>();
+		} else if (ids.size() > 1 && ids.get(0).equalsIgnoreCase("all")) {
+			ids.remove(0);
+			return TacoWar.getGameTypesAndExclude(ids);
+		} else {
+			return _genericGameTypes = TacoWar.getGameTypes(ids);
+		}
+	}
+	
+	private List<WarKit> getKitsFromList(List<String> ids) {
+		if (ids.size() == 1 && ids.get(0).equalsIgnoreCase("none")) {
+			return new ArrayList<WarKit>();
+		} else if (ids.size() > 1 && ids.get(0).equalsIgnoreCase("all")) {
+			ids.remove(0);
+			return TacoWar.getKitsAndExclude(ids);
+		} else {
+			return TacoWar.getKits(ids);
+		}
 	}
 	
 	public String getId() {

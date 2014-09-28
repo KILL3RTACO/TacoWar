@@ -62,8 +62,7 @@ public class WarKit extends ValidatedConfig implements Identifyable, WarCloneabl
 			_valid = false;
 			return;
 		}
-		//TODO: clone flag
-		_weapons = TacoWar.getWeapons(ids);
+		_weapons = TacoWar.getWeapons(ids, true);
 		if (_weapons == null || _weapons.isEmpty()) {
 			_valid = false;
 			return;

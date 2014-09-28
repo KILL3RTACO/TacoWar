@@ -35,7 +35,7 @@ public class WarPlayer {
 	
 	public void setKit(WarKit kit) {
 		clearInventory();
-		_kit = kit;
+		_kit = kit.cloneObject();
 		giveKit();
 	}
 	
@@ -180,8 +180,7 @@ public class WarPlayer {
 	
 	public void respawn() {
 		teleport(TacoWar.currentGame().getMap().getRandomSpawn(_team));
-		clearInventory();
-		giveKit();
+		setKit(TacoWar.currentGame().getKit());
 	}
 	
 	public void teleport(Location location) {

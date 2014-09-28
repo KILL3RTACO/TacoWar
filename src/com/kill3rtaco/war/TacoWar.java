@@ -212,8 +212,16 @@ public class TacoWar extends TacoPlugin {
 		return getIdentifyableList(_gametypes, ids);
 	}
 	
+	public static List<GameType> getGameTypesAndExclude(List<String> exclude) {
+		return getIdentifyableListAndExclude(_gametypes, exclude);
+	}
+	
 	public static List<WarMap> getMaps(List<String> ids) {
 		return getIdentifyableList(_maps, ids);
+	}
+	
+	public static List<WarMap> getMapsAndExclude(List<String> exclude) {
+		return getIdentifyableListAndExclude(_maps, exclude);
 	}
 	
 	public static List<Weapon> getWeapons(List<String> ids) {
@@ -224,12 +232,28 @@ public class TacoWar extends TacoPlugin {
 		return TW.cloneOrNotList(getIdentifyableList(_weapons, ids), clone);
 	}
 	
+	public static List<Weapon> getWeaponsAndExclude(List<String> exclude) {
+		return getWeaponsAndExclude(exclude, false);
+	}
+	
+	public static List<Weapon> getWeaponsAndExclude(List<String> exclude, boolean clone) {
+		return TW.cloneOrNotList(getIdentifyableListAndExclude(_weapons, exclude), clone);
+	}
+	
 	public static List<WarKit> getKits(List<String> ids) {
-		return getKits(ids);
+		return getIdentifyableList(_kits, ids);
+	}
+	
+	public static List<WarKit> getKitsAndExclude(List<String> exclude) {
+		return getIdentifyableListAndExclude(_kits, exclude);
 	}
 	
 	public static List<Playlist> getPlaylists(List<String> ids) {
 		return getIdentifyableList(_playlists, ids);
+	}
+	
+	public static List<Playlist> getPlaylistsAndExclude(List<String> exclude) {
+		return getIdentifyableListAndExclude(_playlists, exclude);
 	}
 	
 	public static <T extends Identifyable> T getIdentifyable(List<T> list, String id) {
@@ -247,6 +271,17 @@ public class TacoWar extends TacoPlugin {
 			T identifyable = getIdentifyable(list, s);
 			if (identifyable != null)
 				l.add(identifyable);
+		}
+		return l;
+	}
+	
+	public static <T extends Identifyable> List<T> getIdentifyableListAndExclude(List<T> list, List<String> exclude) {
+		if (exclude == null || exclude.isEmpty())
+			return list;
+		List<T> l = new ArrayList<T>();
+		for (T t : l) { //well, this looks weird
+			if (!exclude.contains(t.getId()))
+				l.add(t);
 		}
 		return l;
 	}

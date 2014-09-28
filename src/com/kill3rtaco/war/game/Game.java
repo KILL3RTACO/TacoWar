@@ -170,8 +170,7 @@ public class Game {
 			
 			@Override
 			public void run() {
-				// TODO Auto-generated method stub
-				
+				TacoWar.startNewGame();
 			}
 			
 		}.runTaskLater(TacoWar.plugin, 60 * 20L);

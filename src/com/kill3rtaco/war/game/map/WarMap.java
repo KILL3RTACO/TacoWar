@@ -314,8 +314,8 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		return loc.getBlockX() + " "
 				+ loc.getBlockY() + " "
 				+ loc.getBlockZ() + " "
-				+ TacoWar.getNearestDegree(loc.getYaw(), 45) + " "
-				+ TacoWar.getNearestDegree(loc.getPitch(), 45);
+				+ TW.getNearestDegree(loc.getYaw(), 45) + " "
+				+ TW.getNearestDegree(loc.getPitch(), 45);
 	}
 	
 //	public boolean addPerm(String perm) {
