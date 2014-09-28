@@ -3,10 +3,10 @@ package com.kill3rtaco.war.game.kill;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.Game;
 import com.kill3rtaco.war.game.player.WarPlayer;
-import com.kill3rtaco.war.util.WarUtil;
 
 public class PlayerKill {
 	
@@ -59,7 +59,7 @@ public class PlayerKill {
 				message += " &7-> " + _awardTo.getColorfulName();
 		}
 		game.broadcast(message);
-		WarUtil.broadcast(_assists, "&eAssist!");
+		TW.broadcast(_assists, "&eAssist!");
 	}
 	
 }

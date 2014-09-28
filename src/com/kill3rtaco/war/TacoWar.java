@@ -20,23 +20,19 @@ import com.kill3rtaco.war.game.map.WarMap;
 import com.kill3rtaco.war.game.map.playlist.PlaylistDefault;
 import com.kill3rtaco.war.game.player.WarKit;
 import com.kill3rtaco.war.game.player.Weapon;
-import com.kill3rtaco.war.game.player.kit.KitDefault;
-import com.kill3rtaco.war.game.player.kit.KitExplosiveWeapons;
-import com.kill3rtaco.war.game.player.kit.KitRockets;
-import com.kill3rtaco.war.game.player.kit.KitSilly;
+import com.kill3rtaco.war.game.player.kit.InternalKit;
 import com.kill3rtaco.war.game.player.weapon.InternalWeapon;
 import com.kill3rtaco.war.game.types.FFA;
 import com.kill3rtaco.war.game.types.KOTH;
 import com.kill3rtaco.war.game.types.TDM;
 import com.kill3rtaco.war.util.Identifyable;
-import com.kill3rtaco.war.util.WarUtil;
 
 public class TacoWar extends TacoPlugin {
 	
 	public static TacoWar			plugin;
 	public static ChatObject		chat;
 	public static TacoWarConfig		config;
-	private static Game				game;
+	private static Game				_game;
 	private static List<GameType>	_gametypes;
 	private static List<WarMap>		_maps;
 	private static List<Weapon>		_weapons;
@@ -134,10 +130,10 @@ public class TacoWar extends TacoPlugin {
 	public static void reloadKits() {
 		_kits = new ArrayList<WarKit>();
 		chat.out("[Kits] Reloading Kits...");
-		_kits.add(new KitDefault());
-		_kits.add(new KitExplosiveWeapons());
-		_kits.add(new KitRockets());
-		_kits.add(new KitSilly());
+		_kits.add(InternalKit.DEFAULT);
+		_kits.add(InternalKit.HEXPLOSIVES);
+		_kits.add(InternalKit.ROCKETS);
+		_kits.add(InternalKit.SILLY);
 		List<ConfigurationSection> configs = getConfigsInDirectory(TW.KITS_FOLDER);
 		for (ConfigurationSection c : configs) {
 			WarKit k = new WarKit(c);
@@ -177,7 +173,7 @@ public class TacoWar extends TacoPlugin {
 	}
 	
 	public static Weapon getWeapon(String id, boolean clone) {
-		return WarUtil.cloneOrNot(getIdentifyable(_weapons, id), clone);
+		return TW.cloneOrNot(getIdentifyable(_weapons, id), clone);
 	}
 	
 	public static WarKit getKit(String id) {
@@ -185,7 +181,7 @@ public class TacoWar extends TacoPlugin {
 	}
 	
 	public static WarKit getKit(String id, boolean clone) {
-		return WarUtil.cloneOrNot(getIdentifyable(_kits, id), clone);
+		return TW.cloneOrNot(getIdentifyable(_kits, id), clone);
 	}
 	
 	public static Playlist getPlaylist(String id) {
@@ -225,7 +221,7 @@ public class TacoWar extends TacoPlugin {
 	}
 	
 	public static List<Weapon> getWeapons(List<String> ids, boolean clone) {
-		return WarUtil.cloneOrNotList(getIdentifyableList(_weapons, ids), clone);
+		return TW.cloneOrNotList(getIdentifyableList(_weapons, ids), clone);
 	}
 	
 	public static List<WarKit> getKits(List<String> ids) {
@@ -272,11 +268,11 @@ public class TacoWar extends TacoPlugin {
 	}
 	
 	public static Game currentGame() {
-		return game;
+		return _game;
 	}
 	
-	public static int getNearestDegree(double degree, double factor) {
-		return (int) (Math.round(degree / factor) * factor);
+	public static void startNewGame() {
+		_game = new Game();
 	}
 	
 }

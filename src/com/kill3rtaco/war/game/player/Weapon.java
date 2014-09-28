@@ -271,7 +271,7 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 				|| (!isEffect && !hasAction(event, ACTION_LIGHTNING))) {
 			return false;
 		}
-		location = MapUtil.getLightningStrikeLocation(location);
+		location = MapUtil.getHighestBlock(location);
 		if (isEffect)
 			location.getWorld().strikeLightningEffect(location);
 		else

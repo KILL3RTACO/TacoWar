@@ -57,27 +57,6 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		if (_config == null || !_config.isConfigurationSection(KEY_MAPS))
 			return;
 		
-		_maps = new ArrayList<PlaylistEntry>();
-		List<String> list = new ArrayList<String>(_config.getConfigurationSection(KEY_MAPS).getKeys(false));
-		for (String s : list) {
-			WarMap map = TacoWar.getMap(s);
-			if (map == null)
-				continue;
-			PlaylistEntry entry = new PlaylistEntry(map);
-			
-			List<String> ids = getStringList(KEY_MAPS + "." + s + "." + KEY_GAMETYPES, false);
-			List<GameType> gametypes = TacoWar.getGameTypes(ids);
-			if (gametypes.isEmpty())
-				continue;
-			entry.getGameTypes().addAll(gametypes);
-			
-			ids = getStringList(KEY_MAPS + "." + s + "." + KEY_KITS, false);
-			List<WarKit> kits = TacoWar.getKits(ids);
-			if (gametypes.isEmpty())
-				continue;
-			entry.getKits().addAll(kits);
-		}
-		
 		List<String> ids = getStringList(KEY_GAMETYPES, false);
 		if (ids == null || ids.isEmpty())
 			return;
@@ -87,6 +66,33 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		if (ids == null || ids.isEmpty())
 			return;
 		_genericKits = TacoWar.getKits(ids);
+		
+		_maps = new ArrayList<PlaylistEntry>();
+		List<String> list = new ArrayList<String>(_config.getConfigurationSection(KEY_MAPS).getKeys(false));
+		for (String s : list) {
+			WarMap map = TacoWar.getMap(s);
+			if (map == null)
+				continue;
+			PlaylistEntry entry = new PlaylistEntry(map);
+			
+			List<String> mapIds = getStringList(KEY_MAPS + "." + s + "." + KEY_GAMETYPES, false);
+			List<GameType> gametypes = TacoWar.getGameTypes(mapIds);
+			if (gametypes.isEmpty())
+				continue;
+			entry.getGameTypes().addAll(gametypes);
+			
+			mapIds = getStringList(KEY_MAPS + "." + s + "." + KEY_KITS, false);
+			List<WarKit> kits = TacoWar.getKits(mapIds);
+			if (gametypes.isEmpty())
+				continue;
+			entry.getKits().addAll(kits);
+			
+			if (map == null || !map.isReady() || getGameTypesFor(map.getId()).isEmpty() || getKitsFor(map.getId()).isEmpty())
+				continue;
+			
+			_maps.add(entry);
+		}
+		
 	}
 	
 	public String getId() {

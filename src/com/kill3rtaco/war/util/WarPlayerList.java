@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 
+import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.game.player.WarKit;
 import com.kill3rtaco.war.game.player.WarPlayer;
 
@@ -36,7 +37,7 @@ public class WarPlayerList implements Iterable<WarPlayer> {
 	}
 	
 	public boolean contains(String name) {
-		return WarUtil.hasPlayer(_players, name);
+		return TW.hasPlayer(_players, name);
 	}
 	
 	public void setScoreboard(Scoreboard scoreboard) {
@@ -54,15 +55,15 @@ public class WarPlayerList implements Iterable<WarPlayer> {
 	}
 	
 	public void broadcast(String message) {
-		WarUtil.broadcast(_players, message);
+		TW.broadcast(_players, message);
 	}
 	
 	public void teleportAll(Location location) {
-		WarUtil.teleport(_players, location);
+		TW.teleport(_players, location);
 	}
 	
 	public void respawnAll() {
-		WarUtil.respawn(_players);
+		TW.respawn(_players);
 	}
 	
 	public void add(WarPlayer player) {
@@ -79,7 +80,7 @@ public class WarPlayerList implements Iterable<WarPlayer> {
 	}
 	
 	public WarPlayer remove(String name) {
-		return WarUtil.removePlayer(_players, name);
+		return TW.removePlayer(_players, name);
 	}
 	
 	public WarPlayer get(Player player) {
@@ -89,7 +90,7 @@ public class WarPlayerList implements Iterable<WarPlayer> {
 	}
 	
 	public WarPlayer get(String name) {
-		return WarUtil.getPlayer(_players, name);
+		return TW.getPlayer(_players, name);
 	}
 	
 	public WarPlayer get(int index) {

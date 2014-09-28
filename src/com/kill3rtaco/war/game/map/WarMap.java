@@ -8,6 +8,8 @@ import java.util.Random;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Firework;
+import org.bukkit.inventory.meta.FireworkMeta;
 
 import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
@@ -18,7 +20,7 @@ import com.kill3rtaco.war.util.MapUtil;
 import com.kill3rtaco.war.util.ValidatedConfig;
 
 public class WarMap extends ValidatedConfig implements Identifyable {
-
+	
 	private String				_id, _name, _author, _timeName;
 	private String				_messageGameStart,
 								_messageLobbySpawn;
@@ -30,7 +32,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 	private int					_supportedGametypes	= 0;
 	private List<Spawnpoint>	_spawns;
 	private List<Hill>			_hills;
-
+	
 	public static final String	KEY_AUTHOR			= "author";
 	public static final String	KEY_HILLS			= "hills";
 	public static final String	KEY_ID				= "id";
@@ -45,7 +47,9 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 	public static final String	KEY_MIN_PLAYERS		= "min_players";		//-1 means no limit
 	public static final String	KEY_MSG_GAME_START	= "msg.game_start";
 	public static final String	KEY_MSG_LOBBY_SPAWN	= "msg.lobby_spawn";
-
+	public static final String	KEY_SIZE_X			= "size.x";
+	public static final String	KEY_SIZE_Z			= "size.z";
+	
 	public WarMap(String id) {
 		super(new YamlConfiguration());
 		_id = id;
@@ -55,11 +59,11 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		_lobby = null;
 //		_perms = new ArrayList<String>();
 	}
-
+	
 	public WarMap(ConfigurationSection config) {
 		super(config);
 	}
-
+	
 	public void reload() {
 		_id = getString(KEY_ID, true);
 		_file = new File(TW.MAPS_FOLDER, _id + ".yml");
@@ -75,31 +79,31 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		initHills();
 		setTime(_config.getString(KEY_WORLD_TIME, "day"));
 	}
-
+	
 	public boolean isReady() {
 		return _config.getBoolean(KEY_READY);
 	}
-
+	
 	public boolean canHoldPlayers(int playerCount) {
 		int min = getInt(KEY_MIN_PLAYERS, -1);
 		int max = getInt(KEY_MAX_PLAYERS, -1);
 		return playerCount > min && (max == -1 || playerCount <= max);
 	}
-
+	
 	private void initSpawns() {
 		_spawns = new ArrayList<Spawnpoint>();
 		if (!_config.isConfigurationSection(KEY_SPAWNPOINTS)) {
 			_valid = false; //can't play without spawns
 			return;
 		}
-
+		
 		for (String s : _config.getConfigurationSection(KEY_SPAWNPOINTS).getKeys(false)) {
 			Spawnpoint sp = getSpawnpoint(s);
 			if (sp == null)
 				continue;
 			_spawns.add(sp);
 		}
-
+		
 		String firstTeamFound = "";
 		for (Spawnpoint s : _spawns) {
 			if (s.appliesTo(GameType.FFA)) {
@@ -109,7 +113,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 			String team = s.getTeam();
 			if (!TW.validTeamId(team))
 				continue;
-
+			
 			if (firstTeamFound.isEmpty()) {
 				firstTeamFound = team;
 				continue;
@@ -118,7 +122,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 				_supportedGametypes |= GameType.TDM;
 		}
 	}
-
+	
 	private void initTeleporters() {
 		_teleporters = new ArrayList<Teleporter>();
 		if (!_config.isConfigurationSection(KEY_TELEPORTERS)) {
@@ -131,7 +135,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 			_teleporters.add(t);
 		}
 	}
-
+	
 	private void initHills() {
 		_hills = new ArrayList<Hill>();
 		if (!_config.isConfigurationSection(KEY_HILLS)) {
@@ -146,47 +150,47 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		if (!_hills.isEmpty())
 			_supportedGametypes |= GameType.KOTH;
 	}
-
+	
 	private Teleporter getTeleporter(String name) {
 		String root = KEY_TELEPORTERS + "." + name + ".";
 		String channel = _config.getString(root + "channel", "default");
 		boolean transmitter = _config.getBoolean(root + "transmitter", true);
 		boolean receiver = _config.getBoolean(root + "receiver", true);
 		Location src = getLocation(root + "src", true, false);
-
+		
 		if (src == null)
 			return null;
-
+		
 		src.setY(src.getBlockY()); //remove the .5 from the y
 		return new Teleporter(this, name, src, channel, transmitter, receiver);
 	}
-
+	
 	private Spawnpoint getSpawnpoint(String name) {
 		String root = KEY_SPAWNPOINTS + "." + name + ".";
 		String team = _config.getString(root + "team", "");
 		Location location = getLocation(root + "location", true, false);
-
+		
 		if (location == null)
 			return null;
-
+		
 		return new Spawnpoint(this, name, team, location);
 	}
-
+	
 	private Hill getHill(String name) {
 		String root = KEY_HILLS + "." + name + ".";
 		int radius = _config.getInt(root + "radius", 5);
 		Location location = getLocation(root + "location", true, false);
-
+		
 		if (location == null)
 			return null;
-
+		
 		return new Hill(this, name, location, radius);
 	}
-
+	
 	public List<Hill> getHills() {
 		return _hills;
 	}
-
+	
 	private Location getLocation(String path, boolean relative, boolean req) {
 		if (_config.isString(path)) {
 			Location loc = MapUtil.getLocation(_config.getString(path));
@@ -206,7 +210,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		}
 		return null;
 	}
-
+	
 	public void setTime(String timeName) {
 		if (timeName == null)
 			timeName = "day";
@@ -228,23 +232,23 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		}
 		_timeName = timeName;
 	}
-
+	
 	public boolean isValid() {
 		return _valid;
 	}
-
+	
 	public String getId() {
 		return _id;
 	}
-
+	
 	public String getName() {
 		return _name;
 	}
-
+	
 	public String getAuthor() {
 		return _author != null ? _author : "Unknown";
 	}
-
+	
 	public Location getPointRelative(Location loc) {
 		if (_origin == null || loc == null) {
 			return null;
@@ -254,47 +258,47 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		double z = _origin.getZ() + loc.getZ() + .5;
 		return new Location(TacoWar.config.getWarWorld(), x, y, z, loc.getYaw(), loc.getPitch());
 	}
-
+	
 	public Location getPointRelative(String str) {
 		return getPointRelative(MapUtil.getLocation(str));
 	}
-
+	
 	public Location getOrigin() {
 		return _origin;
 	}
-
+	
 	public Location getLobbyLocation() {
 		return _lobby;
 	}
-
+	
 	public String toMessage() {
 		return "&aMap&7: &3" + getName() + " &aby &b" + getAuthor();
 	}
-
+	
 	public boolean isOriginSet() {
 		return _origin != null;
 	}
-
+	
 	public void setOrigin(Location loc) {
 		_origin = loc;
 		_config.set("origin", getLocationString(loc));
 		save();
 	}
-
+	
 	public void setLobbyLocationRelative(Location loc) {
 		if (_origin == null) {
 			return;
 		}
 		_lobby = loc.subtract(_origin);
 	}
-
+	
 	public void save() {
 		if (_file == null) {
 			_file = new File(TacoWar.plugin.getDataFolder(), "maps/map_" + _id + "/map.yml");
 		}
 		save(_file);
 	}
-
+	
 	public List<Location> getLocationList(List<String> list) {
 		ArrayList<Location> locations = new ArrayList<Location>();
 		for (String s : list) {
@@ -305,7 +309,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		}
 		return locations;
 	}
-
+	
 	private String getLocationString(Location loc) {
 		return loc.getBlockX() + " "
 				+ loc.getBlockY() + " "
@@ -313,7 +317,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 				+ TacoWar.getNearestDegree(loc.getYaw(), 45) + " "
 				+ TacoWar.getNearestDegree(loc.getPitch(), 45);
 	}
-
+	
 //	public boolean addPerm(String perm) {
 //		if (_perms.contains(perm))
 //			return false;
@@ -328,27 +332,27 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 //	public boolean hasPerm(String perm) {
 //		return _perms.contains(perm);
 //	}
-
+	
 	public String getTimeName() {
 		return _timeName;
 	}
-
+	
 	public long getTimeTicks() {
 		return _timeTicks;
 	}
-
+	
 	public String getGameStartMessage() {
 		return _messageGameStart;
 	}
-
+	
 	public String getLobbySpawnMessage() {
 		return _messageLobbySpawn;
 	}
-
+	
 	public List<Teleporter> getTeleporters() {
 		return _teleporters;
 	}
-
+	
 	public List<Teleporter> getTeleporters(String channel) {
 		ArrayList<Teleporter> teleporters = new ArrayList<Teleporter>();
 		for (Teleporter t : _teleporters) {
@@ -358,7 +362,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		}
 		return teleporters;
 	}
-
+	
 	public List<Teleporter> getReceiverTeleporters(String channel) {
 		ArrayList<Teleporter> teleporters = new ArrayList<Teleporter>();
 		for (Teleporter t : getTeleporters(channel)) {
@@ -368,7 +372,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		}
 		return teleporters;
 	}
-
+	
 	//get recevier teleporters but exclude the teleporter with the given name
 	public List<Teleporter> getReceiverTeleporters(String channel, String name) {
 		List<Teleporter> teleporters = getReceiverTeleporters(channel);
@@ -380,7 +384,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		}
 		return teleporters;
 	}
-
+	
 	public List<Teleporter> getTransmitterTeleporters(String channel) {
 		ArrayList<Teleporter> teleporters = new ArrayList<Teleporter>();
 		for (Teleporter t : getTeleporters(channel)) {
@@ -390,7 +394,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		}
 		return teleporters;
 	}
-
+	
 	public Teleporter getTeleporter(Location src) {
 		for (Teleporter t : _teleporters) {
 			Location tsrc = t.getSource();
@@ -402,15 +406,15 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		}
 		return null;
 	}
-
+	
 	public boolean gameTypeSupported(int gametype) {
 		return (_supportedGametypes & gametype) > 0;
 	}
-
+	
 	public boolean allGameTypesSupported() {
 		return gameTypeSupported(GameType.FFA) && gameTypeSupported(GameType.TDM) && gameTypeSupported(GameType.KOTH);
 	}
-
+	
 	public Location getRandomSpawn(String team) {
 		if (TacoWar.currentGame().getGameType().getConfig().getBoolean(GameType.KEY_TEAMS_ENABLED))
 			team = ""; //hack, players in ffa have a team id of their own name
@@ -426,9 +430,49 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 			return locs.get(0).getLocation();
 		return locs.get(new Random().nextInt(locs.size())).getLocation();
 	}
-
+	
 	public Location getRandomSpawn(WarTeam team) {
 		return getRandomSpawn(team.getId());
 	}
-
+	
+	public List<Spawnpoint> getSpawns() {
+		return _spawns;
+	}
+	
+	//for gametypes with TEAMS_ENABLED set to true
+	public List<WarTeam> getTeamsFromSpawnpoints() {
+		List<WarTeam> teams = new ArrayList<WarTeam>();
+		List<String> added = new ArrayList<String>();
+		for (Spawnpoint s : _spawns) {
+			String teamId = s.getTeam();
+			if (teamId.isEmpty() || added.contains(teamId))
+				continue;
+			
+			WarTeam team = TW.createTeam(teamId);
+			if (team == null)
+				continue;
+			teams.add(team);
+			added.add(teamId);
+		}
+		return teams;
+	}
+	
+	//the origin should be at a corner
+	public void launcCelebratoryRocket() {
+		int deltaX = getInt(KEY_SIZE_X, 0);
+		int deltaZ = getInt(KEY_SIZE_Z, 0);
+		
+		Random random = new Random();
+		int x = random.nextInt(deltaX + 1);
+		int z = random.nextInt(deltaZ + 1);
+		
+		Location partyLocation = new Location(_origin.getWorld(), _origin.getX() + x, 0, _origin.getZ() + z);
+		partyLocation = MapUtil.getHighestBlock(partyLocation);
+		
+		Firework fw = _origin.getWorld().spawn(partyLocation, Firework.class);
+		FireworkMeta meta = fw.getFireworkMeta();
+		meta.setPower(random.nextInt(2) + 2); //2-3
+		meta.addEffect(TW.randomFireworkEffect());
+		
+	}
 }

@@ -7,7 +7,7 @@ import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.map.WarMap;
 
 public class MapUtil {
-
+	
 	public static WarMap getMap(CommandContext context, boolean needsToBeExperimental) {
 		if (context.lt(1)) {
 			context.sendMessageToSender("&cMust supply a map id");
@@ -23,11 +23,11 @@ public class MapUtil {
 		}
 		return m;
 	}
-
-	public static Location getLightningStrikeLocation(Location loc) {
+	
+	public static Location getHighestBlock(Location loc) {
 		return TacoWar.config.getWarWorld().getHighestBlockAt(loc).getLocation();
 	}
-
+	
 	public static Location getLocation(String s) {
 		String[] split = s.split("\\s+");
 		if (split.length < 3)
@@ -43,7 +43,7 @@ public class MapUtil {
 			pitch = getInt(split[4]);
 		return new Location(TacoWar.config.getWarWorld(), x, y, z, yaw, pitch);
 	}
-
+	
 	private static int getInt(String s) {
 		try {
 			return Integer.parseInt(s);
@@ -51,5 +51,5 @@ public class MapUtil {
 			return 0;
 		}
 	}
-
+	
 }

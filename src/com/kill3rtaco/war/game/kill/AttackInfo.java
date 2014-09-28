@@ -13,19 +13,19 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.ItemStack;
 
 import com.kill3rtaco.tacoapi.TacoAPI;
+import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.player.WarPlayer;
 import com.kill3rtaco.war.game.player.Weapon;
-import com.kill3rtaco.war.util.WarUtil;
 
 public class AttackInfo {
-
+	
 	private LivingEntity	_attacker, _victim;
 	private WarPlayer		_attackerPlayer, _victimPlayer;
 	private DamageCause		_cause;
 	private String			_toolActionDisplay;
 	private double			_damage;
-
+	
 	public AttackInfo(EntityDamageEvent event) {
 		setVictim((LivingEntity) event.getEntity());
 		_cause = event.getCause();
@@ -57,7 +57,7 @@ public class AttackInfo {
 					Weapon w = (Weapon) strike.getMetadata(Weapon.METADATA_KEY).get(0).value();
 					_toolActionDisplay = w.getConfig().getString(Weapon.KEY_NAME);
 				} else {
-					_toolActionDisplay = WarUtil.getDamageCauseName(DamageCause.LIGHTNING);
+					_toolActionDisplay = TW.getDamageCauseName(DamageCause.LIGHTNING);
 				}
 			} else {
 				//assume living entity
@@ -72,10 +72,10 @@ public class AttackInfo {
 				}
 			}
 		} else {
-			_toolActionDisplay = WarUtil.getDamageCauseName(_cause);
+			_toolActionDisplay = TW.getDamageCauseName(_cause);
 		}
 	}
-
+	
 	private void setAttacker(LivingEntity attacker) {
 		_attacker = attacker;
 		if (attacker != null && attacker instanceof org.bukkit.entity.Player) {
@@ -85,7 +85,7 @@ public class AttackInfo {
 			}
 		}
 	}
-
+	
 	private void setVictim(LivingEntity victim) {
 		_victim = victim;
 		if (victim != null && victim instanceof org.bukkit.entity.Player) {
@@ -95,41 +95,41 @@ public class AttackInfo {
 			}
 		}
 	}
-
+	
 	public LivingEntity getAttacker() {
 		return _attacker;
 	}
-
+	
 	public LivingEntity getVictim() {
 		return _victim;
 	}
-
+	
 	public String getToolActionDisplay() {
 		return _toolActionDisplay;
 	}
-
+	
 	public boolean isSuicide() {
-		return WarUtil.isSuicide(_cause);
+		return TW.isSuicide(_cause);
 	}
-
+	
 	public double getDamage() {
 		return _damage;
 	}
-
+	
 	public void setToolActionDisplay(String display) {
 		_toolActionDisplay = display;
 	}
-
+	
 	public void setDamage(double damage) {
 		_damage = damage;
 	}
-
+	
 	public WarPlayer getAttackerAsPlayer() {
 		return _attackerPlayer;
 	}
-
+	
 	public WarPlayer getVictimAsPlayer() {
 		return _victimPlayer;
 	}
-
+	
 }
