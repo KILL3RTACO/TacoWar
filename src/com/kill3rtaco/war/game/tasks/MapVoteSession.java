@@ -77,9 +77,10 @@ public class MapVoteSession {
 		_running = true;
 		WarPlayerList players = TacoWar.currentGame().getPlayers();
 		for (int i = 0; i < _maps.size(); i++) {
-			players.broadcast("&e#" + i + " " + _maps.get(i).getName());
+			WarMap map = _maps.get(i);
+			players.broadcast("&e" + i + ". " + map.getName() + "&7[&a" + map.getAuthor() + "&7]");
 		}
-		players.broadcast("&e#" + (_maps.size() + 1) + " Random Map");
+		players.broadcast("&e" + (_maps.size() + 1) + ". Random Map");
 		players.broadcast("&eUse &a/war vote &eto vote for a map");
 		new BukkitRunnable() {
 			

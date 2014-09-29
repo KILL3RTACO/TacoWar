@@ -22,7 +22,7 @@ public class LaunchCelebrationRocketTask extends BukkitRunnable {
 			cancel();
 			return;
 		}
-		TacoWar.currentGame().getMap().launcCelebratoryRocket();
+		TacoWar.currentGame().getMap().launchCelebratoryRocket();
 		_rockets--;
 	}
 	

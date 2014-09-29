@@ -32,7 +32,7 @@ import com.kill3rtaco.war.game.kill.AttackInfo;
 import com.kill3rtaco.war.game.kill.PlayerKill;
 import com.kill3rtaco.war.game.map.Teleporter;
 import com.kill3rtaco.war.game.player.WarPlayer;
-import com.kill3rtaco.war.game.player.Weapon;
+import com.kill3rtaco.war.game.player.weapon.Weapon;
 
 public class GameListener implements Listener {
 	
@@ -165,6 +165,8 @@ public class GameListener implements Listener {
 		event.setDeathMessage(null); //remove death message
 		kill.setAssists(died.getLastDamagersNotKiller());
 		kill.broadcast();
+		if (info.isLongDistanceSnipe())
+			game.broadcast("&e\"Did anyone see that, 'cause I will NOT be doing it again.\"");
 		if (awardPoint != null)
 			awardPoint.addKill();
 		event.getDrops().clear(); //clear any items dropped

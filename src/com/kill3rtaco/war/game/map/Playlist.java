@@ -9,7 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.GameType;
-import com.kill3rtaco.war.game.player.WarKit;
+import com.kill3rtaco.war.game.player.kit.WarKit;
 import com.kill3rtaco.war.util.Identifyable;
 import com.kill3rtaco.war.util.ValidatedConfig;
 

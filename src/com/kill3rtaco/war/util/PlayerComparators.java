@@ -1,6 +1,8 @@
-package com.kill3rtaco.war.game.player;
+package com.kill3rtaco.war.util;
 
 import java.util.Comparator;
+
+import com.kill3rtaco.war.game.player.WarPlayer;
 
 public class PlayerComparators {
 

@@ -1,4 +1,4 @@
-package com.kill3rtaco.war.game.player;
+package com.kill3rtaco.war.game.player.weapon;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +18,7 @@ import org.bukkit.metadata.Metadatable;
 
 import com.kill3rtaco.tacoapi.api.serialization.SingleItemSerialization;
 import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.game.player.WarPlayer;
 import com.kill3rtaco.war.util.Identifyable;
 import com.kill3rtaco.war.util.MapUtil;
 import com.kill3rtaco.war.util.ValidatedConfig;
@@ -26,27 +27,28 @@ import com.kill3rtaco.war.util.WarCloneable;
 public class Weapon extends ValidatedConfig implements Identifyable, WarCloneable<Weapon> {
 	
 	public static final String	KEY_AMMO				= "ammo";
-	public static final String	KEY_DESC				= "description";		//list of strings
+	public static final String	KEY_DESC				= "description";			//list of strings
 	public static final String	KEY_ID					= "id";
 	public static final String	KEY_ITEM_INFO			= "item";
 	public static final String	KEY_NAME				= "name";
 	public static final String	KEY_ON_CRIT				= "onCritical";
-	public static final String	KEY_ON_DEATH			= "onDeath";			//when this weapon kills a player
-	public static final String	KEY_ON_HIT				= "onHit";				//hit player (left click)
-	public static final String	KEY_ON_PROJECTILE_HIT	= "onProjectileHit";	//when a projectile hits, if launched
-	public static final String	KEY_ON_USE				= "onUse";				//right click
-																				
+	public static final String	KEY_ON_DEATH			= "onDeath";				//when this weapon kills a player
+	public static final String	KEY_ON_HIT				= "onHit";					//hit player (left click)
+	public static final String	KEY_ON_PROJECTILE_HIT	= "onProjectileHit";		//when a projectile hits, if launched
+	public static final String	KEY_ON_USE				= "onUse";					//right click
+																					
 	public static final String	ACTION_ARROW			= "arrow";
-	public static final String	ACTION_DAMAGE			= "damage";			//player hit
+	public static final String	ACTION_DAMAGE			= "damage";				//player hit
 	public static final String	ACTION_EGG				= "egg";
 	public static final String	ACTION_EXPLODE			= "explode";
 	public static final String	ACTION_FIREBALL			= "fireball";
-	public static final String	ACTION_IGNITE			= "ignite";			//player hit
+	public static final String	ACTION_IGNITE			= "ignite";				//player hit
 	public static final String	ACTION_LIGHTNING		= "lightning";
 	public static final String	ACTION_LIGHTNING_EFFECT	= "lightning-effect";
 	public static final String	ACTION_SNOWBALL			= "snowball";
 	
 	public static final String	METADATA_KEY			= "tw.weapon";
+	public static final String	METADATA_FIRE_FROM_KEY	= "tw.weapon.firedFrom";
 	
 	private String				_id;
 	private int					_ammo;
@@ -73,6 +75,8 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 	
 	private void setMetadata(Metadatable entity) {
 		entity.setMetadata(METADATA_KEY, new FixedMetadataValue(TacoWar.plugin, this));
+		if (entity instanceof Arrow)
+			entity.setMetadata(METADATA_FIRE_FROM_KEY, new FixedMetadataValue(TacoWar.plugin, ((Arrow) entity).getLocation()));
 	}
 	
 	public void reload() {

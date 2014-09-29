@@ -1,5 +1,6 @@
 package com.kill3rtaco.war.game.kill;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
@@ -16,7 +17,7 @@ import com.kill3rtaco.tacoapi.TacoAPI;
 import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.player.WarPlayer;
-import com.kill3rtaco.war.game.player.Weapon;
+import com.kill3rtaco.war.game.player.weapon.Weapon;
 
 public class AttackInfo {
 	
@@ -25,6 +26,7 @@ public class AttackInfo {
 	private DamageCause		_cause;
 	private String			_toolActionDisplay;
 	private double			_damage;
+	private boolean			_longDistanceSnipe;
 	
 	public AttackInfo(EntityDamageEvent event) {
 		setVictim((LivingEntity) event.getEntity());
@@ -41,6 +43,12 @@ public class AttackInfo {
 					_toolActionDisplay = w.getConfig().getString(Weapon.KEY_NAME);
 				} else {
 					_toolActionDisplay = TacoAPI.getChatUtils().toProperCase(projectile.getType().name());
+				}
+				
+				if (projectile.hasMetadata(Weapon.METADATA_FIRE_FROM_KEY)) {
+					Location from = (Location) projectile.getMetadata(Weapon.METADATA_FIRE_FROM_KEY).get(0).value();
+					int threshold = 45;
+					_longDistanceSnipe = from.distanceSquared(_victim.getLocation()) > (threshold * threshold);
 				}
 			} else if (entity instanceof Vehicle) {
 				Vehicle vehicle = (Vehicle) entity;
@@ -130,6 +138,10 @@ public class AttackInfo {
 	
 	public WarPlayer getVictimAsPlayer() {
 		return _victimPlayer;
+	}
+	
+	public boolean isLongDistanceSnipe() {
+		return _longDistanceSnipe;
 	}
 	
 }

@@ -1,6 +1,18 @@
 package com.kill3rtaco.war.game.player.weapon;
 
-import com.kill3rtaco.war.game.player.Weapon;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponBaseballBat;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponBasicBow;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponBasicSword;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponExplosiveAxe;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponHotFork;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponMagicWand;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponRocketLauncher;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponSharpshooterBow;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponSniperScythe;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponTheButton;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponTheLie;
+import com.kill3rtaco.war.game.player.weapon.internal.WeaponThorsHammer;
+
 
 public abstract class InternalWeapon extends Weapon {
 

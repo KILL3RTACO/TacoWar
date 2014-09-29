@@ -1,8 +1,9 @@
-package com.kill3rtaco.war.game.player.kit;
+package com.kill3rtaco.war.game.player.kit.internal;
 
 import java.util.Arrays;
 
-import com.kill3rtaco.war.game.player.Food;
+import com.kill3rtaco.war.game.player.kit.Food;
+import com.kill3rtaco.war.game.player.kit.InternalKit;
 
 public class KitRockets extends InternalKit {
 

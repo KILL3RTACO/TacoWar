@@ -15,14 +15,14 @@ import com.kill3rtaco.war.TacoWarQueue;
 import com.kill3rtaco.war.game.kill.KillFeed;
 import com.kill3rtaco.war.game.map.Playlist;
 import com.kill3rtaco.war.game.map.WarMap;
-import com.kill3rtaco.war.game.player.PlayerComparators;
-import com.kill3rtaco.war.game.player.WarKit;
 import com.kill3rtaco.war.game.player.WarPlayer;
 import com.kill3rtaco.war.game.player.WarTeam;
+import com.kill3rtaco.war.game.player.kit.WarKit;
 import com.kill3rtaco.war.game.tasks.LaunchCelebrationRocketTask;
 import com.kill3rtaco.war.game.tasks.MapVoteSession;
 import com.kill3rtaco.war.game.tasks.StartGameSoonTask;
 import com.kill3rtaco.war.util.CustomScoreboard;
+import com.kill3rtaco.war.util.PlayerComparators;
 import com.kill3rtaco.war.util.WarPlayerList;
 
 public class Game {
@@ -39,7 +39,7 @@ public class Game {
 	private CustomScoreboard	_scoreboard;
 	
 	public Game() {
-		this(TacoWar.getPlaylist(""));
+		this(TacoWar.config.getCurrentPlaylist());
 	}
 	
 	public Game(Playlist playlist) {
@@ -84,11 +84,18 @@ public class Game {
 	}
 	
 	public void decideRest() {
+		if (_map == null) //if not set manually or VoteSession ended
+			_map = MapVoteSession.getMostVoted();
 		spawnAtMapLobby();
 		decideGameType();
 		decideTeams();
-		decideTeams();
 		startGameSoon();
+	}
+	
+	public void setMap(WarMap map) {
+		if (map == null)
+			return;
+		_map = map;
 	}
 	
 	public void spawnAtMapLobby() {
@@ -97,8 +104,6 @@ public class Game {
 	}
 	
 	public void decideGameType() {
-		if (_map == null)
-			_map = MapVoteSession.getMostVoted();
 		setGameType(_playlist.selectGameType());
 	}
 	
@@ -132,12 +137,14 @@ public class Game {
 		if (kit != null)
 			_kit = kit;
 		else
-			setKit(_playlist.selectKit());
+			setKit(_playlist.selectKit(), true);
 	}
 	
-	public void setKit(WarKit kit) {
+	public void setKit(WarKit kit, boolean broadcast) {
 		_kit = kit;
-		_players.broadcast("&Kit &7- " + kit.getConfig().getString(GameType.KEY_NAME));
+		if (broadcast)
+			_players.broadcast("&Kit &7- " + kit.getConfig().getString(GameType.KEY_NAME));
+		_players.setKits(_kit);
 	}
 	
 	public void start() {
@@ -146,10 +153,12 @@ public class Game {
 		_running = true;
 		decideKit();
 		_players.respawnAll();
-		_players.broadcast("&aUsing Kit&7: &e" + _kit.getName());
+		_players.broadcast(_gametype.getObjectiveMessage());
 	}
 	
-	public void end() {
+	public boolean end() {
+		if (!_running)
+			return false;
 		_running = false;
 		_players.teleportAll(_map.getLobbyLocation());
 		new LaunchCelebrationRocketTask().runTaskTimer(TacoWar.plugin, 0, 2L);
@@ -174,6 +183,7 @@ public class Game {
 			}
 			
 		}.runTaskLater(TacoWar.plugin, 60 * 20L);
+		return true;
 	}
 	
 	public boolean isRunning() {

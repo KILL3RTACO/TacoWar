@@ -1,9 +1,11 @@
-package com.kill3rtaco.war.game.player.weapon;
+package com.kill3rtaco.war.game.player.weapon.internal;
 
 import java.util.Arrays;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+
+import com.kill3rtaco.war.game.player.weapon.InternalWeapon;
 
 public class WeaponBaseballBat extends InternalWeapon {
 

@@ -5,26 +5,32 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.kill3rtaco.tacoapi.api.TacoPlugin;
 import com.kill3rtaco.tacoapi.api.ncommands.CommandManager;
 import com.kill3rtaco.tacoapi.obj.ChatObject;
+import com.kill3rtaco.war.commands.GameTypeCreationCommands;
+import com.kill3rtaco.war.commands.KitCreationCommands;
 import com.kill3rtaco.war.commands.MapCreationCommands;
+import com.kill3rtaco.war.commands.PlaylistCreationCommands;
 import com.kill3rtaco.war.commands.WarCommands;
+import com.kill3rtaco.war.commands.WeaponCreationCommands;
 import com.kill3rtaco.war.game.Game;
 import com.kill3rtaco.war.game.GameType;
 import com.kill3rtaco.war.game.map.Playlist;
 import com.kill3rtaco.war.game.map.WarMap;
 import com.kill3rtaco.war.game.map.playlist.PlaylistDefault;
-import com.kill3rtaco.war.game.player.WarKit;
-import com.kill3rtaco.war.game.player.Weapon;
 import com.kill3rtaco.war.game.player.kit.InternalKit;
+import com.kill3rtaco.war.game.player.kit.WarKit;
 import com.kill3rtaco.war.game.player.weapon.InternalWeapon;
-import com.kill3rtaco.war.game.types.FFA;
-import com.kill3rtaco.war.game.types.KOTH;
-import com.kill3rtaco.war.game.types.TDM;
+import com.kill3rtaco.war.game.player.weapon.Weapon;
+import com.kill3rtaco.war.game.types.GameTypeFFA;
+import com.kill3rtaco.war.game.types.GameTypeKOTH;
+import com.kill3rtaco.war.game.types.GameTypeTDM;
 import com.kill3rtaco.war.util.Identifyable;
 
 public class TacoWar extends TacoPlugin {
@@ -52,11 +58,23 @@ public class TacoWar extends TacoPlugin {
 		reloadPlaylists(); //relies on maps and gametypes
 		_commands.reg(WarCommands.class);
 		_commands.reg(MapCreationCommands.class);
+		_commands.reg(GameTypeCreationCommands.class);
+		_commands.reg(KitCreationCommands.class);
+		_commands.reg(WeaponCreationCommands.class);
+		_commands.reg(PlaylistCreationCommands.class);
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				TacoWar.startNewGame();
+			}
+			
+		}.runTaskLater(plugin, 2 * 60 * 20L);
 	}
 	
 	@Override
 	public void onStop() {
-		
+		Bukkit.getScheduler().cancelTasks(this);
 	}
 	
 	public static void reloadGameTypes() {
@@ -72,12 +90,12 @@ public class TacoWar extends TacoPlugin {
 				continue;
 			
 			GameType gt;
-			if (base.equals(FFA.ID))
-				gt = new FFA(c);
-			else if (base.equals(KOTH.ID))
-				gt = new KOTH(c);
-			else if (base.equals(TDM.ID))
-				gt = new TDM(c);
+			if (base.equals(GameTypeFFA.ID))
+				gt = new GameTypeFFA(c);
+			else if (base.equals(GameTypeKOTH.ID))
+				gt = new GameTypeKOTH(c);
+			else if (base.equals(GameTypeTDM.ID))
+				gt = new GameTypeTDM(c);
 			else
 				continue;
 			
@@ -306,8 +324,15 @@ public class TacoWar extends TacoPlugin {
 		return _game;
 	}
 	
-	public static void startNewGame() {
+	public static boolean gameRunning() {
+		return _game == null || _game.isRunning();
+	}
+	
+	public static boolean startNewGame() {
+		if (_game.isRunning())
+			return false;
 		_game = new Game();
+		return true;
 	}
 	
 }

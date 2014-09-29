@@ -9,8 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 
 import com.kill3rtaco.war.TW;
-import com.kill3rtaco.war.game.player.WarKit;
 import com.kill3rtaco.war.game.player.WarPlayer;
+import com.kill3rtaco.war.game.player.kit.WarKit;
 
 public class WarPlayerList implements Iterable<WarPlayer> {
 	

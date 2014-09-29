@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.kill3rtaco.war.game.GameType;
-import com.kill3rtaco.war.game.player.WarKit;
+import com.kill3rtaco.war.game.player.kit.WarKit;
 
 public class PlaylistEntry {
 

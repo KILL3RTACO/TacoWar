@@ -18,6 +18,9 @@ import org.bukkit.util.Vector;
 import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
 import com.kill3rtaco.war.game.kill.PlayerDamage;
+import com.kill3rtaco.war.game.player.kit.Food;
+import com.kill3rtaco.war.game.player.kit.WarKit;
+import com.kill3rtaco.war.game.player.weapon.Weapon;
 
 public class WarPlayer {
 	

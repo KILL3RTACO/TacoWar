@@ -458,7 +458,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 	}
 	
 	//the origin should be at a corner
-	public void launcCelebratoryRocket() {
+	public void launchCelebratoryRocket() {
 		int deltaX = getInt(KEY_SIZE_X, 0);
 		int deltaZ = getInt(KEY_SIZE_Z, 0);
 		

@@ -1,8 +1,10 @@
-package com.kill3rtaco.war.game.player.weapon;
+package com.kill3rtaco.war.game.player.weapon.internal;
 
 import java.util.Arrays;
 
 import org.bukkit.Material;
+
+import com.kill3rtaco.war.game.player.weapon.InternalWeapon;
 
 public class WeaponRocketLauncher extends InternalWeapon {
 

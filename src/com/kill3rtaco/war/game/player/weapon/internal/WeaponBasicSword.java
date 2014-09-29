@@ -1,6 +1,8 @@
-package com.kill3rtaco.war.game.player.weapon;
+package com.kill3rtaco.war.game.player.weapon.internal;
 
 import org.bukkit.Material;
+
+import com.kill3rtaco.war.game.player.weapon.InternalWeapon;
 
 public class WeaponBasicSword extends InternalWeapon {
 	

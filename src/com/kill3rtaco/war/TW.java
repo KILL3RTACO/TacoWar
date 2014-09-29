@@ -284,7 +284,17 @@ public class TW {
 				player.getLocation().clone().add(0, 1, 0).getBlock().getType() != Material.AIR;
 	}
 	
-	public static FireworkEffect getWaypointEffect(Color color) {
+	public static FireworkEffect getEmptyHillWaypointEffect() {
+		FireworkEffect.Builder fw = FireworkEffect.builder();
+		
+		fw.withTrail();
+		fw.withFade(Color.GRAY);
+		fw.with(Type.BURST);
+		
+		return fw.build();
+	}
+	
+	public static FireworkEffect getHillWaypointEffect(Color color) {
 		FireworkEffect.Builder fw = FireworkEffect.builder();
 		
 		fw.withTrail();

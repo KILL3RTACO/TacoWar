@@ -1,4 +1,4 @@
-package com.kill3rtaco.war.game.player;
+package com.kill3rtaco.war.game.player.kit;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +10,7 @@ import org.bukkit.enchantments.Enchantment;
 import com.kill3rtaco.tacoapi.api.serialization.EnchantmentSerialization;
 import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.TacoWar;
+import com.kill3rtaco.war.game.player.weapon.Weapon;
 import com.kill3rtaco.war.util.Identifyable;
 import com.kill3rtaco.war.util.ValidatedConfig;
 import com.kill3rtaco.war.util.WarCloneable;

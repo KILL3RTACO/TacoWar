@@ -1,4 +1,4 @@
-package com.kill3rtaco.war.game.player;
+package com.kill3rtaco.war.game.player.kit;
 
 import java.util.Arrays;
 import java.util.List;

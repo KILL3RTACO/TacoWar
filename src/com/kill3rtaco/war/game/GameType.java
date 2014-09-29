@@ -9,21 +9,21 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.kill3rtaco.war.game.player.WarPlayer;
-import com.kill3rtaco.war.game.types.FFA;
-import com.kill3rtaco.war.game.types.KOTH;
-import com.kill3rtaco.war.game.types.TDM;
+import com.kill3rtaco.war.game.types.GameTypeFFA;
+import com.kill3rtaco.war.game.types.GameTypeKOTH;
+import com.kill3rtaco.war.game.types.GameTypeTDM;
 import com.kill3rtaco.war.util.Identifyable;
 import com.kill3rtaco.war.util.ValidatedConfig;
 
 public abstract class GameType extends ValidatedConfig implements Identifyable {
-
+	
 	public static final int			TDM							= 1;
 	public static final int			FFA							= 1 << 1;
 	public static final int			KOTH						= 1 << 2;
 //	public static final int HAS = 1 << 3;
 //	public static final int INF = 1 << 4;
 	public static final String		KEY_AUTHOR					= "author";
-
+	
 	public static final String		KEY_BASE_TYPE				= "gametype";
 	public static final String		KEY_FORCE_KIT				= "force_kit";
 	public static final String		KEY_ID						= "id";
@@ -36,40 +36,42 @@ public abstract class GameType extends ValidatedConfig implements Identifyable {
 	public static final String		KEY_PLAYER_SPEED			= "player.speed";			//percent
 	public static final String		KEY_TEAMS_ENABLED			= "teams_enabled";
 	public static final String		KEY_TIME_LIMIT				= "time_limit";
-
+	
 	public static final int			DEF_PENALTY_FRIENDLY_FIRE	= -1;
 	public static final int			DEF_PENALTY_SUICIDE			= 0;
 	public static final int			DEF_PLAYER_SPEED			= 100;
 	public static final int			DEF_MAX_HEALTH				= 20;
 	public static final int			DEF_TIME_LIMIT				= 0;
 	public static final boolean		DEF_TEAMS_ENABLED			= true;
-
-	public static final GameType	freeForAll					= new FFA();
-	public static final GameType	teamDeathmatch				= new TDM();
-	public static final GameType	kingOfTheHill				= new KOTH();
-
+	
+	public static final GameType	freeForAll					= new GameTypeFFA();
+	public static final GameType	teamDeathmatch				= new GameTypeTDM();
+	public static final GameType	kingOfTheHill				= new GameTypeKOTH();
+	
 	protected int					_type						= 0;
-
+	
 	public GameType() {
 		this(getDefaults());
 	}
-
+	
 	public GameType(ConfigurationSection config) {
 		super(config);
 	}
-
+	
 	public String getId() {
 		return _config.getString(KEY_ID);
 	}
-
+	
 	public void reload() {}
-
+	
 	public abstract boolean onKill();
-
+	
 	public abstract void onMove(WarPlayer player, Location from, Location to);
-
+	
 	public abstract int getType();
-
+	
+	public abstract String getObjectiveMessage();
+	
 	public static int getGameType(String id) {
 		if (id.equalsIgnoreCase("ffa"))
 			return FFA;
@@ -79,7 +81,7 @@ public abstract class GameType extends ValidatedConfig implements Identifyable {
 			return KOTH;
 		return 0;
 	}
-
+	
 	public static ConfigurationSection getDefaults() {
 		YamlConfiguration config = new YamlConfiguration();
 		config.set(KEY_PENALTY_FRIENDLY_FIRE, DEF_PENALTY_FRIENDLY_FIRE);
@@ -90,11 +92,23 @@ public abstract class GameType extends ValidatedConfig implements Identifyable {
 		config.set(KEY_TEAMS_ENABLED, DEF_TEAMS_ENABLED);
 		return config;
 	}
-
+	
 	public static Integer[] randomOrderPreference() {
 		List<Integer> types = Arrays.asList(TDM, FFA, KOTH);
 		Collections.shuffle(types);
-		return types.toArray(new Integer[] {});
+		return types.toArray(new Integer[]{});
 	}
-
+	
+	public static String getGameTypeName(int gametype) {
+		switch (gametype) {
+			case FFA:
+				return GameTypeFFA.NAME;
+			case KOTH:
+				return GameTypeKOTH.NAME;
+			case TDM:
+				return GameTypeTDM.NAME;
+			default:
+				return "UNKNOWN";
+		}
+	}
 }

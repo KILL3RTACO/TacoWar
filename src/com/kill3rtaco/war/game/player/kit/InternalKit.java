@@ -1,6 +1,9 @@
 package com.kill3rtaco.war.game.player.kit;
 
-import com.kill3rtaco.war.game.player.WarKit;
+import com.kill3rtaco.war.game.player.kit.internal.KitDefault;
+import com.kill3rtaco.war.game.player.kit.internal.KitExplosiveWeapons;
+import com.kill3rtaco.war.game.player.kit.internal.KitRockets;
+import com.kill3rtaco.war.game.player.kit.internal.KitSilly;
 
 public abstract class InternalKit extends WarKit {
 	
