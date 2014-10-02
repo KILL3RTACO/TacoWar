@@ -26,12 +26,11 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 								_messageLobbySpawn;
 	private Location			_origin, _lobby;
 	private File				_file				= null;
-//	private List<String> _perms;
 	private long				_timeTicks;
 	private List<Teleporter>	_teleporters;
-	private int					_supportedGametypes	= 0;
 	private List<Spawnpoint>	_spawns;
 	private List<Hill>			_hills;
+	private List<Integer>		_supportedGameTypes;
 	
 	public static final String	KEY_AUTHOR			= "author";
 	public static final String	KEY_HILLS			= "hills";
@@ -74,6 +73,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 		_author = getString(KEY_AUTHOR, false);
 		_origin = getLocation(KEY_ORIGIN, false, true);
 		_lobby = getLocation(KEY_LOBBY, true, true);
+		_supportedGameTypes = new ArrayList<Integer>();
 		initSpawns();
 		initTeleporters();
 		initHills();
@@ -104,23 +104,22 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 			_spawns.add(sp);
 		}
 		
-		String firstTeamFound = "";
+		List<String> teamsFound = new ArrayList<String>();
 		for (Spawnpoint s : _spawns) {
 			if (s.appliesTo(GameType.FFA)) {
-				_supportedGametypes |= GameType.FFA;
+				_supportedGameTypes.add(GameType.FFA);
 				continue;
 			}
 			String team = s.getTeam();
 			if (!TW.validTeamId(team))
 				continue;
 			
-			if (firstTeamFound.isEmpty()) {
-				firstTeamFound = team;
-				continue;
-			}
-			if (!firstTeamFound.equalsIgnoreCase(team))
-				_supportedGametypes |= GameType.TDM;
+			if (!teamsFound.contains(team))
+				teamsFound.add(team);
 		}
+		
+		if (teamsFound.size() >= 2)
+			_supportedGameTypes.add(GameType.TDM);
 	}
 	
 	private void initTeleporters() {
@@ -148,7 +147,7 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 			_hills.add(h);
 		}
 		if (!_hills.isEmpty())
-			_supportedGametypes |= GameType.KOTH;
+			_supportedGameTypes.add(GameType.KOTH);
 	}
 	
 	private Teleporter getTeleporter(String name) {
@@ -408,7 +407,9 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 	}
 	
 	public boolean gameTypeSupported(int gametype) {
-		return (_supportedGametypes & gametype) > 0;
+//		System.out.println("[DEBUG] -> _supportedGametypes: " + _supportedGameTypes);
+//		System.out.println("[DEBUG] -> gameTypeSupported? " + gametype + ": " + _supportedGameTypes.contains(gametype));
+		return _supportedGameTypes.contains(gametype);
 	}
 	
 	public boolean allGameTypesSupported() {
@@ -416,12 +417,11 @@ public class WarMap extends ValidatedConfig implements Identifyable {
 	}
 	
 	public Location getRandomSpawn(String team) {
-		if (TacoWar.currentGame().getGameType().getConfig().getBoolean(GameType.KEY_TEAMS_ENABLED))
+		if (!TacoWar.currentGame().getGameType().getConfig().getBoolean(GameType.KEY_TEAMS_ENABLED))
 			team = ""; //hack, players in ffa have a team id of their own name
 		ArrayList<Spawnpoint> locs = new ArrayList<Spawnpoint>();
 		for (Spawnpoint s : _spawns) {
-			if ((s.getTeam() == null || s.getTeam().isEmpty() || s.getTeam().equals(team))
-					&& s.appliesTo(TacoWar.currentGame().getGameType().getType()))
+			if (s.appliesTo(TacoWar.currentGame().getGameType().getType(), team))
 				locs.add(s);
 		}
 		if (locs.isEmpty())

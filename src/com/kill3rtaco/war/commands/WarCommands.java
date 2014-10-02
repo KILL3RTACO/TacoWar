@@ -20,9 +20,9 @@ public class WarCommands {
 	@Command(name = "", desc = "Leave or join the queue")
 	public static void emptyArgs(CommandContext context) {
 		if (TacoWarQueue.toggle(context.getPlayerName())) {
-			context.sendMessageToSender("&aYou have been &eadded &eto the War Queue");
+			context.sendMessageToSender("&aYou have been &eadded &ato the War Queue");
 		} else {
-			context.sendMessageToSender("&aYou have been &cremoved &efrom the War Queue");
+			context.sendMessageToSender("&aYou have been &cremoved &afrom the War Queue");
 		}
 	}
 	
@@ -88,8 +88,12 @@ public class WarCommands {
 			return;
 		}
 		WarKit kit = TacoWar.getKit(context.getString(0));
+		if (kit == null) {
+			context.sendMessageToSender("&cKit with the id &e" + context.getString(0) + " &cnot found");
+			return;
+		}
 		TacoWar.currentGame().setKit(kit, false);
-		context.sendMessageToSender("&aGameType set to &e" + kit.getId());
+		context.sendMessageToSender("&aKit set to &e" + kit.getId());
 	}
 	
 	@ParentCommand("war")
@@ -120,7 +124,7 @@ public class WarCommands {
 			MapVoteSession.end();
 			game.getPlayers().broadcast("&eAdmin choese the map");
 		}
-		game.spawnAtMapLobby();
+		game.spawnAtMapLobby(true);
 	}
 	
 	public static void newGame(CommandContext context) {

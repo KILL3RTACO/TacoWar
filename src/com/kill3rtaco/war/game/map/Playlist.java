@@ -81,6 +81,10 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		
 	}
 	
+	public void setCurrentMap(WarMap map) {
+		_currentMap = map;
+	}
+	
 	private List<GameType> getGameTypesFromList(List<String> ids) {
 		if (ids.size() == 1 && ids.get(0).equalsIgnoreCase("none")) {
 			return _genericGameTypes = new ArrayList<GameType>();
@@ -111,54 +115,52 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		return _maps.isEmpty();
 	}
 	
-	//selectMap()
-	//selectGameType() - based on map, fails if map not selected
-	
-	public WarMap selectMap(int playerCount) {
-		List<WarMap> maps = getMaps();
-		if (maps.isEmpty()) {
-			_currentMap = null;
-			return null;
-		}
-		List<WarMap> available = new ArrayList<WarMap>();
-		for (WarMap m : maps) {
-			if (m.canHoldPlayers(playerCount))
-				available.add(m);
-		}
-		_currentMap = available.get(new Random().nextInt(available.size()));
-		return _currentMap;
-	}
-	
-	public WarMap getCurrentMap() {
-		return _currentMap;
-	}
-	
 	public GameType selectGameType() {
-		if (_currentMap == null) {
+//		System.out.println("[DEBUG] -> _currentMap == null: " + (_currentMap == null));
+		if (_currentMap == null)
 			return null;
+		List<GameType> gameTypes = new ArrayList<GameType>();
+		for (PlaylistEntry e : _maps) {
+			if (e.getMap() == _currentMap && !e.getGameTypes().isEmpty())
+				gameTypes = e.getGameTypes();
 		}
-		List<GameType> gameTypes = _maps.get(_maps.indexOf(new PlaylistEntry(_currentMap))).getGameTypes();
-		if (gameTypes == null || gameTypes.isEmpty()) {
+		List<GameType> types = new ArrayList<GameType>(gameTypes);
+		types.addAll(_genericGameTypes);
+		List<GameType> available = new ArrayList<GameType>();
+		for (GameType gt : types) {
+			if (_currentMap.gameTypeSupported(gt.getType()))
+				available.add(gt);
+		}
+		if (available.isEmpty()) {
 			_currentGameType = null;
 			return null;
 		}
-		List<GameType> available = new ArrayList<GameType>(gameTypes);
-		available.addAll(_genericGameTypes);
+		if (available.size() == 1) {
+			_currentGameType = available.get(0);
+			return _currentGameType;
+		}
 		_currentGameType = available.get(new Random().nextInt(available.size()));
 		return _currentGameType;
 	}
 	
 	public WarKit selectKit() {
-		if (_currentMap == null) {
-			return null;
+		List<WarKit> kits = new ArrayList<WarKit>();
+		for (PlaylistEntry e : _maps) {
+			if (e.getMap() == _currentMap && !e.getKits().isEmpty())
+				kits = e.getKits();
 		}
-		List<WarKit> kits = _maps.get(_maps.indexOf(new PlaylistEntry(_currentMap))).getKits();
-		if (kits == null || kits.isEmpty()) {
+//		System.out.println("[DEBUG] -> kits.size(): " + kits.size());
+		List<WarKit> available = new ArrayList<WarKit>(kits);
+		available.addAll(_genericKits);
+//		System.out.println("[DEBUG] -> available.size(): " + available.size());
+		if (available.isEmpty()) {
 			_currentKit = null;
 			return null;
 		}
-		List<WarKit> available = new ArrayList<WarKit>(kits);
-		available.addAll(_genericKits);
+		if (available.size() == 1) {
+			_currentKit = available.get(0);
+			return _currentKit;
+		}
 		_currentKit = available.get(new Random().nextInt(available.size()));
 		return _currentKit;
 	}
@@ -171,8 +173,17 @@ public class Playlist extends ValidatedConfig implements Identifyable {
 		return maps;
 	}
 	
-	public List<WarMap> getMaps(int amount) {
-		List<WarMap> maps = new ArrayList<WarMap>(getMaps());
+	public List<WarMap> getMapsForPlayercount(int playercount) {
+		List<WarMap> maps = new ArrayList<WarMap>();
+		for (WarMap m : getMaps()) {
+			if (m.canHoldPlayers(playercount))
+				maps.add(m);
+		}
+		return maps;
+	}
+	
+	public List<WarMap> getMaps(int amount, int playercount) {
+		List<WarMap> maps = new ArrayList<WarMap>(getMapsForPlayercount(playercount));
 		List<WarMap> avail = new ArrayList<WarMap>();
 		for (int i = 0; i < amount; i++) {
 			if (maps.isEmpty())

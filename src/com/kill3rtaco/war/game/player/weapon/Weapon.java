@@ -73,8 +73,8 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 		super(config);
 	}
 	
-	private void setMetadata(Metadatable entity) {
-		entity.setMetadata(METADATA_KEY, new FixedMetadataValue(TacoWar.plugin, this));
+	public static void setMetadata(Metadatable entity, Weapon from) {
+		entity.setMetadata(METADATA_KEY, new FixedMetadataValue(TacoWar.plugin, from));
 		if (entity instanceof Arrow)
 			entity.setMetadata(METADATA_FIRE_FROM_KEY, new FixedMetadataValue(TacoWar.plugin, ((Arrow) entity).getLocation()));
 	}
@@ -207,6 +207,10 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 		setAmmo(_ammo - amount);
 	}
 	
+	public void onUse() {
+		onUse(_holder.getTargetBlock(500).getLocation());
+	}
+	
 	public void onUse(Location looking) {
 		if (doLocationEvents(KEY_ON_USE, looking))
 			decrementAmmo();
@@ -279,7 +283,7 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 		if (isEffect)
 			location.getWorld().strikeLightningEffect(location);
 		else
-			setMetadata(location.getWorld().strikeLightning(location));
+			setMetadata(location.getWorld().strikeLightning(location), this);
 		return true;
 	}
 	
@@ -310,7 +314,7 @@ public class Weapon extends ValidatedConfig implements Identifyable, WarCloneabl
 	private boolean projectile(String event, String action, Class<? extends Projectile> projectile) {
 		if (!hasAction(event, action))
 			return false;
-		setMetadata(_holder.getBukkitPlayer().launchProjectile(projectile));
+		setMetadata(_holder.getBukkitPlayer().launchProjectile(projectile), this);
 		return true;
 	}
 	

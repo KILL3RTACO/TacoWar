@@ -66,7 +66,7 @@ public class TacoWarQueue {
 	
 	private static boolean isOnline(String name) {
 		Player p = Bukkit.getPlayer(name);
-		return p == null || !p.isOnline();
+		return p != null && p.isOnline();
 	}
 	
 	public static String remove(String str) {

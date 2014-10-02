@@ -20,6 +20,7 @@ import com.kill3rtaco.war.commands.PlaylistCreationCommands;
 import com.kill3rtaco.war.commands.WarCommands;
 import com.kill3rtaco.war.commands.WeaponCreationCommands;
 import com.kill3rtaco.war.game.Game;
+import com.kill3rtaco.war.game.GameListener;
 import com.kill3rtaco.war.game.GameType;
 import com.kill3rtaco.war.game.map.Playlist;
 import com.kill3rtaco.war.game.map.WarMap;
@@ -49,7 +50,7 @@ public class TacoWar extends TacoPlugin {
 	@Override
 	public void onStart() {
 		plugin = this;
-		chat = new ChatObject("&9TacoWar");
+		chat = new ChatObject("TacoWar");
 		config = new TacoWarConfig(new File(TW.DATA_FOLDER + "/config.yml"));
 		reloadWeapons();
 		reloadKits(); //relies on weapons
@@ -62,14 +63,22 @@ public class TacoWar extends TacoPlugin {
 		_commands.reg(KitCreationCommands.class);
 		_commands.reg(WeaponCreationCommands.class);
 		_commands.reg(PlaylistCreationCommands.class);
+		registerEvents(new GameListener());
 		new BukkitRunnable() {
 			
 			@Override
 			public void run() {
-				TacoWar.startNewGame();
+//				System.out.println("[DEBUG] -> BukkitRunnable.run() called");
+//				System.out.println("[DEBUG] -> TacoWarQueue.playersOnline(): " + TacoWarQueue.playersOnline());
+//				System.out.println("[DEBUG] -> config.minPlayers(): " + config.getMinPlayers());
+//				System.out.println("[DEBUG] -> _maps.size(): " + _maps.size());
+				if (TacoWarQueue.playersOnline() >= config.getMinPlayers() && !_maps.isEmpty()) {
+//					System.out.println("[DEBUG] -> Game starting...");
+					TacoWar.startNewGame();
+				}
 			}
 			
-		}.runTaskLater(plugin, 2 * 60 * 20L);
+		}.runTaskLater(plugin, 45 * 20L); //45s
 	}
 	
 	@Override
@@ -104,7 +113,7 @@ public class TacoWar extends TacoPlugin {
 			
 			_gametypes.add(gt);
 		}
-		chat.out("[GameTypes] " + _gametypes.size() + " GameTypes loaded");
+		chat.out("[GameTypes] &a" + _gametypes.size() + " GameTypes loaded");
 	}
 	
 	public static void reloadMaps() {
@@ -118,7 +127,7 @@ public class TacoWar extends TacoPlugin {
 			
 			_maps.add(m);
 		}
-		chat.out("[Maps] " + _maps.size() + " Maps loaded");
+		chat.out("[Maps] &a" + _maps.size() + " Maps loaded");
 	}
 	
 	public static void reloadWeapons() {
@@ -142,7 +151,7 @@ public class TacoWar extends TacoPlugin {
 			
 			_weapons.add(w);
 		}
-		chat.out("[Weapons] " + _weapons.size() + " Weapons loaded");
+		chat.out("[Weapons] &a" + _weapons.size() + " Weapons loaded");
 	}
 	
 	public static void reloadKits() {
@@ -160,12 +169,12 @@ public class TacoWar extends TacoPlugin {
 			
 			_kits.add(k);
 		}
-		chat.out("[Kits] " + _maps.size() + " Kits loaded");
+		chat.out("[Kits] &a" + _kits.size() + " Kits loaded");
 	}
 	
 	public static void reloadPlaylists() {
 		_playlists = new ArrayList<Playlist>();
-		chat.out("[Maps] Reloading Playlists...");
+		chat.out("[Playlist] Reloading Playlists...");
 		_playlists.add(new PlaylistDefault());
 		List<ConfigurationSection> configs = getConfigsInDirectory(TW.PL_FOLDER);
 		for (ConfigurationSection c : configs) {
@@ -175,7 +184,7 @@ public class TacoWar extends TacoPlugin {
 			
 			_playlists.add(pl);
 		}
-		chat.out("[Playlist] " + _maps.size() + " Playlists loaded");
+		chat.out("[Playlist] &a" + _maps.size() + " Playlists loaded");
 	}
 	
 	public static GameType getGameType(String id) {
@@ -276,7 +285,7 @@ public class TacoWar extends TacoPlugin {
 	
 	public static <T extends Identifyable> T getIdentifyable(List<T> list, String id) {
 		for (T t : list) {
-			if (t.getId().equals(id)) {
+			if (t != null && t.getId().equals(id)) {
 				return t;
 			}
 		}
@@ -305,6 +314,8 @@ public class TacoWar extends TacoPlugin {
 	}
 	
 	private static List<ConfigurationSection> getConfigsInDirectory(File dir) {
+		if (!dir.exists())
+			dir.mkdirs();
 		FilenameFilter filter = new FilenameFilter() {
 			
 			@Override
@@ -325,11 +336,11 @@ public class TacoWar extends TacoPlugin {
 	}
 	
 	public static boolean gameRunning() {
-		return _game == null || _game.isRunning();
+		return _game != null && _game.isRunning();
 	}
 	
 	public static boolean startNewGame() {
-		if (_game.isRunning())
+		if (gameRunning())
 			return false;
 		_game = new Game();
 		return true;

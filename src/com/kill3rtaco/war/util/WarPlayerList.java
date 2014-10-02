@@ -10,6 +10,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import com.kill3rtaco.war.TW;
 import com.kill3rtaco.war.game.player.WarPlayer;
+import com.kill3rtaco.war.game.player.WarPlayer.PlayMode;
 import com.kill3rtaco.war.game.player.kit.WarKit;
 
 public class WarPlayerList implements Iterable<WarPlayer> {
@@ -106,4 +107,9 @@ public class WarPlayerList implements Iterable<WarPlayer> {
 		return _players.iterator();
 	}
 	
+	public void setPlayMode(PlayMode mode) {
+		for (WarPlayer p : _players) {
+			p.setPlayMode(mode);
+		}
+	}
 }

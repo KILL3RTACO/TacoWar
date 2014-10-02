@@ -3,11 +3,14 @@ package com.kill3rtaco.war.game.player;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -23,6 +26,11 @@ import com.kill3rtaco.war.game.player.kit.WarKit;
 import com.kill3rtaco.war.game.player.weapon.Weapon;
 
 public class WarPlayer {
+	
+	public enum PlayMode {
+		PLAY,
+		SPECTATE;
+	}
 	
 	private String				_name;
 	private WarTeam				_team;
@@ -108,10 +116,17 @@ public class WarPlayer {
 		inv.setLeggings(getArmorPiece(Material.LEATHER_LEGGINGS));
 		inv.setBoots(getArmorPiece(Material.LEATHER_BOOTS));
 		
-		inv.getHelmet().addUnsafeEnchantments(_kit.getHelmetEnchants());
-		inv.getChestplate().addUnsafeEnchantments(_kit.getChestplateEnchants());
-		inv.getLeggings().addUnsafeEnchantments(_kit.getLeggingEnchants());
-		inv.getBoots().addUnsafeEnchantments(_kit.getBootEnchants());
+		addArmorEnchants(inv.getHelmet(), _kit.getHelmetEnchants());
+		addArmorEnchants(inv.getChestplate(), _kit.getChestplateEnchants());
+		addArmorEnchants(inv.getLeggings(), _kit.getLeggingEnchants());
+		addArmorEnchants(inv.getBoots(), _kit.getBootEnchants());
+	}
+	
+	private void addArmorEnchants(ItemStack armor, Map<Enchantment, Integer> enchants) {
+		if (enchants == null || enchants.isEmpty())
+			return;
+		
+		armor.addUnsafeEnchantments(enchants);
 	}
 	
 	private ItemStack getArmorPiece(Material leatherArmor) {
@@ -143,6 +158,7 @@ public class WarPlayer {
 				if (currentSlot > 8)
 					return;
 				inv.setItem(currentSlot++, w.asItem());
+				w.setHolder(this);
 			}
 			for (Food f : _kit.getFood()) {
 				if (currentSlot > 8)
@@ -178,15 +194,30 @@ public class WarPlayer {
 	public void sendMessage(String message) {
 		Player p = getBukkitPlayer();
 		if (p != null)
-			TacoWar.chat.sendPlayerMessage(p, message);
+			TacoWar.chat.sendPlayerMessageNoHeader(p, message);
+	}
+	
+	public void setPlayMode(PlayMode mode) {
+		Player p = getBukkitPlayer();
+		if (p == null)
+			return;
+		
+		boolean flight = false;
+		if (mode == PlayMode.SPECTATE)
+			flight = true;
+		p.setGameMode(GameMode.ADVENTURE);
+		p.setAllowFlight(flight);
 	}
 	
 	public void respawn() {
+		setPlayMode(PlayMode.PLAY);
 		teleport(TacoWar.currentGame().getMap().getRandomSpawn(_team));
 		setKit(TacoWar.currentGame().getKit());
 	}
 	
 	public void teleport(Location location) {
+		if (location == null)
+			throw new IllegalArgumentException("location cannot be null");
 		Player p = getBukkitPlayer();
 		if (p == null)
 			return;
@@ -238,17 +269,15 @@ public class WarPlayer {
 		Player p = getBukkitPlayer();
 		Weapon w = getHeldWeapon();
 		if (p != null) {
-			int ammo = w.getAmmo();
+			int ammo = (w != null ? w.getAmmo() : 0);
 			int level = 0;
 			if (ammo < 0) {
 				level = 999;
-			} else if (ammo == 0) {
-				level = 0;
 			} else {
 				level = ammo;
 			}
 			p.setLevel(level);
-			if (w.asItem().getType() == Material.BOW) {
+			if (w != null && w.asItem().getType() == Material.BOW) {
 				int slot = _kit.slotOf(w.getId());
 				int amount = w.getAmmo();
 				if (amount < 0)

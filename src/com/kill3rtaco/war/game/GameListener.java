@@ -20,10 +20,13 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
@@ -41,11 +44,10 @@ public class GameListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	//detect whether player should be teleported due to teleporter
 	public void onMove(PlayerMoveEvent event) {
-		Game game = TacoWar.currentGame();
-		if (game == null || !game.isRunning()) { //only continue if game in progress
+		if (!TacoWar.gameRunning())
 			return;
-		}
-		org.bukkit.entity.Player player = event.getPlayer();
+		Game game = TacoWar.currentGame();
+		Player player = event.getPlayer();
 		if (player.getWorld() != TacoWar.config.getWarWorld()) { //only continue if it happened on the war world
 			return;
 		}
@@ -77,11 +79,10 @@ public class GameListener implements Listener {
 	@EventHandler
 	//update attackers on players, will be used for possible multi-kill and kill assist system
 	public void onPlayerDamagePlayer(EntityDamageByEntityEvent event) {
+		if (!TacoWar.gameRunning())
+			return;
 		Game game = TacoWar.currentGame();
 		GameType gametype = game.getGameType();
-		if (game == null || !game.isRunning()) { //only continue if game in progress
-			return;
-		}
 		AttackInfo info = new AttackInfo(event);
 		if (info.getAttackerAsPlayer() == null || info.getVictimAsPlayer() == null) {
 			return;
@@ -183,9 +184,6 @@ public class GameListener implements Listener {
 	//set to highest to prevent Essentials or Multiverse handling respawn
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onRespawn(PlayerRespawnEvent event) {
-		if (event.getPlayer().getWorld() != TacoWar.config.getWarWorld()) {
-			return;
-		}
 		Game game = TacoWar.currentGame();
 		if (game != null && game.isRunning()) {
 			WarPlayer player = game.getPlayers().get(event.getPlayer());
@@ -203,7 +201,18 @@ public class GameListener implements Listener {
 	}
 	
 	@EventHandler
+	public void onWeaponSwitch(PlayerItemHeldEvent event) {
+		if (!TacoWar.gameRunning())
+			return;
+		WarPlayer player = TacoWar.currentGame().getPlayers().get(event.getPlayer());
+		if (player != null)
+			player.updateAmmoCount();
+	}
+	
+	@EventHandler
 	public void onWeaponUse(PlayerInteractEvent event) {
+		if (!TacoWar.gameRunning())
+			return;
 		WarPlayer player = TacoWar.currentGame().getPlayers().get(event.getPlayer());
 		if (player == null)
 			return;
@@ -224,9 +233,15 @@ public class GameListener implements Listener {
 		}
 		if (location == null)
 			location = player.getTargetBlock(500).getLocation();
-		if (player.getHeldWeapon() != null)
-			player.getHeldWeapon().onUse(location);
-		event.setCancelled(true);
+//		System.out.println("[DEBUG] -> Looking: " + location);
+//		System.out.println("[DEBUG] -> heldWeapon == null: " + (player.getHeldWeapon() == null));
+		Weapon held = player.getHeldWeapon();
+		if (held != null) {
+			held.onUse(location);
+			player.updateAmmoCount();
+			if (held.asItem().getType() != Material.BOW)
+				event.setCancelled(true);
+		}
 	}
 	
 	@EventHandler
@@ -238,13 +253,17 @@ public class GameListener implements Listener {
 	@EventHandler
 	public void onTntPlace(BlockPlaceEvent event) {
 		Block block = event.getBlock();
-		if (block.getWorld() != TacoWar.config.getWarWorld() || block.getType() != Material.TNT)
+		if (block.getWorld() != TacoWar.config.getWarWorld())
 			return;
 		
-		block.setType(Material.AIR);
-		TNTPrimed tnt = ((TNTPrimed) block.getWorld().spawnEntity(block.getLocation(), EntityType.PRIMED_TNT));
-		tnt.setIsIncendiary(false);
-		tnt.setFuseTicks(tnt.getFuseTicks() + 5);
+		if (block.getType() != Material.TNT) {
+			block.setType(Material.AIR);
+			TNTPrimed tnt = ((TNTPrimed) block.getWorld().spawnEntity(block.getLocation(), EntityType.PRIMED_TNT));
+			tnt.setIsIncendiary(false);
+			tnt.setFuseTicks(tnt.getFuseTicks() + 5);
+		} else {
+			event.setCancelled(true);
+		}
 	}
 	
 	@EventHandler
@@ -258,13 +277,35 @@ public class GameListener implements Listener {
 	}
 	
 	@EventHandler
+	public void onProjectileLaunch(ProjectileLaunchEvent event) {
+		if (!TacoWar.gameRunning())
+			return;
+		Projectile projectile = event.getEntity();
+		if (!(projectile.getShooter() instanceof Player))
+			return;
+		Player shooter = (Player) projectile.getShooter();
+		WarPlayer player = TacoWar.currentGame().getPlayers().get(shooter);
+		if (player == null)
+			return;
+		Weapon held = player.getHeldWeapon();
+		if (held == null)
+			return;
+		
+		//only do this for bows, as the Weapon instance does not actually fire the arrow
+		if (held.asItem().getType() == Material.BOW)
+			Weapon.setMetadata(projectile, held);
+	}
+	
+	@EventHandler
 	public void onProjectileHit(ProjectileHitEvent event) {
 		Projectile projectile = event.getEntity();
 		if (!projectile.hasMetadata(Weapon.METADATA_KEY))
 			return;
+		System.out.println("[DEBUG] -> projectile has metadata");
 		Weapon firedFrom = (Weapon) projectile.getMetadata(Weapon.METADATA_KEY).get(0).value();
 		if (firedFrom == null)
 			return;
+		System.out.println("[DEBUG] -> firedFrom not null");
 		projectile.setBounce(false);
 		firedFrom.onProjectileHit(projectile.getLocation());
 	}
@@ -297,7 +338,17 @@ public class GameListener implements Listener {
 	}
 	
 	@EventHandler
+	public void onInventoryClick(InventoryClickEvent event) {
+		if (!TacoWar.gameRunning())
+			return;
+		if (TacoWar.currentGame().isPlaying(event.getWhoClicked().getName()))
+			event.setCancelled(true);
+	}
+	
+	@EventHandler
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
+		if (!TacoWar.gameRunning())
+			return;
 		if (TacoWar.currentGame().isPlaying(event.getPlayer()))
 			event.setCancelled(true);
 	}

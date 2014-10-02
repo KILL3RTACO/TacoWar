@@ -1,5 +1,7 @@
 package com.kill3rtaco.war.game.map.playlist;
 
+import java.util.ArrayList;
+
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.kill3rtaco.war.TacoWar;
@@ -17,6 +19,8 @@ public class PlaylistDefault extends Playlist {
 	}
 	
 	public void reload() {
+		set(KEY_ID, ID);
+		_maps = new ArrayList<PlaylistEntry>();
 		for (WarMap m : TacoWar.getMaps()) {
 			_maps.add(new PlaylistEntry(m));
 		}

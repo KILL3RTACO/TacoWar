@@ -1,5 +1,7 @@
 package com.kill3rtaco.war.game.player.kit;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,10 +52,18 @@ public class WarKit extends ValidatedConfig implements Identifyable, WarCloneabl
 		_name = getString(KEY_NAME, true);
 		loadWeapons();
 		loadFood();
-		_helmetEnchants = EnchantmentSerialization.getEnchantments(getString(KEY_ENCHANTS_HEAD, false));
-		_chestplateEnchants = EnchantmentSerialization.getEnchantments(getString(KEY_ENCHANTS_CHEST, false));
-		_leggingEnchants = EnchantmentSerialization.getEnchantments(getString(KEY_ENCHANTS_LEGS, false));
-		_bootEnchants = EnchantmentSerialization.getEnchantments(getString(KEY_ENCHANTS_FEET, false));
+		loadEnchants(_helmetEnchants, KEY_ENCHANTS_HEAD);
+		loadEnchants(_chestplateEnchants, KEY_ENCHANTS_CHEST);
+		loadEnchants(_leggingEnchants, KEY_ENCHANTS_LEGS);
+		loadEnchants(_bootEnchants, KEY_ENCHANTS_FEET);
+	}
+	
+	private void loadEnchants(Map<Enchantment, Integer> into, String key) {
+		String enchants = getString(key, false);
+		if (enchants == null)
+			into = new HashMap<Enchantment, Integer>();
+		else
+			into = EnchantmentSerialization.getEnchantments(enchants);
 	}
 	
 	//weapon list is distinct/unique
@@ -81,6 +91,7 @@ public class WarKit extends ValidatedConfig implements Identifyable, WarCloneabl
 	}
 	
 	private void loadFood() {
+		_food = new ArrayList<Food>();
 		List<String> ids = getStringList(KEY_FOOD, false);
 		for (String s : ids) {
 			if (s == null || s.isEmpty())
@@ -91,6 +102,8 @@ public class WarKit extends ValidatedConfig implements Identifyable, WarCloneabl
 			if (split.length > 1) {
 				try {
 					amount = Integer.parseInt(split[1]);
+					if (amount <= 0)
+						amount = 1;
 				} catch (NumberFormatException e) {}
 			}
 			addFood(new Food(foodMaterial, amount));
@@ -114,7 +127,7 @@ public class WarKit extends ValidatedConfig implements Identifyable, WarCloneabl
 	}
 	
 	public Weapon getWeapon(int slot) {
-		if (slot < 0 || _weapons.size() < slot)
+		if (slot < 0 || slot >= _weapons.size())
 			return null;
 		Weapon w = _weapons.get(slot);
 		if (w == null || w.getAmmo() == 0)

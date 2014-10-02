@@ -13,7 +13,7 @@ public class StartGameSoonTask extends BukkitRunnable {
 	
 	@Override
 	public void run() {
-		if (_timeLeft == 0) {
+		if (_timeLeft == -1) {
 			TacoWar.currentGame().start();
 			cancel();
 			return;
@@ -24,7 +24,7 @@ public class StartGameSoonTask extends BukkitRunnable {
 			if (bukkitPlayer == null)
 				continue;
 			bukkitPlayer.setLevel(_timeLeft);
-			bukkitPlayer.setExp((_totalTime - _timeLeft) / _totalTime);
+			bukkitPlayer.setExp((float) (_timeLeft / _totalTime));
 		}
 		_timeLeft--;
 	}

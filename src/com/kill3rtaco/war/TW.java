@@ -313,10 +313,17 @@ public class TW {
 		Random random = new Random();
 		FireworkEffect.Builder fw = FireworkEffect.builder();
 		
+		//effects
+		fw.trail(random.nextBoolean()).flicker(random.nextBoolean());
+		
+		//burst effect
+		fw.with(Type.values()[random.nextInt(Type.values().length)]);
+		
 		//colors
-		int colorDensity = random.nextInt(3) + 1;
+		int colorDensity = random.nextInt(2) + 2; //2 or 3 colors
 		for (int i = 0; i < colorDensity; i++) {
 			Color randColor = randomColor();
+//			System.out.println("[DEBUG] -> Color: " + randColor);
 			if (random.nextBoolean()) //regular
 				fw.withColor(randColor);
 			else
@@ -324,20 +331,13 @@ public class TW {
 				fw.withFade(randColor);
 		}
 		
-		//effects
-		fw.trail(random.nextBoolean());
-		fw.flicker(random.nextBoolean());
-		
-		//burst effect
-		fw.with(Type.values()[random.nextInt(Type.values().length)]);
-		
 		return fw.build();
 		
 	}
 	
 	public static Color randomColor() {
 		Random random = new Random();
-		return Color.fromRGB(random.nextInt(266), random.nextInt(266), random.nextInt(266));
+		return Color.fromRGB(random.nextInt(256), random.nextInt(256), random.nextInt(256));
 	}
 	
 	public static int getNearestDegree(double degree, double factor) {
